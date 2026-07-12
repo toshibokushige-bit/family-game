@@ -1110,13 +1110,18 @@ function nextFloor(){
   else if(S.floor===14 || S.floor===28) choices=["boss"];             // 14=まおう / 28=やみのまおう
   else if(S.floor===7 || S.floor===21) choices=["rest","shop","event"];
   else {
+    const hard = DIFF.key==="hard";
     const pool=["battle","battle","event"];
+    if(hard) pool.push("battle");                          // むずかしい: まものマスを ふやす
     const eliteFloor = stage===2 ? 17 : 4;
     const restFloor  = stage===2 ? 16 : 3;
     if(S.floor>=eliteFloor) pool.push("elite");
-    if(S.floor>=restFloor) pool.push("rest","shop");
+    if(S.floor>=restFloor){
+      pool.push("shop");
+      if(!hard || Math.random()<0.35) pool.push("rest");   // むずかしい: キャンプ(やすみ)マスを へらす
+    }
     choices = shuffle(pool).slice(0,3);
-    if(!choices.includes("battle") && Math.random()<.5) choices[0]="battle";
+    if(!choices.includes("battle") && (hard || Math.random()<.5)) choices[0]="battle";
     choices=[...new Set(choices)];
   }
   if(stage===2){
