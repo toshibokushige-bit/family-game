@@ -177,7 +177,13 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
 #p-portrait.healp{animation:pheal .6s;}
 @keyframes pheal{0%{box-shadow:0 0 0 0 rgba(90,212,106,.8);}100%{box-shadow:0 0 0 14px rgba(90,212,106,0);}}
 #p-info{flex:1; min-width:0;}
-#p-name{font-size:15px; margin-bottom:5px;}
+.p-name-row{display:flex; align-items:center; gap:8px; margin-bottom:5px;}
+#p-name{font-size:15px; flex:1; min-width:0;}
+#mech-help{
+  flex-shrink:0; width:22px; height:22px; padding:0; font-size:13px; line-height:1;
+  border-radius:50%; background:var(--panel2); border:1px solid var(--line); box-shadow:none;
+}
+#mech-help:hover{border-color:var(--gold); background:#2c3775; transform:none;}
 #energy-orb{
   width:56px; height:56px; border-radius:50%; flex-shrink:0;
   background:radial-gradient(circle at 35% 30%, #fff0b0, var(--energy) 55%, #b8860b);
@@ -337,15 +343,16 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
     <p class="title-note">
       レンジャーが たおしたはずの まおうが、そらたかくそびえる とうの ちょうじょうで ふっかつ!?<br>
       こんどは ひとりずつ、カードの ちからで とうに いどむ。<br>
-      カードを あつめ、じぶんだけの デッキを きたえ、14かいの ちょうじょうを めざせ!
+      カードを あつめ、じぶんだけの デッキを きたえ、まおうの——そして その うえの やみの とうを のぼれ!
     </p>
-    <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
-      <button onclick="startGame(true)" style="font-size:16px; padding:13px 30px;">やさしい ぼうけん</button>
-      <button onclick="startGame(false)" style="font-size:16px; padding:13px 30px; border-color:var(--gold);">ふつうの ぼうけん</button>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="startGame('easy')" style="font-size:16px; padding:13px 24px;">やさしい</button>
+      <button onclick="startGame('normal')" style="font-size:16px; padding:13px 24px; border-color:var(--gold);">ふつう</button>
+      <button onclick="startGame('hard')" style="font-size:16px; padding:13px 24px; border-color:var(--red);">むずかしい</button>
     </div>
-    <p class="small">やさしい：HP+10、てきが すこし よわくなるよ</p>
+    <p class="small">やさしい：HP+10、てきが よわい ／ むずかしい：てきが つよくなるが、ゴールドが たくさん もらえる</p>
     <div id="pass-row">
-      <input id="pass-input" maxlength="3" placeholder="あいことば">
+      <input id="pass-input" maxlength="4" placeholder="あいことば">
       <button onclick="enterPass()" style="font-size:13px; padding:8px 14px;">いれる</button>
     </div>
   </div>
@@ -367,7 +374,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
     <div id="player-zone">
       <div id="p-portrait"></div>
       <div id="p-info">
-        <div id="p-name"></div>
+        <div class="p-name-row"><span id="p-name"></span><button id="mech-help" onclick="showMechHelp()" title="とくぎの せつめい">?</button></div>
         <div class="hpbar" style="max-width:240px;"><div class="fill" id="p-hpfill"></div><div class="txt" id="p-hptxt"></div></div>
         <div class="statuses" id="p-statuses"></div>
       </div>
@@ -636,6 +643,16 @@ const CARDS = {
     desc:c=>`こうげきカードの ダメージが +${c.n}(1ヒットごと)。`},
   hyakuretsu:{ch:"kento",type:"atk",rar:"R",cost:3,name:"ひゃくれつけんぶ",v:{d:6,hits:3},vu:{d:8,hits:3},all:1,
     desc:c=>`てき ぜんたいに ${c.d}ダメージを ${c.hits}かい あたえる。`},
+  nusumi_ashi:{ch:"kento",type:"skl",rar:"C",cost:0,name:"ぬすみあし",v:{b:2,dr:1},vu:{b:4,dr:1},
+    desc:c=>`${c.b}ブロック。カードを ${c.dr}まい ひく。`},
+  kaiten_geri:{ch:"kento",type:"atk",rar:"U",cost:1,name:"かいてんげり",v:{d:5,hits:2,combo3:3},vu:{d:6,hits:2,combo3:4},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。このターン つかった カード3まいいじょうで +${c.combo3}(1ヒットごと)。`},
+  step_renshu:{ch:"kento",type:"skl",rar:"U",cost:1,name:"ステップれんしゅう",v:{e:1,pl:2},vu:{e:1,pl:3},
+    desc:c=>`気を ${c.e} えて、<b>コンボ</b>を ${c.pl} ふやす。`},
+  shippu_mode:{ch:"kento",type:"pow",rar:"U",cost:1,name:"しっぷうモード",v:{n:1},vu:{n:2},
+    desc:c=>`ターンかいしじ、<b>コンボ</b>を ${c.n} ふやす。`},
+  final_rush:{ch:"kento",type:"atk",rar:"R",cost:2,name:"ファイナルラッシュ",v:{dm:4},vu:{dm:5},all:1,ex:1,
+    desc:c=>`てき ぜんたいに <b>コンボ</b>×${c.dm}の ダメージ。<b>しょうめつ</b>。`},
 
   /* --- たいち (はつめい) --- */
   spanner:{ch:"taichi",type:"atk",rar:"S",cost:1,name:"スパナのいちげき",v:{d:6},vu:{d:9},
@@ -662,6 +679,16 @@ const CARDS = {
     desc:c=>`ターンかいしじ、<b>はつめい</b>を ${c.w} える。`},
   daibakuhatsu:{ch:"taichi",type:"atk",rar:"R",cost:3,name:"だいばくはつ",v:{d:18,vn:2},vu:{d:24,vn:3},
     desc:c=>`${c.d}ダメージ。ぜいじゃく${c.vn}を あたえる。`},
+  bakuhatsu_nut:{ch:"taichi",type:"atk",rar:"C",cost:0,name:"ばくはつナット",v:{d:3,w:1},vu:{d:5,w:1},
+    desc:c=>`${c.d}ダメージ。<b>はつめい</b>を ${c.w} える。`},
+  kaizo_kyoka:{ch:"taichi",type:"skl",rar:"C",cost:1,name:"かいぞうきょうか",v:{b:6,w:1},vu:{b:9,w:1},
+    desc:c=>`${c.b}ブロック。<b>はつめい</b>を ${c.w} える。`},
+  jido_barrier:{ch:"taichi",type:"skl",rar:"U",cost:2,name:"じどうバリア",v:{b:8,wb:1},vu:{b:11,wb:1},
+    desc:c=>`${c.b}+<b>はつめい</b>×${c.wb}の ブロック。`},
+  drone:{ch:"taichi",type:"pow",rar:"U",cost:2,name:"ドローンよびだし",v:{dmul:1,dadd:0},vu:{dmul:1,dadd:2},
+    desc:c=>`ターンかいしじ、ランダムな てきに <b>はつめい</b>×${c.dmul}${c.dadd?`+${c.dadd}`:""}の ダメージ。`},
+  megaton_bomb:{ch:"taichi",type:"atk",rar:"R",cost:3,name:"メガトンばくだん",v:{wall:6},vu:{wall:7},ex:1,
+    desc:c=>`<b>はつめい</b>×${c.wall}の ダメージ。はつめいを 0に する。<b>しょうめつ</b>。`},
 
   /* --- のぞみ (おんぷ) --- */
   dance_attack:{ch:"nozomi",type:"atk",rar:"S",cost:1,name:"ダンシングアタック",v:{d:6},vu:{d:9},
@@ -692,6 +719,16 @@ const CARDS = {
     desc:c=>`${c.d}ダメージ。<b>しょうめつ</b>。`},
   star_utahime:{ch:"nozomi",type:"pow",rar:"R",cost:2,name:"スターうたひめ",v:{n:2},vu:{n:3},
     desc:c=>`ターンかいしじ、<b>おんぷ</b>を 1 えて HPを ${c.n-1} かいふくする。`},
+  rinsho:{ch:"nozomi",type:"skl",rar:"C",cost:1,name:"りんしょう",v:{f:2,dr:1},vu:{f:3,dr:1},
+    desc:c=>`<b>おんぷ</b>を ${c.f} えて、カードを ${c.dr}まい ひく。`},
+  vibrato:{ch:"nozomi",type:"atk",rar:"C",cost:1,name:"ビブラート",v:{d:6,fge:5},vu:{d:8,fge:6},
+    desc:c=>`${c.d}ダメージ。<b>おんぷ</b>が 3いじょうなら +${c.fge}。`},
+  maho_step:{ch:"nozomi",type:"skl",rar:"U",cost:1,name:"まほうのステップ",v:{b:5,f:1,dr:1},vu:{b:7,f:1,dr:1},
+    desc:c=>`${c.b}ブロック。<b>おんぷ</b>を ${c.f} えて、カードを ${c.dr}まい ひく。`},
+  audience:{ch:"nozomi",type:"pow",rar:"U",cost:2,name:"オーディエンス",v:{n:1},vu:{n:2},
+    desc:c=>`ターンしゅうりょうじ、<b>おんぷ</b>を ${c.n} える。`},
+  grand_finale:{ch:"nozomi",type:"atk",rar:"R",cost:3,name:"グランドフィナーレ",v:{fall:6},vu:{fall:7},all:1,ex:1,
+    desc:c=>`てき ぜんたいに <b>おんぷ</b>×${c.fall}の ダメージ。おんぷを ぜんぶ つかう。<b>しょうめつ</b>。`},
 
   /* --- えりか (ファンサ☆) --- */
   bunmawashi:{ch:"erika",type:"atk",rar:"S",cost:1,name:"ぶんまわし",v:{d:6},vu:{d:9},
@@ -722,6 +759,16 @@ const CARDS = {
     desc:c=>`ターンかいしじ、きんりょくを ${c.s} える。`},
   magnum_slash:{ch:"erika",type:"atk",rar:"R",cost:3,name:"マグナムスラッシュ",v:{d:20,cr:10},vu:{d:26,cr:12},ex:1,
     desc:c=>`${c.d}ダメージ。<b>ファンサ</b>りつ+${c.cr}%。<b>しょうめつ</b>。`},
+  ai_no_hakushu:{ch:"erika",type:"skl",rar:"C",cost:0,name:"あいのはくしゅ",v:{cr:6},vu:{cr:8},
+    desc:c=>`<b>ファンサ</b>りつ+${c.cr}%。`},
+  megane_kirari:{ch:"erika",type:"skl",rar:"C",cost:1,name:"メガネきらり",v:{wk:1,cr:3},vu:{wk:1,cr:5},all:1,
+    desc:c=>`てき ぜんたいに すいじゃく${c.wk}。<b>ファンサ</b>りつ+${c.cr}%。`},
+  cyalume_rain:{ch:"erika",type:"atk",rar:"U",cost:2,name:"サイリウムレイン",v:{d:6,cr:5},vu:{d:8,cr:6},all:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージ。<b>ファンサ</b>りつ+${c.cr}%。`},
+  kanko_chikara:{ch:"erika",type:"pow",rar:"U",cost:2,name:"かんこのちから",v:{critmul:2.5},vu:{critmul:3},
+    desc:c=>`<b>ファンサ</b>の ダメージが ${c.critmul}ばいに なる。`},
+  unmei_stage:{ch:"erika",type:"atk",rar:"R",cost:3,name:"うんめいのステージ",v:{d:12,hits:2,cr:8},vu:{d:15,hits:2,cr:10},ex:1,
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。<b>ファンサ</b>りつ+${c.cr}%。<b>しょうめつ</b>。`},
 
   /* --- ゆうし (ほろよい) --- */
   tsue_ichigeki:{ch:"yushi",type:"atk",rar:"S",cost:1,name:"つえのいちげき",v:{d:6},vu:{d:9},
@@ -748,6 +795,16 @@ const CARDS = {
     desc:c=>`ターンかいしじ、${c.b}ブロックを える。`},
   raijin_ikari:{ch:"yushi",type:"atk",rar:"R",cost:3,name:"らいじんのいかり",v:{d:22},vu:{d:30},stance:"calm",thunder:1,
     desc:c=>`${c.d}ダメージを あたえ、<b>めいそう</b>に はいる。`},
+  nomikurabe:{ch:"yushi",type:"atk",rar:"C",cost:1,name:"のみくらべ",v:{d:5,wrb:4},vu:{d:7,wrb:5},
+    desc:c=>`${c.d}ダメージ。<b>ほろよい</b>ちゅうなら +${c.wrb}。`},
+  yoizamashi:{ch:"yushi",type:"skl",rar:"C",cost:1,name:"よいざまし",v:{b:6},vu:{b:9},stance:"exit",
+    desc:c=>`${c.b}ブロック。かまえを かいじょする(めいそう かいじょなら 気+2)。`},
+  inazuma_tsue:{ch:"yushi",type:"atk",rar:"U",cost:1,name:"いなずまのつえ",v:{d:8,cab:4},vu:{d:11,cab:5},thunder:1,
+    desc:c=>`${c.d}ダメージ。<b>めいそう</b>ちゅうなら +${c.cab}。`},
+  dai_rancho:{ch:"yushi",type:"atk",rar:"U",cost:2,name:"だいらんちょう",v:{d:4,hits:3},vu:{d:5,hits:3},stance:"wrath",
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。<b>ほろよい</b>に はいる。`},
+  yusha_sakazuki:{ch:"yushi",type:"pow",rar:"R",cost:2,name:"ゆうしゃのさかずき",v:{n:1},vu:{n:2},
+    desc:c=>`かまえが かわるたび、カードを ${c.n}まい ひく。`},
 
   /* --- むしょく(きょうつう) --- */
   ganbari_muchi:{ch:"none",type:"atk",rar:"C",cost:1,name:"がんばりのいちげき",v:{d:10,sd:2},vu:{d:13,sd:2},
@@ -815,11 +872,42 @@ const ENEMIES = {
   /* ボス */
   maou:{name:"まおう",spr:"maou",scale:5,hp:[130,130],boss:1,
     moves:[{t:"buff",s:2,txt:"やみのちからをためる"},{t:"atk",d:16,txt:"ダークブレス"},{t:"multi",d:5,hits:3,txt:"つめのれんげき"},{t:"blk_atk",b:12,d:8,txt:"まおうのいあつ"}],
-    ai:(e,t)=>t%4}
+    ai:(e,t)=>t%4},
+  /* --- ステージ2「やみのとう」の てき --- */
+  dsoldier:{name:"やみのへいし",spr:"dsoldier",scale:4,hp:[58,66],
+    moves:[{t:"atk",d:12,txt:"やみのやり"},{t:"atk_debuff",d:6,wk:1,txt:"くらやみのやり"},{t:"blk",b:10,txt:"みをかためる"}],
+    ai:(e,t)=>t%3},
+  redwyvern:{name:"レッドワイバーン",spr:"redwyvern",scale:4,hp:[62,70],
+    moves:[{t:"buff",s:2,txt:"ほのおをまとう"},{t:"multi",d:7,hits:2,txt:"ごうかのつばさ"}],
+    ai:(e,t)=>t%3===0?0:1},
+  shadowdemon:{name:"かげのあくま",spr:"shadowdemon",scale:4,hp:[54,60],
+    moves:[{t:"debuff",wk:1,vn:1,txt:"やみのささやき"},{t:"atk",d:13,txt:"やみのいちげき"},{t:"multi",d:5,hits:2,txt:"かげのつめ"}],
+    ai:(e,t)=>t%3},
+  /* エリート */
+  dknight:{name:"やみのナイト",spr:"dknight",scale:4,hp:[108,116],elite:1,
+    moves:[{t:"atk_debuff",d:11,vn:2,txt:"のろいのつるぎ"},{t:"atk",d:17,txt:"あんこくぎり"},{t:"blk_buff",b:12,s:2,txt:"やみのよろい"}],
+    ai:(e,t)=>t%3},
+  golem:{name:"いしのゴーレム",spr:"golem",scale:4,hp:[120,128],elite:1,
+    moves:[{t:"blk",b:14,txt:"みをかためる"},{t:"atk",d:19,txt:"がんせきパンチ"}],
+    ai:(e,t)=>t%2},
+  /* ラスボス */
+  darkmaou:{name:"やみのまおう",spr:"darkmaou",scale:5,hp:[220,220],boss:1,
+    moves:[
+      {t:"buff",s:3,txt:"しんのちからを かいほうする"},
+      {t:"atk",d:20,txt:"ダークノヴァ"},
+      {t:"multi",d:7,hits:3,txt:"やみのつめ"},
+      {t:"blk_atk",b:15,d:10,txt:"あんこくのいあつ"},
+      {t:"debuff",wk:2,vn:2,txt:"ぜつぼうのしせん"}
+    ],
+    ai:(e,t)=>t%5}
 };
 const POOL_EASY = [["punkA"],["slime"],["goblin"],["bat","bat"],["punkA","imp"]];
 const POOL_HARD = [["punkB"],["soldier"],["wyvern"],["imp","imp","imp"],["ninja","slime"],["punkB","bat"]];
 const POOL_ELITE = [["knight"],["cannon"]];
+/* ステージ2の プール */
+const POOL_S2      = [["dsoldier"],["shadowdemon"],["redwyvern"],["ninja","imp"],["dsoldier","bat"]];   // 15-20階
+const POOL_S2_HARD = [["redwyvern","imp"],["dsoldier","dsoldier"],["shadowdemon","ninja"],["golem"]];    // 21-27階
+const POOL_S2_ELITE= [["dknight"],["golem"]];
 
 /* ---------- カードアート ---------- */
 const CARD_ART = {
@@ -838,7 +926,12 @@ const CARD_ART = {
   tsue_ichigeki:"🪄", kenja_kamae:"🧙", cha_susuru:"🍵", kanpai:"🍶", yopparai_kenpo:"🥴",
   futsukayoi_guard:"🧘", recycle:"♻️", papa_kaifuku:"🤲", kaminari_otoshi:"⚡", satori_jikan:"💡",
   horoyoi_kenja:"🌙", raijin_ikari:"🌩️",
-  ganbari_muchi:"💪", mama_onigiri:"🍙", shinkokyu:"🫁"
+  ganbari_muchi:"💪", mama_onigiri:"🍙", shinkokyu:"🫁",
+  nusumi_ashi:"🐾", kaiten_geri:"🌀", step_renshu:"👟", shippu_mode:"💨", final_rush:"🎆",
+  bakuhatsu_nut:"🔩", kaizo_kyoka:"🔧", jido_barrier:"🛡️", drone:"🛸", megaton_bomb:"☢️",
+  rinsho:"🎶", vibrato:"〰️", maho_step:"🪩", audience:"👏", grand_finale:"🎇",
+  ai_no_hakushu:"👏", megane_kirari:"👓", cyalume_rain:"🌟", kanko_chikara:"📢", unmei_stage:"🎭",
+  nomikurabe:"🍺", yoizamashi:"💧", inazuma_tsue:"⚡", dai_rancho:"🍶", yusha_sakazuki:"🏆"
 };
 const ART_BG = {
   kento:["#8a3324","#2a0d08"], taichi:["#1e6b34","#0a2010"],
@@ -848,54 +941,74 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-let EASY = false;
-const MAX_FLOOR = 14;
+/* ---------- なんいど ---------- */
+const DIFFS = {
+  easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
+  normal: { key:"normal", eHp:1.0,  eDmg:1.0,  pHpBonus:0,  goldMul:1.0 },
+  hard:   { key:"hard",   eHp:1.2,  eDmg:1.2,  pHpBonus:0,  goldMul:1.2 }
+};
+let DIFF = DIFFS.normal;
+const MAX_FLOOR = 28;
+const stageOf = f => f<=14 ? 1 : 2;
 
 /* ---------- あいことば(クリアきろく) ---------- */
 const CHAR_ORDER = ["kento","taichi","nozomi","erika","yushi"];
 const B36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-let CLEARED = [false,false,false,false,false];
+let CLEARED1 = [false,false,false,false,false];   // ステージ1クリア
+let CLEARED2 = [false,false,false,false,false];   // ステージ2クリア
 function encodePass(){
-  let flags = 0;
-  CLEARED.forEach((c,i)=>{ if(c) flags |= (1<<i); });
-  const body = "Q" + B36[flags];
+  let s1=0, s2=0;
+  CLEARED1.forEach((c,i)=>{ if(c) s1 |= (1<<i); });
+  CLEARED2.forEach((c,i)=>{ if(c) s2 |= (1<<i); });
+  const body = "Q" + B36[s1] + B36[s2];
   let sum = 0; for(const ch of body) sum += ch.charCodeAt(0);
   return body + B36[sum % 36];
 }
 function decodePass(p){
   p = (p||"").trim().toUpperCase();
-  if(p.length!==3 || p[0]!=="Q") return null;
-  let sum = 0; for(const ch of p.slice(0,2)) sum += ch.charCodeAt(0);
-  if(B36[sum % 36] !== p[2]) return null;
-  const flags = B36.indexOf(p[1]);
-  if(flags < 0 || flags > 31) return null;
-  return CHAR_ORDER.map((_,i)=>!!(flags & (1<<i)));
+  if(p[0]!=="Q") return null;
+  if(p.length===3){                               // 旧v1形式(ステージ1のみ)
+    let sum=0; for(const ch of p.slice(0,2)) sum += ch.charCodeAt(0);
+    if(B36[sum % 36] !== p[2]) return null;
+    const s1 = B36.indexOf(p[1]);
+    if(s1 < 0 || s1 > 31) return null;
+    return { c1:CHAR_ORDER.map((_,i)=>!!(s1 & (1<<i))), c2:[false,false,false,false,false] };
+  }
+  if(p.length===4){                               // v2形式(10bit)
+    let sum=0; for(const ch of p.slice(0,3)) sum += ch.charCodeAt(0);
+    if(B36[sum % 36] !== p[3]) return null;
+    const s1 = B36.indexOf(p[1]), s2 = B36.indexOf(p[2]);
+    if(s1 < 0 || s1 > 31 || s2 < 0 || s2 > 31) return null;
+    return { c1:CHAR_ORDER.map((_,i)=>!!(s1 & (1<<i))), c2:CHAR_ORDER.map((_,i)=>!!(s2 & (1<<i))) };
+  }
+  return null;
 }
 function enterPass(){
   const v = $("pass-input").value;
   const r = decodePass(v);
   if(!r){ toast("あいことばが ちがうみたい…"); return; }
-  CLEARED = r;
+  CLEARED1 = r.c1; CLEARED2 = r.c2;
   AudioEng.sfx("wallet");
   toast("あいことばを おもいだした!");
   renderTitle();
 }
 function renderTitle(){
   const box = $("title-sprites"); box.innerHTML="";
-  const allClear = CLEARED.every(c=>c);
+  const all10 = CLEARED1.every(c=>c) && CLEARED2.every(c=>c);
   CHAR_ORDER.forEach((id,i)=>{
     const ch = CHARS[id];
-    const el = spriteEl(allClear ? ch.ccSpr : ch.spr, MOBILE?3:4);
+    const el = spriteEl((all10 || CLEARED2[i]) ? ch.ccSpr : ch.spr, MOBILE?3:4);
     box.appendChild(el);
   });
-  const n = CLEARED.filter(c=>c).length;
+  if(all10) box.appendChild(spriteEl("darkmaou", MOBILE?3:4));   // ぜんいん とうは の とくべつえんしゅつ
+  const n1 = CLEARED1.filter(c=>c).length, n2 = CLEARED2.filter(c=>c).length;
   $("clear-stars").textContent =
-    allClear ? "★★★★★ かぞく ぜんいん とうは! でんせつの きんいろファミリー!" :
-    n>0 ? "とうは: " + CHAR_ORDER.map((id,i)=>CLEARED[i]?"★":"☆").join(" ") + `　(${n}/5にん クリア)` : "";
+    all10 ? "👑★★★★★ かぞく ぜんいん やみのまおうを たおした! でんせつの きんいろファミリー!" :
+    (n1>0||n2>0) ? "とうは: " + CHAR_ORDER.map((id,i)=>CLEARED2[i]?"👑":CLEARED1[i]?"★":"☆").join(" ") + `　(ステージ1: ${n1}/5、ステージ2: ${n2}/5)` : "";
 }
 
-function startGame(easy){
-  EASY = easy;
+function startGame(diff){
+  DIFF = DIFFS[diff] || DIFFS.normal;
   AudioEng.playBGM("home");
   toChar();
 }
@@ -903,7 +1016,7 @@ function startGame(easy){
 function newRun(chId){
   _ended=false;
   const ch = CHARS[chId];
-  const bonus = EASY ? 10 : 0;
+  const bonus = DIFF.pHpBonus;
   S = {
     ch, hp:ch.hp+bonus, maxHp:ch.hp+bonus, gold:90, floor:0,
     deck: ch.starter.map(id=>mkCard(id)),
@@ -964,13 +1077,14 @@ function toChar(){
   Object.values(CHARS).forEach((ch,i)=>{
     const el=document.createElement("div");
     el.className="char-card"; el.style.setProperty("--c", ch.color);
-    const cleared = CLEARED[CHAR_ORDER.indexOf(ch.id)];
-    el.innerHTML = `${cleared?'<div class="cleared">★とうはずみ</div>':""}
+    const ci = CHAR_ORDER.indexOf(ch.id);
+    const c1 = CLEARED1[ci], c2 = CLEARED2[ci];
+    el.innerHTML = `${c2?'<div class="cleared">👑とうは</div>':c1?'<div class="cleared">★とうは</div>':""}
       <div class="glyph"></div>
       <h3>${ch.name}</h3><div class="role">${ch.role}</div>
       <p>${ch.desc}</p>
       <div class="mech">${ch.mech}<br>はじめの たからもの：${RELICS[ch.relic].glyph} ${RELICS[ch.relic].name}</div>`;
-    el.querySelector(".glyph").appendChild(spriteEl(cleared ? ch.ccSpr : ch.spr, 4));
+    el.querySelector(".glyph").appendChild(spriteEl(c2 ? ch.ccSpr : ch.spr, 4));
     el.onclick=()=>{ AudioEng.sfx("tap"); newRun(ch.id); };
     g.appendChild(el);
   });
@@ -990,25 +1104,35 @@ function nextFloor(){
   S.floor++;
   if(S.floor > MAX_FLOOR){ return; }
   AudioEng.playBGM("home");
+  const stage = stageOf(S.floor);
   let choices;
-  if(S.floor===1) choices=["battle"];
-  else if(S.floor===MAX_FLOOR) choices=["boss"];
-  else if(S.floor===7) choices=["rest","shop","event"];
+  if(S.floor===1 || S.floor===15) choices=["battle"];                 // ステージ さいしょは battle固定
+  else if(S.floor===14 || S.floor===28) choices=["boss"];             // 14=まおう / 28=やみのまおう
+  else if(S.floor===7 || S.floor===21) choices=["rest","shop","event"];
   else {
     const pool=["battle","battle","event"];
-    if(S.floor>=4) pool.push("elite");
-    if(S.floor>=3) pool.push("rest","shop");
+    const eliteFloor = stage===2 ? 17 : 4;
+    const restFloor  = stage===2 ? 16 : 3;
+    if(S.floor>=eliteFloor) pool.push("elite");
+    if(S.floor>=restFloor) pool.push("rest","shop");
     choices = shuffle(pool).slice(0,3);
     if(!choices.includes("battle") && Math.random()<.5) choices[0]="battle";
     choices=[...new Set(choices)];
   }
-  $("map-title").textContent = `とうの ${S.floor}かい`;
-  $("map-sub").textContent = S.floor===MAX_FLOOR ? "ちょうじょうは めのまえ。やみの けはいが つよくなる…" : "すすむ みちを えらぼう";
+  if(stage===2){
+    $("map-title").textContent = `やみのとうの ${S.floor-14}かい`;
+    $("map-sub").textContent = S.floor===28 ? "やみのまおうが まっている。せかいの うんめいを かけた たたかいだ…" : "やみの とうを のぼる。ふあんな けはいが ただよう…";
+  } else {
+    $("map-title").textContent = `とうの ${S.floor}かい`;
+    $("map-sub").textContent = S.floor===14 ? "ちょうじょうは めのまえ。やみの けはいが つよくなる…" : "すすむ みちを えらぼう";
+  }
   const row=$("node-row"); row.innerHTML="";
   choices.forEach(t=>{
     const n=NODE_DEFS[t], el=document.createElement("div");
     el.className="node";
-    el.innerHTML=`<span class="nglyph">${n.glyph}</span><div class="ntitle">${n.title}</div><div class="ndesc">${n.desc}</div>`;
+    let glyph=n.glyph, title=n.title, desc=n.desc;
+    if(t==="boss" && S.floor===28){ glyph="😈"; title="やみのまおう"; desc="やみのとうの ちょうじょうで まちうける、しんの まおう。"; }
+    el.innerHTML=`<span class="nglyph">${glyph}</span><div class="ntitle">${title}</div><div class="ndesc">${desc}</div>`;
     el.onclick=()=>{ AudioEng.sfx("tap"); enterNode(t); };
     row.appendChild(el);
   });
@@ -1021,9 +1145,15 @@ function nextFloor(){
   show("map-screen");
 }
 function enterNode(t){
-  if(t==="battle") startCombat(S.floor<=5 ? pick(POOL_EASY) : pick(POOL_HARD), "battle");
-  else if(t==="elite") startCombat(pick(POOL_ELITE), "elite");
-  else if(t==="boss") startCombat(["maou"], "boss");
+  const stage = stageOf(S.floor);
+  if(t==="battle"){
+    let group;
+    if(stage===2) group = S.floor<=20 ? pick(POOL_S2) : pick(POOL_S2_HARD);
+    else group = S.floor<=5 ? pick(POOL_EASY) : pick(POOL_HARD);
+    startCombat(group, "battle");
+  }
+  else if(t==="elite") startCombat(pick(stage===2 ? POOL_S2_ELITE : POOL_ELITE), "elite");
+  else if(t==="boss") startCombat(S.floor===28 ? ["darkmaou"] : ["maou"], "boss");
   else if(t==="rest") restScreen();
   else if(t==="shop") shopScreen();
   else if(t==="event") eventScreen();
@@ -1031,18 +1161,21 @@ function enterNode(t){
 
 /* ================= せんとう ================= */
 function startCombat(enemyIds, kind){
-  const scale = 1 + Math.max(0, S.floor-1)*0.03;
+  const stage = stageOf(S.floor);
+  /* ステージ2は てきの きそちを たかくするため、かいそうスケールを リセット */
+  const scale = 1 + (stage===2 ? Math.max(0,S.floor-15) : Math.max(0,S.floor-1))*0.03;
   const enemies = enemyIds.map((id,i)=>{
     const E=ENEMIES[id];
-    const hp = Math.round((E.hp[0]+rnd(E.hp[1]-E.hp[0]+1)) * (E.boss?1:scale) * (EASY?0.85:1));
+    const s2boost = (stage===2 && id==="ninja") ? 1.2 : 1;   // やみにんじゃ(流用)は +20%
+    const hp = Math.round((E.hp[0]+rnd(E.hp[1]-E.hp[0]+1)) * (E.boss?1:scale) * s2boost * DIFF.eHp);
     return {id, uid:i, name:E.name, spr:E.spr, sprScale:E.scale, hp, maxHp:hp, blk:0,
-      st:{}, turn:0, boss:!!E.boss, elite:!!E.elite, move:null};
+      st:{}, turn:0, boss:!!E.boss, elite:!!E.elite, move:null, enraged:false};
   });
   S.combat = {
     kind, enemies, turn:0, energyMax:3 + (hasRelic("lamp")?1:0),
     energy:0, hand:[], draw:shuffle(S.deck.map(c=>({...c}))), discard:[], exhaust:[],
     blk:0, st:{}, faith:0, wisdom:0, played:0, stance:null, selected:null,
-    crit: S.ch.id==="erika" ? 15 : 0
+    crit: S.ch.id==="erika" ? 15 : 0, critMul:2
   };
   const C=S.combat;
   if(hasRelic("toolbox") && S.ch.id==="taichi") C.wisdom=2;
@@ -1081,6 +1214,22 @@ function startPlayerTurn(){
   if(C.powers.tensai_ou) C.wisdom += C.powers.tensai_ou;
   if(C.powers.horoyoi_kenja) C.blk += C.powers.horoyoi_kenja;
   if(C.powers.densetsu_senshi) C.st.str=(C.st.str||0)+C.powers.densetsu_senshi;
+  if(C.powers.shippu_mode) C.played += C.powers.shippu_mode;
+  /* むずかしいモード：ボスは 3ターンごとに きんりょく+1 */
+  if(DIFF.key==="hard" && C.kind==="boss" && C.turn%3===0){
+    C.enemies.forEach(e=>{ if(e.hp>0 && e.boss) e.st.str=(e.st.str||0)+1; });
+    toast("ボスの ちからが たかまっている! (きんりょく+1)");
+  }
+  /* ドローン：ターンかいしじに ランダムな てきへ はつめいダメージ */
+  if(C.powers.drone){
+    const alive=aliveEnemies();
+    if(alive.length){
+      const tgt=pick(alive);
+      const dmg=Math.max(0, C.wisdom*C.powers.drone.mul + C.powers.drone.flat);
+      if(dmg>0) dealToEnemy(tgt, dmg);
+      if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory,500); return; }
+    }
+  }
   const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0);
   drawCards(n);
   C.dealAnim = true;
@@ -1107,11 +1256,17 @@ function calcPlayerDmg(base, perHitBonus=0){
 function dealToEnemy(e, dmg){
   const C=S.combat;
   let isCrit=false;
-  if(C.crit>0 && rnd(100) < C.crit){ dmg = Math.floor(dmg*2); isCrit=true; }
+  if(C.crit>0 && rnd(100) < C.crit){ dmg = Math.floor(dmg*(C.critMul||2)); isCrit=true; }
   if(e.st.vuln) dmg = Math.floor(dmg*1.5);
   const absorbed = Math.min(e.blk, dmg);
   e.blk -= absorbed; dmg -= absorbed;
   e.hp -= dmg;
+  /* やみのまおう いかりギミック：HP50%いかで きんりょく+3(1かいだけ) */
+  if(e.hp>0 && e.id==="darkmaou" && !e.enraged && e.hp<=e.maxHp*0.5){
+    e.enraged=true; e.st.str=(e.st.str||0)+3;
+    AudioEng.sfx("boss");
+    toast("やみのまおうが しんの ちからを かいほうした! (きんりょく+3)");
+  }
   if(isCrit && dmg>0){
     AudioEng.sfx("crit");
     floatText(`e-${e.uid}`, `ファンサ☆-${dmg}`, "#ffd94d");
@@ -1167,6 +1322,7 @@ function setStance(st){
   if(C.stance===st) return;
   if(C.stance==="calm" && st!=="calm"){ C.energy+=2; toast("めいそうから めが さめて 気が みちる (+2)"); }
   C.stance = st;
+  if(C.powers && C.powers.yusha_sakazuki) drawCards(C.powers.yusha_sakazuki);   // かまえ変更で ドロー
 }
 
 /* ---------- カードプレイ ---------- */
@@ -1253,9 +1409,16 @@ function playCard(idx, target){
     if(v.fm!==undefined){ base = v.d + C.faith*v.fm; C.faith=0; }
     if(v.wm!==undefined){ base = v.d + C.wisdom*v.wm; }
     if(v.dm!==undefined){ base = v.dm * C.played; }
+    if(v.wall!==undefined){ base = C.wisdom*v.wall; C.wisdom=0; }   // はつめい 全消費
+    if(v.fall!==undefined){ base = C.faith*v.fall; C.faith=0; }     // おんぷ 全消費
+    if(v.fge!==undefined && C.faith>=3) base += v.fge;              // おんぷ3いじょう
+    if(v.wrb!==undefined && C.stance==="wrath") base += v.wrb;      // ほろよいボーナス
+    if(v.cab!==undefined && C.stance==="calm") base += v.cab;       // めいそうボーナス
+    let perHit = 0;
+    if(v.combo3!==undefined && C.played>=3) perHit += v.combo3;     // コンボ3まいいじょう
     const targets = def.all ? aliveEnemies() : [target||aliveEnemies()[0]];
     for(let h=0; h<hits; h++){
-      targets.forEach(t=>{ if(t.hp>0) dealToEnemy(t, calcPlayerDmg(base)); });
+      targets.forEach(t=>{ if(t.hp>0) dealToEnemy(t, calcPlayerDmg(base, perHit)); });
     }
     if(v.vn) targets.forEach(t=>{ if(t.hp>0) t.st.vuln=(t.st.vuln||0)+v.vn; });
   }
@@ -1263,9 +1426,11 @@ function playCard(idx, target){
   if(v.b) blk += v.b;
   if(v.bm) blk += v.bm * C.played;
   if(v.cb && C.stance==="calm") blk += v.cb;
+  if(v.wb) blk += C.wisdom * v.wb;                 // はつめい×n ブロック
   if(blk>0){ C.blk += blk; pulse("blockp"); }
   if(v.f) C.faith += v.f;
   if(v.w) C.wisdom += v.w;
+  if(v.pl) C.played += v.pl;                        // コンボ(つかったカードかず)を ふやす
   if(v.e) C.energy += v.e;
   if(v.cr && def.type!=="pow") C.crit += v.cr;
   if(v.h){ S.hp = Math.min(S.maxHp, S.hp + v.h); pulse("healp"); floatText("p-portrait", `+${v.h}`, "#8ce6a0"); }
@@ -1287,6 +1452,11 @@ function playCard(idx, target){
     else if(card.id==="horoyoi_kenja") C.powers.horoyoi_kenja = (C.powers.horoyoi_kenja||0)+v.b;
     else if(card.id==="shippu_kensei") C.powers.shippu_kensei = (C.powers.shippu_kensei||0)+v.n;
     else if(card.id==="densetsu_senshi") C.powers.densetsu_senshi = (C.powers.densetsu_senshi||0)+v.s;
+    else if(card.id==="shippu_mode") C.powers.shippu_mode = (C.powers.shippu_mode||0)+v.n;
+    else if(card.id==="audience") C.powers.audience = (C.powers.audience||0)+v.n;
+    else if(card.id==="drone") C.powers.drone = {mul:v.dmul, flat:(C.powers.drone?C.powers.drone.flat:0)+v.dadd};
+    else if(card.id==="kanko_chikara") C.critMul = v.critmul;
+    else if(card.id==="yusha_sakazuki") C.powers.yusha_sakazuki = v.n;
     C.exhaust.push(card);
   } else if(def.ex){
     C.exhaust.push(card);
@@ -1305,6 +1475,7 @@ function endTurn(){
   if(!C || C.busy) return;
   C.busy = true;
   C.selected=null;
+  if(C.powers && C.powers.audience) C.faith += C.powers.audience;   // ターンしゅうりょうじ おんぷ+n
   C.discard.push(...C.hand); C.hand=[];
   renderCombat();
   if(aliveEnemies().length) showBanner("てきの ターン", true);
@@ -1331,7 +1502,7 @@ function endTurn(){
 function enemyDmg(e, base){
   let d = base + (e.st.str||0);
   if(e.st.weak) d*=0.75;
-  if(EASY) d*=0.85;
+  d *= DIFF.eDmg;
   const C=S.combat;
   if(!C) return Math.max(0,Math.floor(d));
   if(C.st.vuln) d*=1.5;
@@ -1456,11 +1627,18 @@ function renderCombat(){
 function victory(){
   const C=S.combat; if(!C) return;
   const kind=C.kind;
+  const stage=stageOf(S.floor);
   S.combat=null;
   if(hasRelic("ribbon") && S.ch.id==="nozomi") S.hp=Math.min(S.maxHp,S.hp+4);
-  if(kind==="boss"){ ending(true); return; }
+  if(kind==="boss"){
+    if(S.floor===14){ midResult(); return; }        // まおう撃破 → ちゅうかんリザルト
+    ending(true, 2); return;                          // やみのまおう撃破 → ステージ2エンディング
+  }
   AudioEng.sfx("win"); AudioEng.playBGM("home");
-  let gold = 18+rnd(15) + (kind==="elite"?25:0) + (hasRelic("piggy")?15:0);
+  let base = 18+rnd(15);
+  if(stage===2) base = Math.floor(base*1.5);          // ステージ2は ゴールド 1.5ばい
+  let gold = base + (kind==="elite"?25:0) + (hasRelic("piggy")?15:0);
+  gold = Math.floor(gold * DIFF.goldMul);
   S.gold += gold;
   AudioEng.sfx("coin");
   const scr=$("reward-screen"); scr.innerHTML="";
@@ -1469,6 +1647,7 @@ function victory(){
     <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
   const list=document.createElement("div"); list.className="card-list";
   const offers = rollCardRewards(3);
+  if(stage===2) offers.forEach(card=>{ if(Math.random()<0.2) card.up=true; });   // 20%で きょうか済み
   offers.forEach(card=>{
     list.appendChild(cardEl(card,{onclick:()=>{ AudioEng.sfx("wallet"); S.deck.push(card); toast(`「${cname(card)}」を デッキに いれた`); afterReward(kind); }}));
   });
@@ -1478,6 +1657,47 @@ function victory(){
   skip.onclick=()=>afterReward(kind);
   scr.appendChild(skip);
   updateTopbar();
+  show("reward-screen");
+}
+/* ---------- 14かい：ちゅうかんリザルト(ステージ1クリア記録+ステージ2へ) ---------- */
+function midResult(){
+  AudioEng.sfx("win"); AudioEng.playBGM("home");
+  const ci=CHAR_ORDER.indexOf(S.ch.id);
+  CLEARED1[ci]=true;                                  // ここで ステージ1クリアを きろく(かえっても すすんでも)
+  S.hp=Math.min(S.maxHp, S.hp+Math.floor(S.maxHp*0.5));   // HP50%かいふく
+  const relicPool=RELIC_POOL.filter(r=>!hasRelic(r));
+  const gotRelic = relicPool.length ? pick(relicPool) : null;
+  if(gotRelic) gainRelic(gotRelic);
+  updateTopbar();
+  const scr=$("reward-screen");
+  function renderPaths(){
+    scr.innerHTML=`<div style="font-size:52px">🌌</div>
+      <h2 style="color:var(--gold)">まおうを たおした!</h2>
+      <p class="flavor">14かいで まおうは くずれおちた。<br>しかし とうは そらの うえへ つづいていた…<br>やみの ちからの みなもとは、まだ うえに ある。</p>
+      <p class="small">HPが かいふく${gotRelic?` ／ たからもの「${RELICS[gotRelic].name}」を にゅうしゅ`:""} ／ あいことばに ステージ1クリアを きろくした</p>
+      <div class="opt-col">
+        <button style="border-color:var(--gold)" id="mid-go">とうの おくへ すすむ（ステージ2 やみのとうへ）</button>
+        <button id="mid-home">おうちへ かえる（ここまでの きろくで タイトルへ）</button>
+      </div>`;
+    $("mid-go").onclick=()=>{ AudioEng.sfx("deploy"); nextFloor(); };
+    $("mid-home").onclick=()=>{ ending(true, 1); };
+    show("reward-screen");
+  }
+  scr.innerHTML=`<div style="font-size:52px">🌌</div>
+    <h2 style="color:var(--gold)">まおうを たおした!</h2>
+    <p class="flavor">14かいで まおうは くずれおちた。しかし とうは そらの うえへ つづいていた…</p>
+    <p class="small">HPが 50% かいふく${gotRelic?` ／ たからもの「${RELICS[gotRelic].name}」`:""}</p>
+    <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
+  const list=document.createElement("div"); list.className="card-list";
+  const offers=rollCardRewards(3);
+  offers.forEach(card=>{
+    list.appendChild(cardEl(card,{onclick:()=>{ AudioEng.sfx("wallet"); S.deck.push(card); toast(`「${cname(card)}」を デッキに いれた`); renderPaths(); }}));
+  });
+  scr.appendChild(list);
+  const skip=document.createElement("button");
+  skip.textContent="カードは もらわない"; skip.style.marginTop="10px";
+  skip.onclick=()=>renderPaths();
+  scr.appendChild(skip);
   show("reward-screen");
 }
 function afterReward(kind){
@@ -1514,7 +1734,14 @@ const ENDINGS = {
   erika:"「ばんごはんまでに かえらなきゃ」えりかは けんを おさめ、ゆうやけの とうを あとにした。ママは つよい。",
   yushi:"「かんぱーい!」ちょうじょうで ひとり うちあげを はじめる ゆうし。だいけんじゃの よるは ながい。"
 };
-function ending(win){
+const ENDINGS2 = {
+  kento:"「これで ほんとうに さいきょうだし!」やみのまおうも けんとの スピードには ついていけなかった。でんせつの とうぞくの たんじょうだ。",
+  taichi:"「かんぜんに けいさんどおり!」たいちの さいだいの はつめいが、やみを ふきとばした。とうの てっぺんに あさひが のぼる。",
+  nozomi:"やみのまおうすら、のぞみの うたに みとれて うごけなかった。とうの ちょうじょうは、いま だいかんきゃくせきだ。",
+  erika:"「かぞくを まもる ママは むてきなの!」えりかの あいの いちげきが やみを つらぬいた。よぞらに ひかりが もどる。",
+  yushi:"「さいこうの さかずきだ!」やみのまおうを たおし、ゆうしは ちょうじょうで しずかに かんぱいした。だいけんじゃの ぼうけんは でんせつになった。"
+};
+function ending(win, stage){
   _ended=true;
   S.combat=null;
   AudioEng.stopBGM();
@@ -1523,20 +1750,31 @@ function ending(win){
   if(win){
     AudioEng.sfx("win");
     const ci = CHAR_ORDER.indexOf(S.ch.id);
-    CLEARED[ci] = true;
-    const allClear = CLEARED.every(c=>c);
+    if(stage===2){ CLEARED1[ci]=true; CLEARED2[ci]=true; }
+    else { CLEARED1[ci]=true; }
+    const all10 = CLEARED1.every(c=>c) && CLEARED2.every(c=>c);
     const box=document.createElement("div");
     box.className="glyph";
     box.appendChild(spriteEl(S.ch.ccSpr, MOBILE?4:6));
     scr.appendChild(box);
     const inner=document.createElement("div");
-    inner.innerHTML=`
-      <h2 style="color:var(--gold)">とうは! まおうを たおした!</h2>
-      <p class="flavor">${ENDINGS[S.ch.id]}</p>
-      ${allClear?'<p class="flavor" style="color:var(--gold)">★かぞく ぜんいんで まおうを たおした!<br>ひがしやまけに でんせつの きんいろの ひかりが かがやく…!</p>':""}
-      <p class="small">とうたつ：${S.floor}かい　のこりHP：${S.hp}</p>
-      <p style="margin-top:6px;">あいことば：<b style="color:var(--gold); font-size:20px; letter-spacing:.3em;">${encodePass()}</b></p>
-      <p class="small">※メモしておくと、つぎに あそぶとき クリアきろくが ひきつげるよ</p>`;
+    if(stage===2){
+      inner.innerHTML=`
+        <h2 style="color:var(--gold)">とうは! やみのまおうを たおした!</h2>
+        <p class="flavor">${ENDINGS2[S.ch.id]}</p>
+        ${all10?'<p class="flavor" style="color:var(--gold)">👑 かぞく ぜんいんで やみのまおうを たおした!<br>ひがしやまけに でんせつの きんいろの ひかりが かがやく…!</p>':""}
+        <p class="small">とうたつ：28かい（さいじょうかい）　のこりHP：${S.hp}</p>
+        <p style="margin-top:6px;">あいことば：<b style="color:var(--gold); font-size:20px; letter-spacing:.3em;">${encodePass()}</b></p>
+        <p class="small">※メモしておくと、つぎに あそぶとき クリアきろくが ひきつげるよ</p>`;
+    } else {
+      inner.innerHTML=`
+        <h2 style="color:var(--gold)">まおうを たおして いえに かえった!</h2>
+        <p class="flavor">${ENDINGS[S.ch.id]}</p>
+        <p class="flavor" style="color:var(--pink); font-size:12px">…でも とうの ほんとうの ちょうじょうは、まだ そらの うえに あるらしい。</p>
+        <p class="small">とうたつ：${S.floor}かい　のこりHP：${S.hp}</p>
+        <p style="margin-top:6px;">あいことば：<b style="color:var(--gold); font-size:20px; letter-spacing:.3em;">${encodePass()}</b></p>
+        <p class="small">※メモしておくと、つぎに あそぶとき クリアきろくが ひきつげるよ</p>`;
+    }
     scr.appendChild(inner);
   } else {
     AudioEng.sfx("lose");
@@ -1556,8 +1794,37 @@ function backToTitle(){
   $("topbar").classList.remove("on");
   AudioEng.stopBGM();
   renderTitle();
-  $("pass-input").value = CLEARED.some(c=>c) ? encodePass() : "";
+  $("pass-input").value = (CLEARED1.some(c=>c)||CLEARED2.some(c=>c)) ? encodePass() : "";
   show("title-screen");
+}
+
+/* ---------- とくぎ ヘルプ(せんとうちゅうに かくにん) ---------- */
+const MECH_EXTRA = {
+  kento:"コンボは「そのターンに つかった カードのかず」。ターンが おわると 0に もどる。",
+  taichi:"はつめいは たたかいが おわるまで ためつづけられる。",
+  nozomi:"おんぷは ミラクルボイスなどで つかうと 0に もどる。",
+  erika:"ファンサりつの ぶんだけ、こうげきが 2ばいになる チャンス!",
+  yushi:"めいそう：でるとき 気+2 ／ ほろよい：あたえるダメージも うけるダメージも 2ばい。"
+};
+function showMechHelp(){
+  if(!S) return;
+  AudioEng.sfx("tap");
+  const ov=$("overlay"); $("overlay-title").textContent="とくぎ ヘルプ";
+  const list=$("overlay-list"); list.innerHTML="";
+  const box=document.createElement("div");
+  box.style.cssText="text-align:left; max-width:560px; line-height:1.9; font-size:13px; color:#d5d9ec;";
+  box.innerHTML=`
+    <p style="color:${S.ch.cc}; margin-bottom:6px;">${S.ch.mech}</p>
+    <p style="margin-bottom:12px;">${MECH_EXTRA[S.ch.id]||""}</p>
+    <p style="color:var(--gold); border-top:1px dashed var(--line); padding-top:10px; margin-bottom:6px;">ようご ミニじてん</p>
+    <p>・きんりょく：こうげきの ダメージが あがる。</p>
+    <p>・すいじゃく：あたえる ダメージが 25%へる。</p>
+    <p>・ぜいじゃく：うける ダメージが 50%ふえる。</p>
+    <p>・ブロック：その ぶんだけ ダメージを ふせぐ（ターンで きえる）。</p>
+    <p>・しょうめつ：つかうと その せんとうちゅうは つかえなくなる。</p>`;
+  list.appendChild(box);
+  $("overlay-close").onclick=closeOverlay;
+  ov.classList.add("on");
 }
 
 /* ================= キャンプ / みせ / イベント / オーバーレイ ================= */
@@ -1606,8 +1873,13 @@ function closeOverlay(){ $("overlay").classList.remove("on"); }
 /* ---------- みせ ---------- */
 function shopScreen(){
   const scr=$("shop-screen");
-  const cards = rollCardRewards(3).map(c=>({card:c, price:45+rnd(30)+(CARDS[c.id].rar==="R"?40:CARDS[c.id].rar==="U"?15:0)}));
+  const rarPrice = id => CARDS[id].rar==="R"?40:CARDS[id].rar==="U"?15:0;
+  const cards = rollCardRewards(3).map(c=>({card:c, price:45+rnd(30)+rarPrice(c.id)}));
   cards.push({card:mkCard(pick(["ganbari_muchi","mama_onigiri","shinkokyu"])), price:30+rnd(15)});
+  if(stageOf(S.floor)===2){                          // ステージ2は きょうか済みカードを 1わく(かかく+30)
+    const up=rollCardRewards(1)[0];
+    if(up){ up.up=true; cards.push({card:up, price:45+rnd(30)+rarPrice(up.id)+30}); }
+  }
   const relicPool = RELIC_POOL.filter(r=>!hasRelic(r));
   const relic = relicPool.length ? {id:pick(relicPool), price:140+rnd(30)} : null;
   scr.innerHTML=`<div style="font-size:48px">🏪</div><h2>とうの どうぐや</h2>
