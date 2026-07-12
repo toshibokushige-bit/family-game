@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ひがしやま かぞくゲームセンター</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="かぞくゲーム">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#170a2b; --bg1:#2a1348; --bg2:#0e0620;
+    --ink:#fff; --dim:rgba(255,255,255,.72);
+    --gold:#ffd94d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--bg1), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg2));
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'DotGothic16','Hiragino Maru Gothic ProN',sans-serif;
+    -webkit-font-smoothing:none;
+    padding:calc(env(safe-area-inset-top,0px) + 26px) 18px 60px;
+    overflow-x:hidden;
+  }
+
+  /* 背景に流れるスターフィールド */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;}
+  .stars i{
+    position:absolute;width:3px;height:3px;background:#fff;border-radius:1px;
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    from{transform:translateY(-10vh);opacity:0;}
+    10%{opacity:.9;}
+    90%{opacity:.9;}
+    to{transform:translateY(110vh);opacity:0;}
+  }
+
+  header{position:relative;z-index:1;text-align:center;margin-bottom:34px;}
+  .kicker{font-size:14px;letter-spacing:.24em;color:var(--dim);margin-bottom:10px;}
+  h1{
+    margin:0;font-size:clamp(28px,7vw,52px);line-height:1.18;
+    color:var(--gold);
+    text-shadow:0 3px 0 #7a3a10, 0 6px 0 #4a2010, 0 10px 24px rgba(0,0,0,.5);
+  }
+  .lead{margin-top:14px;font-size:14px;color:var(--dim);}
+
+  .grid{
+    position:relative;z-index:1;
+    display:grid;gap:18px;
+    grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+    max-width:940px;margin:0 auto;
+  }
+
+  .card{
+    position:relative;display:block;overflow:hidden;
+    padding:22px 20px 20px;border-radius:20px;
+    text-decoration:none;color:var(--ink);
+    background:rgba(255,255,255,.055);
+    border:2px solid rgba(255,255,255,.14);
+    box-shadow:0 10px 30px rgba(0,0,0,.34);
+    transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+  }
+  .card::before{
+    content:'';position:absolute;inset:0;opacity:.16;pointer-events:none;
+    background:radial-gradient(130% 90% at 0% 0%, var(--c), transparent 62%);
+  }
+  .card:hover,.card:active{
+    transform:translateY(-4px);
+    border-color:var(--a);
+    box-shadow:0 16px 40px rgba(0,0,0,.46);
+  }
+  .row{display:flex;align-items:center;gap:12px;}
+  .emoji{
+    flex:0 0 auto;width:52px;height:52px;border-radius:14px;
+    display:grid;place-items:center;font-size:27px;
+    background:var(--c);
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,.28);
+  }
+  .sub{font-size:12px;color:var(--a);letter-spacing:.08em;}
+  .title{font-size:21px;margin-top:2px;line-height:1.25;}
+  .desc{margin:14px 0 0;font-size:13.5px;line-height:1.7;color:var(--dim);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .tag{
+    font-size:11px;padding:4px 10px;border-radius:999px;
+    background:rgba(255,255,255,.09);color:var(--dim);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .play{
+    margin-top:16px;display:inline-flex;align-items:center;gap:7px;
+    font-size:14px;color:var(--a);
+  }
+  .play span{transition:transform .16s;}
+  .card:hover .play span{transform:translateX(5px);}
+
+  .empty{
+    grid-column:1/-1;text-align:center;padding:40px;border-radius:18px;
+    border:2px dashed rgba(255,255,255,.18);color:var(--dim);font-size:14px;
+  }
+
+  footer{
+    position:relative;z-index:1;text-align:center;
+    margin-top:46px;font-size:12px;color:rgba(255,255,255,.45);line-height:2;
+  }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<header>
+  <div class="kicker">HIGASHIYAMA FAMILY GAMES</div>
+  <h1>かぞく<br>ゲームセンター</h1>
+  <p class="lead">あそびたい ゲームを えらんでね</p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<footer>
+  ひがしやまけ せいさく<br>
+  スマホは「ホームがめんに ついか」すると アプリみたいに あそべるよ
+</footer>
+
+<script>
+// ---- 背景の星 ----
+(function(){
+  const box=document.getElementById('stars');
+  for(let i=0;i<38;i++){
+    const s=document.createElement('i');
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(7+Math.random()*11)+'s';
+    s.style.animationDelay=(-Math.random()*18)+'s';
+    const sz=1+Math.random()*2.6;
+    s.style.width=s.style.height=sz+'px';
+    s.style.opacity=.3+Math.random()*.6;
+    box.appendChild(s);
+  }
+})();
+
+// ---- games.json から カードを 自動生成 ----
+// ★あたらしい ゲームを ふやすときは games.json に 1つ たすだけ★
+const esc = (s)=>String(s==null?'':s).replace(/[&<>"']/g,
+  c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+fetch('games.json?v=' + Date.now())
+  .then(r=>{
+    if(!r.ok) throw new Error('games.json ' + r.status);
+    return r.json();
+  })
+  .then(list=>{
+    const grid=document.getElementById('grid');
+    if(!Array.isArray(list)||list.length===0){
+      grid.innerHTML='<div class="empty">ゲームが まだ ありません</div>';
+      return;
+    }
+    grid.innerHTML = list.map(g=>{
+      const c=esc(g.color||'#5a4aa0');
+      const a=esc(g.accent||'#ffd94d');
+      const tags=(g.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+      return `
+      <a class="card" style="--c:${c};--a:${a}" href="games/${esc(g.id)}/index.html">
+        <div class="row">
+          <div class="emoji">${esc(g.emoji||'🎮')}</div>
+          <div>
+            <div class="sub">${esc(g.sub||'')}</div>
+            <div class="title">${esc(g.title)}</div>
+          </div>
+        </div>
+        <p class="desc">${esc(g.desc||'')}</p>
+        <div class="tags">${tags}</div>
+        <div class="play">あそぶ <span>▶</span></div>
+      </a>`;
+    }).join('');
+  })
+  .catch(err=>{
+    document.getElementById('grid').innerHTML =
+      '<div class="empty">ゲームリストを よみこめませんでした<br>' + esc(err.message) + '</div>';
+  });
+</script>
+</body>
+</html>

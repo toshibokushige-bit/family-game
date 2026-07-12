@@ -1,0 +1,10 @@
+# ビルド中間物
+**/check.js
+**/*_preview.png
+**/preview_*.png
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

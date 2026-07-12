@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひがしやまクエスト 〜まおうのとう〜</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+:root{
+  --bg:#0c102e; --bg2:#141a42; --panel:#1a2148; --panel2:#232c5e;
+  --ink:#f2efe0; --ink-dim:#9aa3c8; --line:#45529a;
+  --gold:#ffd94d; --red:#ff6b5a; --green:#5ad46a; --pink:#ff8fb8; --blue:#6aa8ff; --purple:#b78ee0;
+  --hp:#ff6b5a; --blk:#7fb2e5; --energy:#ffd94d;
+  --atk:#d97a5a; --skl:#6a9fc9; --pow:#b78ee0;
+}
+*{box-sizing:border-box; margin:0; padding:0; user-select:none; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(900px 500px at 50% -160px, #26306b 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 42px, rgba(255,255,255,.02) 42px 44px),
+    var(--bg);
+  color:var(--ink);
+  font-family:"DotGothic16","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  overflow:hidden;
+  touch-action:manipulation;
+}
+canvas{image-rendering:pixelated; image-rendering:crisp-edges;}
+#app{height:100%; height:100dvh; display:flex; flex-direction:column; max-width:1100px; margin:0 auto; position:relative;}
+.screen{display:none; flex:1; flex-direction:column; overflow-y:auto; padding:16px;}
+.screen.on{display:flex;}
+h1,h2,h3{font-weight:600; letter-spacing:.1em;}
+button{
+  font-family:inherit; color:var(--ink); background:var(--panel2);
+  border:2px solid var(--line); border-radius:8px; padding:10px 18px;
+  font-size:15px; cursor:pointer; letter-spacing:.06em; transition:all .12s;
+  box-shadow:0 3px 0 #10153a;
+}
+button:hover{border-color:var(--gold); background:#2c3775; transform:translateY(-1px);}
+button:active{transform:translateY(2px); box-shadow:0 1px 0 #10153a;}
+button:disabled{opacity:.4; cursor:default; transform:none;}
+.small{font-size:12px; color:var(--ink-dim);}
+
+/* ---------- Sprites ---------- */
+.spr{display:inline-block; line-height:0;}
+.spr canvas{display:block;}
+.spr canvas:nth-child(2){display:none;}
+body.walk2 .spr canvas:nth-child(1){display:none;}
+body.walk2 .spr canvas:nth-child(2){display:block;}
+.spr.flipx canvas{transform:scaleX(-1);}
+
+/* ---------- Title ---------- */
+#title-screen{align-items:center; justify-content:center; text-align:center; gap:16px;}
+.title-sym{display:flex; gap:18px; align-items:flex-end; justify-content:center; min-height:70px;}
+.title-main{font-size:46px; letter-spacing:.18em; text-indent:.18em;
+  background:linear-gradient(180deg,#fff4c0,#ffd94d 55%,#d9a017); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 4px 0 rgba(0,0,0,.35);}
+.title-sub{color:var(--ink-dim); letter-spacing:.28em; font-size:13px;}
+.title-note{max-width:600px; font-size:13px; line-height:2; color:var(--ink-dim);}
+.clear-stars{font-size:14px; color:var(--gold); letter-spacing:.15em; min-height:18px;}
+#pass-row{display:flex; gap:8px; align-items:center; justify-content:center;}
+#pass-input{
+  font-family:inherit; font-size:16px; letter-spacing:.3em; text-align:center; text-transform:uppercase;
+  width:120px; padding:8px; background:#0a0d24; color:var(--gold);
+  border:2px solid var(--line); border-radius:8px; outline:none;
+}
+#pass-input:focus{border-color:var(--gold);}
+
+/* ---------- Character select ---------- */
+#char-screen h2{text-align:center; margin-bottom:14px;}
+.char-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px;}
+.char-card{
+  background:var(--panel); border:2px solid var(--line); border-radius:12px;
+  padding:16px 14px; cursor:pointer; transition:all .15s; position:relative; overflow:hidden;
+}
+.char-card:hover{transform:translateY(-3px); border-color:var(--c,var(--gold));}
+.char-card .glyph{text-align:center; margin-bottom:8px; min-height:60px; display:flex; align-items:flex-end; justify-content:center;}
+.char-card h3{text-align:center; font-size:18px; color:var(--c); margin-bottom:2px;}
+.char-card .role{text-align:center; font-size:12px; color:var(--ink-dim); margin-bottom:10px; letter-spacing:.15em;}
+.char-card p{font-size:12.5px; line-height:1.8; color:#cdd2e8;}
+.char-card .mech{margin-top:10px; font-size:12px; color:var(--c); border-top:1px dashed var(--line); padding-top:8px; line-height:1.7;}
+.char-card .cleared{position:absolute; top:8px; right:10px; color:var(--gold); font-size:16px;}
+
+/* ---------- Top bar ---------- */
+#topbar{
+  display:none; align-items:center; gap:14px; padding:8px 16px;
+  background:rgba(10,13,36,.92); border-bottom:2px solid var(--line); font-size:14px;
+  position:sticky; top:0; z-index:5;
+}
+#topbar.on{display:flex;}
+#topbar .name{color:var(--gold); letter-spacing:.08em; display:flex; align-items:center; gap:8px;}
+#topbar .hpv{color:var(--hp);}
+#topbar .gold{color:var(--energy);}
+#topbar .floorv{color:var(--ink-dim);}
+#relic-row{margin-left:auto; display:flex; gap:6px;}
+.relic{
+  width:30px; height:30px; border-radius:50%; background:var(--panel2);
+  border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  font-size:15px; cursor:help; position:relative;
+}
+.relic:hover::after{
+  content:attr(data-tip); position:absolute; top:34px; right:0; width:200px; z-index:30;
+  background:#0a0d24; border:1px solid var(--gold); border-radius:6px; padding:8px 10px;
+  font-size:11.5px; line-height:1.6; color:var(--ink); white-space:normal;
+}
+#deck-btn,#mute-btn{margin-left:8px; padding:5px 12px; font-size:12px;}
+
+/* ---------- Map ---------- */
+#map-screen{align-items:center;}
+#map-screen h2{margin-bottom:4px;}
+.map-sub{color:var(--ink-dim); font-size:13px; margin-bottom:20px; letter-spacing:.15em;}
+.node-row{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
+.node{
+  width:210px; background:var(--panel); border:2px solid var(--line); border-radius:12px;
+  padding:20px 16px; text-align:center; cursor:pointer; transition:all .15s;
+}
+.node:hover{transform:translateY(-4px); border-color:var(--gold); background:var(--panel2);}
+.node .nglyph{font-size:34px;}
+.node .ntitle{margin:10px 0 6px; font-size:16px; letter-spacing:.1em;}
+.node .ndesc{font-size:12px; color:var(--ink-dim); line-height:1.7;}
+#tower-progress{display:flex; gap:5px; margin-top:26px; flex-wrap:wrap; justify-content:center;}
+.tp{
+  width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-dim);
+}
+.tp.done{background:var(--panel2); color:var(--green); border-color:var(--green);}
+.tp.now{background:var(--gold); color:#241c0a; border-color:var(--gold); font-weight:bold;}
+
+/* ---------- Combat ---------- */
+#combat-screen{padding:10px 16px; overflow:hidden;}
+#enemy-zone{
+  flex:1; display:flex; gap:22px; align-items:center; justify-content:center;
+  min-height:190px; flex-wrap:wrap;
+}
+.enemy{
+  width:190px; text-align:center; padding:12px 10px; border-radius:12px;
+  border:2px solid transparent; transition:transform .15s, opacity .4s;
+  position:relative;
+}
+.enemy.targetable{border-color:var(--red); cursor:pointer; animation:targetPulse 1s infinite;}
+@keyframes targetPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,90,.35);}50%{box-shadow:0 0 0 8px rgba(255,107,90,0);}}
+.enemy.dead{display:none;}
+.enemy.slain{opacity:0; transform:scale(.7) rotate(8deg);}
+.enemy.lunge .eglyph{animation:lunge .5s;}
+@keyframes lunge{0%{transform:translateY(0);}30%{transform:translateY(26px) scale(1.06);}100%{transform:translateY(0);}}
+.enemy.hit .eglyph{animation:ehit .35s;}
+@keyframes ehit{0%{transform:translateX(0); filter:brightness(2.2);}30%{transform:translateX(-7px);}60%{transform:translateX(5px);}100%{transform:translateX(0); filter:none;}}
+.eglyph{min-height:76px; display:flex; align-items:flex-end; justify-content:center; margin-bottom:6px; filter:drop-shadow(0 5px 3px rgba(0,0,0,.45));}
+.enemy.boss .eglyph{min-height:110px;}
+.ename{font-size:14px; letter-spacing:.08em; margin-bottom:5px;}
+.intent{font-size:12.5px; color:#ffce9e; min-height:18px; margin-bottom:6px;}
+.hpbar{
+  position:relative; height:16px; background:#0a0d24; border-radius:8px; overflow:hidden;
+  border:1px solid var(--line);
+}
+.hpbar .fill{position:absolute; inset:0; background:linear-gradient(180deg,#ff8a70,#d9463a); transition:width .3s; border-radius:8px;}
+.hpbar .blkfill{position:absolute; inset:0; background:rgba(127,178,229,.35);}
+.hpbar .txt{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; z-index:2; text-shadow:0 1px 2px #000;}
+.statuses{margin-top:6px; display:flex; gap:5px; justify-content:center; flex-wrap:wrap; min-height:20px;}
+.st{font-size:10.5px; padding:2px 7px; border-radius:9px; border:1px solid var(--line);}
+.st.buff{color:var(--green); border-color:var(--green);}
+.st.debuff{color:var(--red); border-color:var(--red);}
+
+#player-zone{
+  display:flex; align-items:center; gap:16px; padding:10px 6px;
+  border-top:2px solid var(--line);
+}
+#p-portrait{
+  width:74px; height:74px; border-radius:12px; border:2px solid var(--gold);
+  display:flex; align-items:flex-end; justify-content:center; background:var(--panel);
+  flex-shrink:0; position:relative; overflow:visible; padding-bottom:4px;
+}
+#p-portrait.shake{animation:pshake .4s;}
+@keyframes pshake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}50%{transform:translateX(5px);}75%{transform:translateX(-3px);}}
+#p-portrait.blockp{animation:pblock .6s;}
+@keyframes pblock{0%{box-shadow:0 0 0 0 rgba(127,178,229,.8);}100%{box-shadow:0 0 0 14px rgba(127,178,229,0);}}
+#p-portrait.healp{animation:pheal .6s;}
+@keyframes pheal{0%{box-shadow:0 0 0 0 rgba(90,212,106,.8);}100%{box-shadow:0 0 0 14px rgba(90,212,106,0);}}
+#p-info{flex:1; min-width:0;}
+#p-name{font-size:15px; margin-bottom:5px;}
+#energy-orb{
+  width:56px; height:56px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle at 35% 30%, #fff0b0, var(--energy) 55%, #b8860b);
+  color:#241c0a; font-weight:bold; font-size:17px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 14px rgba(255,217,77,.35); transition:transform .15s;
+}
+#energy-orb.spend{transform:scale(.82);}
+#pile-info{font-size:12px; color:var(--ink-dim); display:flex; flex-direction:column; gap:3px; flex-shrink:0;}
+#end-turn{flex-shrink:0; border-color:var(--gold);}
+#hand{
+  display:flex; gap:8px; justify-content:flex-start; align-items:flex-end;
+  min-height:216px; padding:26px 8px 6px; flex-wrap:nowrap;
+  overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+#hand .card:first-child{margin-left:auto;}
+#hand .card:last-child{margin-right:auto;}
+#hand::-webkit-scrollbar{height:6px;}
+#hand::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+.card{
+  width:132px; height:184px; background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:2px solid var(--line); border-radius:10px; position:relative;
+  cursor:pointer; transition:transform .12s, box-shadow .12s; flex-shrink:0;
+  padding:6px 7px 7px; display:flex; flex-direction:column;
+}
+.card:hover{transform:translateY(-14px) scale(1.05); z-index:4; box-shadow:0 10px 22px rgba(0,0,0,.5);}
+.card.selected{transform:translateY(-18px) scale(1.07); box-shadow:0 0 0 2px var(--gold), 0 12px 24px rgba(0,0,0,.5); z-index:4;}
+.card.unplayable{opacity:.5;}
+.card.deal{animation:dealIn .3s backwards;}
+@keyframes dealIn{from{transform:translateY(60px) scale(.7); opacity:0;} to{transform:none; opacity:1;}}
+.card.upg .cname{color:var(--green);}
+.card .cost{
+  position:absolute; top:-8px; left:-8px; width:26px; height:26px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff0b0, var(--energy) 60%, #b8860b);
+  color:#241c0a; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:14px;
+  border:1px solid #8a6d1c; z-index:2;
+}
+.card .cname{font-size:12px; text-align:center; letter-spacing:.02em; margin-bottom:4px; min-height:16px;}
+.card .cart{
+  height:52px; border-radius:6px; margin-bottom:4px; position:relative;
+  background:linear-gradient(160deg, var(--artg1), var(--artg2));
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.card .cemo{font-size:26px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));}
+.card .csym{position:absolute; right:5px; bottom:2px; font-size:11px; opacity:.95;}
+.card .ctype{font-size:9.5px; text-align:center; color:var(--cc); letter-spacing:.25em; margin-bottom:4px;}
+.card .cdesc{font-size:10.8px; line-height:1.55; text-align:center; color:#d5d9ec; flex:1; display:flex; align-items:center; justify-content:center; padding:0 2px;}
+.card .cdesc b{color:var(--gold);}
+.fly-card{position:fixed; z-index:60; pointer-events:none; transition:transform .42s cubic-bezier(.5,-0.1,.7,1), opacity .42s;}
+.fly-card.gone{opacity:0;}
+.floaty{
+  position:absolute; font-size:18px; font-weight:bold; pointer-events:none; z-index:20;
+  animation:floatUp .8s forwards; text-shadow:0 2px 3px #000;
+}
+@keyframes floatUp{from{transform:translateY(0); opacity:1;} to{transform:translateY(-44px); opacity:0;}}
+#turn-banner{
+  position:absolute; top:34%; left:50%; transform:translate(-50%,-50%);
+  font-size:30px; letter-spacing:.4em; text-indent:.4em; color:var(--gold);
+  opacity:0; pointer-events:none; z-index:40; text-shadow:0 0 22px rgba(255,217,77,.5);
+}
+#turn-banner.foe{color:var(--red); text-shadow:0 0 22px rgba(255,107,90,.5);}
+#turn-banner.show{animation:bannerIn 1s;}
+@keyframes bannerIn{0%{opacity:0; transform:translate(-50%,-50%) scale(.8);}18%{opacity:1; transform:translate(-50%,-50%) scale(1);}80%{opacity:1;}100%{opacity:0;}}
+
+/* ---------- Center screens ---------- */
+.center-col{align-items:center; justify-content:center; text-align:center; gap:14px;}
+.flavor{max-width:520px; line-height:2; color:#cdd2e8; font-size:13.5px;}
+.card-list{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:8px 0;}
+.card-list .card{cursor:pointer;}
+.opt-col{display:flex; flex-direction:column; gap:10px; margin-top:10px; min-width:300px;}
+.shop-grid{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin:10px 0;}
+.shop-item{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.shop-item .price{color:var(--energy); font-size:13px;}
+.shop-item.sold{opacity:.3; pointer-events:none;}
+
+/* ---------- Overlay ---------- */
+#overlay{
+  display:none; position:fixed; inset:0; background:rgba(5,7,20,.85); z-index:50;
+  align-items:center; justify-content:center; padding:20px;
+}
+#overlay.on{display:flex;}
+#overlay-box{
+  background:var(--bg2); border:2px solid var(--line); border-radius:12px;
+  max-width:860px; max-height:82vh; overflow-y:auto; padding:20px; text-align:center;
+}
+#overlay-box h3{margin-bottom:12px; letter-spacing:.15em;}
+#toast{
+  display:none; position:fixed; bottom:220px; left:50%; transform:translateX(-50%);
+  background:#0a0d24; border:1px solid var(--gold); color:var(--ink);
+  padding:9px 20px; border-radius:20px; font-size:13px; z-index:70; letter-spacing:.05em;
+  white-space:nowrap;
+}
+@media (max-width:700px){
+  .screen{padding:10px 8px;}
+  /* カード：小型化して横スクロール前提のサイズに */
+  .card{width:94px; height:146px; padding:5px 5px 6px; border-radius:8px;}
+  .card .cost{width:22px; height:22px; font-size:12px; top:-7px; left:-7px;}
+  .card .cname{font-size:10px; min-height:14px; margin-bottom:3px;}
+  .card .cart{height:34px; margin-bottom:3px;}
+  .card .cemo{font-size:19px;}
+  .card .csym{font-size:9px;}
+  .card .ctype{font-size:8px; margin-bottom:3px;}
+  .card .cdesc{font-size:8.8px; line-height:1.45;}
+  .card:hover{transform:none; box-shadow:none;}
+  .card.selected{transform:translateY(-14px) scale(1.05);}
+  #hand{min-height:176px; gap:6px; padding:20px 6px 4px;}
+  /* 戦闘画面：縦スクロール可、敵カードも縮小 */
+  #combat-screen{padding:4px 6px; overflow-y:auto;}
+  #enemy-zone{gap:8px; min-height:120px;}
+  .enemy{width:128px; padding:8px 6px;}
+  .eglyph{min-height:56px;}
+  .enemy.boss .eglyph{min-height:84px;}
+  .ename{font-size:12px;}
+  .intent{font-size:11px;}
+  /* プレイヤーゾーン：2段組みに折り返し */
+  #player-zone{flex-wrap:wrap; gap:8px 10px; padding:8px 2px;}
+  #p-portrait{width:58px; height:58px;}
+  #p-info{min-width:130px;}
+  #p-name{font-size:12.5px;}
+  #energy-orb{width:46px; height:46px; font-size:14px;}
+  #pile-info{flex-direction:row; gap:12px; font-size:11px; order:5; flex:1;}
+  #end-turn{order:6; padding:9px 14px; font-size:13px;}
+  /* トップバー */
+  #topbar{gap:8px; padding:6px 8px; font-size:11.5px; flex-wrap:wrap;}
+  #deck-btn,#mute-btn{padding:4px 8px; font-size:11px; margin-left:4px;}
+  .relic{width:24px; height:24px; font-size:12px;}
+  /* その他画面 */
+  .title-main{font-size:30px;}
+  .title-note{font-size:12px;}
+  #turn-banner{font-size:20px; letter-spacing:.25em;}
+  #overlay-box{padding:12px; max-height:86vh;}
+  .node{width:100%; max-width:340px; padding:14px 12px;}
+  .opt-col{min-width:0; width:100%; max-width:340px;}
+  button{padding:9px 14px; font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="topbar">
+    <span class="name" id="tb-name"></span>
+    <span>❤ <span class="hpv" id="tb-hp"></span></span>
+    <span>◆ <span class="gold" id="tb-gold"></span></span>
+    <span class="floorv" id="tb-floor"></span>
+    <div id="relic-row"></div>
+    <button id="deck-btn" onclick="showDeck()">デッキ</button>
+    <button id="mute-btn" onclick="toggleMute(this)">🔊</button>
+  </div>
+
+  <div id="title-screen" class="screen on">
+    <div class="title-sym" id="title-sprites"></div>
+    <h1 class="title-main">ひがしやまクエスト</h1>
+    <div class="title-sub">HIGASHIYAMA QUEST 〜まおうの とう〜</div>
+    <div class="clear-stars" id="clear-stars"></div>
+    <p class="title-note">
+      レンジャーが たおしたはずの まおうが、そらたかくそびえる とうの ちょうじょうで ふっかつ!?<br>
+      こんどは ひとりずつ、カードの ちからで とうに いどむ。<br>
+      カードを あつめ、じぶんだけの デッキを きたえ、14かいの ちょうじょうを めざせ!
+    </p>
+    <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="startGame(true)" style="font-size:16px; padding:13px 30px;">やさしい ぼうけん</button>
+      <button onclick="startGame(false)" style="font-size:16px; padding:13px 30px; border-color:var(--gold);">ふつうの ぼうけん</button>
+    </div>
+    <p class="small">やさしい：HP+10、てきが すこし よわくなるよ</p>
+    <div id="pass-row">
+      <input id="pass-input" maxlength="3" placeholder="あいことば">
+      <button onclick="enterPass()" style="font-size:13px; padding:8px 14px;">いれる</button>
+    </div>
+  </div>
+
+  <div id="char-screen" class="screen">
+    <h2>だれで とうに いどむ?</h2>
+    <div class="char-grid" id="char-grid"></div>
+  </div>
+
+  <div id="map-screen" class="screen">
+    <h2 id="map-title"></h2>
+    <div class="map-sub" id="map-sub"></div>
+    <div class="node-row" id="node-row"></div>
+    <div id="tower-progress"></div>
+  </div>
+
+  <div id="combat-screen" class="screen">
+    <div id="enemy-zone"></div>
+    <div id="player-zone">
+      <div id="p-portrait"></div>
+      <div id="p-info">
+        <div id="p-name"></div>
+        <div class="hpbar" style="max-width:240px;"><div class="fill" id="p-hpfill"></div><div class="txt" id="p-hptxt"></div></div>
+        <div class="statuses" id="p-statuses"></div>
+      </div>
+      <div id="energy-orb"></div>
+      <div id="pile-info">
+        <span style="cursor:pointer" onclick="showPile('draw')">やまふだ <b id="pi-draw">0</b></span>
+        <span style="cursor:pointer" onclick="showPile('discard')">すてふだ <b id="pi-discard">0</b></span>
+        <span style="cursor:pointer" onclick="showPile('exhaust')">しょうめつ <b id="pi-exhaust">0</b></span>
+      </div>
+      <button id="end-turn" onclick="endTurn()">ターンおわり</button>
+    </div>
+    <div id="hand"></div>
+  </div>
+
+  <div id="reward-screen" class="screen center-col"></div>
+  <div id="rest-screen" class="screen center-col"></div>
+  <div id="shop-screen" class="screen center-col"></div>
+  <div id="event-screen" class="screen center-col"></div>
+  <div id="end-screen" class="screen center-col"></div>
+
+  <div id="overlay"><div id="overlay-box"><h3 id="overlay-title"></h3><div class="card-list" id="overlay-list"></div><button id="overlay-close" onclick="closeOverlay()">とじる</button></div></div>
+  <div id="toast"></div>
+  <div id="turn-banner"></div>
+</div>
+
+<script>
+
+/* ================= ひがしやまクエスト 〜まおうのとう〜 =================
+   かぞくゲームシリーズ だい2だん (デッキこうちくRPG)
+   だい1だん「ひがしやまレンジャー」のせかいかん・ドットえ・おんげんを けいしょう */
+"use strict";
+const $ = id => document.getElementById(id);
+const rnd = n => Math.floor(Math.random()*n);
+const pick = a => a[rnd(a.length)];
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+/* スマホ判定(スプライト縮小用) */
+const MOBILE = !!(typeof window!=="undefined" && window.matchMedia && window.matchMedia("(max-width:700px)").matches);
+
+/* ================= ドットえスプライト(だい1だんから けいしょう) ================= */
+const SPRITES = {"taichi":{"pal":{"K":"#2a221e","S":"#f6c9a0","Y":"#ffd94d","y":"#b8932a","G":"#3fa051","g":"#2b7a3b","M":"#c8d0dc","W":"#ffffff","E":"#33302c"},"rows":["....KKKKKK......","...KKKKKKKK.....","..KKKKKKKKKK....","..KKyYYyYYyK....","..KSSSSSSSSK....","..SSESSSSES.....","..SSSSSSSSS..W..","...SSSSSSS...M..","..GGGGGGGGG..M..",".GGGGGGGGGGG.M..",".GgGGGGGGGgGSM..",".Gg.GGGGGG.SSM..","....gGGGGg......","....gGGGGg......"],"legs":{"c":"#4a3a2c","x1":5,"x2":9,"w":2,"h":3}},"kento":{"pal":{"K":"#2a221e","S":"#f6c9a0","R":"#e23b3b","O":"#f08a2e","o":"#c96a1a","W":"#fff6df","E":"#33302c"},"rows":["...KKKKKK....","..KKKKKKKK...","..RRRRRRRRR..","..SSSSSSSS.RR","..SESSSSES...","..SSSSSSSS...","...SSSSSS....","..OOOOOOOO...",".SOOOOOOOOS..",".SOoWWWWoOS..","..oOOOOOOo..."],"legs":{"c":"#f6c9a0","x1":4,"x2":8,"w":2,"h":2}},"nozomi":{"pal":{"K":"#3a2c22","S":"#f8d0ab","P":"#ff8fb8","p":"#e0608f","R":"#ff5f9e","Y":"#ffd94d","E":"#33302c","W":"#ffffff"},"rows":["R...KKKKK...R.","RR.KKKKKKK.RR.","KK.KKKKKKK.KK.","KKKKSSSSSKKKK.","KK.SESSSES.KK.","KK.SSSSSSS.KKY",".K..SSSSS..KYY","....PPPPP..SYY","...PPPPPPPSS.Y","..PPPPPPPPP...",".PPpPPPPPpPP..",".PppppppppPP.."],"legs":{"c":"#f8d0ab","x1":5,"x2":8,"w":2,"h":2}},"erika":{"pal":{"K":"#2e2620","S":"#f6c9a0","A":"#5a7fd6","a":"#3d5ca8","M":"#cdd9ef","C":"#54e8ff","c":"#b8f8ff","E":"#33302c","G":"#5a4632","W":"#ffffff","D":"#e8608a"},"rows":["...KKKKKK.....c.","..KKKKKKKK....C.","..KKKKKKKK....C.","..KSSSSSSK....C.","..KGWWGWWK....C.","..KSSSSSSK....C.","..K.SSSS.K....C.","..MMAAAAMM...MM.",".MAAADAAAAM.MSM.",".MAAAAAAAAASSM..",".AaAAAAAAaAS....",".Aa.AAAAA.aA....","...aAAAAAa......","...aAAAAAa......"],"legs":{"c":"#3d5ca8","x1":5,"x2":9,"w":2,"h":3}},"yushi":{"pal":{"K":"#2a221e","S":"#f2c49c","V":"#7a5ad6","v":"#5a3fa8","M":"#e8dff8","B":"#8a5a33","Y":"#ffd94d","G":"#efe7d8","T":"#d8863a","E":"#33302c"},"rows":["...KKKKKKKK...Y.","..KKKKKKKKKK.YYY",".KKKKKKKKKKKK.Y.",".KKKKKKKKKKKK.B.",".KKKKSGGSGGKK.B.",".KKKKSSSSSSKK.B.","..KKKSSSSSKK..B.","..MVVVVVVM....B.",".MVVVVVVVVM..SB.",".VVVVVVVVVVSSB..",".VvVVVVVVvVS.B..",".Vv.VVVVV.vT.B..","...vVVVVVvTT.B..","...vVVVVVv......"],"legs":{"c":"#5a3fa8","x1":5,"x2":9,"w":2,"h":2}},"punkA":{"pal":{"M":"#7ee23b","S":"#e8b88a","J":"#3a3a46","j":"#26262f","E":"#2a2a2a","W":"#ffffff"},"rows":["......MM......","......MM......",".....MMM......","...SSSSSS.....","...SESSES.....","...SSSSSS.....","....SSSS......","..JJJJJJJJ....",".SJJJJJJJJS...",".SJjJJJJjJS...","..JjJJJJjJ....","...jJJJJj....."],"legs":{"c":"#26262f","x1":4,"x2":8,"w":2,"h":3}},"punkB":{"pal":{"K":"#5a4632","S":"#e8b88a","G":"#1e1e1e","P":"#8a4ae0","p":"#6a34b0","B":"#c9a06a"},"rows":["...KKKKKK...B.","..KKKKKKKK.BB.","..GGGGGGGG.B..","..SSSSSSSS.B..","..SSSSSSSS.B..","...SSSSSS..B..","..PPPPPPPP.B..",".SPPPPPPPPSB..",".SPpPPPPpPSS..","..PpPPPPpP....","...pPPPPp....."],"legs":{"c":"#3a3a46","x1":4,"x2":8,"w":2,"h":3}},"slime":{"pal":{"B":"#5ab8f0","b":"#3a8fd0","W":"#ffffff","E":"#2a3a5a"},"rows":["....BBBB....","..BBBBBBBB..",".BBWBBBBWBB.",".BBEBBBBEBB.","BBBBBBBBBBBB","BBBBBbbBBBBB","BbBBBBBBBBbB",".bbBBBBBBbb.","..bbbbbbbb.."],"legs":null},"goblin":{"pal":{"G":"#6abf4a","g":"#4a9232","E":"#e23b3b","C":"#8a6a3a","B":"#a08050"},"rows":["G..........B..","GG.GGGGG..BB..",".GGGGGGGG.BB..","..GEGGGEG.B...","..GGGGGGG.B...","...GGGGG..B...","..GGGGGGG.B...",".GGGGGGGGGB...",".GgCCCCCgG....","..gCCCCCg....."],"legs":{"c":"#4a9232","x1":4,"x2":7,"w":2,"h":2}},"bat":{"pal":{"P":"#8a5ad0","p":"#5a3a9a","E":"#ffd94d","W":"#ffffff"},"rows":["p....PP....p","pp..PPPP..pp","ppp.PEEP.ppp","pppPPPPPPppp",".ppPPWWPPpp.","..pPPPPPPp..","....P..P...."],"legs":null},"soldier":{"pal":{"M":"#9aa4b8","m":"#6a7488","S":"#e8b88a","A":"#7a8498","a":"#5a6478","R":"#c03a3a","P":"#c9a06a","T":"#d8dce8","E":"#2a2a2a"},"rows":["...MMMMMM....T.","..MMMMMMMM...T.","..MmRRRRmM...P.","..SSSSSSSS...P.","..SESSSSES...P.","...SSSSSS....P.","..AAAAAAAA...P.",".AAARRRRAAA..P.",".AAAAAAAAAASSP.",".AaAAAAAAaAS.P.","..aAAAAAAa...P.","...aAAAAa....P."],"legs":{"c":"#5a6478","x1":4,"x2":8,"w":2,"h":3}},"knight":{"pal":{"M":"#6a7488","m":"#4a5468","R":"#c03a3a","D":"#8a94a8","d":"#5a6478","E":"#ffd94d"},"rows":["...mMMMMm..DDD.","..mMMMMMMm.DDD.","..MMRRRRMM.DdD.","..MmEMMEmM.DdD.","..MMMMMMMM.DdD.","..mMMMMMMm.DdD.",".MMMMMMMMMMDdD.",".MMMRRRRMMMDdD.",".MMMMMMMMMMDdD.",".MmMMMMMMmMDDD.",".Mm.MMMM.mMDDD.","...mMMMMm......"],"legs":{"c":"#4a5468","x1":5,"x2":9,"w":2,"h":3}},"cannon":{"pal":{"M":"#7a8498","m":"#4a5468","R":"#c03a3a","D":"#2e2e38","Y":"#ffd94d","W":"#3a3a46"},"rows":[".......mmmm....","DDDDD.mMMMMm...","DDDDDDMMRRMM...","DDDDD.mMMMMm...",".....MMMMMMMM..","....mMMYYMMm...","....mMMMMMMm...","...WWWmmmmWWW..","...WWW....WWW.."],"legs":null},"wyvern":{"pal":{"G":"#e07a3a","g":"#b0521a","W":"#f8d8a0","E":"#ffd94d","w":"#c05a2a"},"rows":["....gg........","g..gGGg.......","gg.GGGGGE.....","gggGGGGGGG....",".ggGWWGGG.....","..gGWWGGGg....","...GGGGg.gg...","....G..G......"],"legs":null},"dragon":{"pal":{"R":"#d64040","r":"#a02828","W":"#f8d8a0","Y":"#ffd94d","E":"#ffe94d","D":"#7a1a1a","F":"#ff8a3d"},"rows":["......rr.........rr...",".....rRRr.......rRRr..","....rRRRRr.....rRRRr..","....rRRRRRrrrrRRRRr...","..DRRRRRRRRRRRRRRr....",".DRRERRRRRRRRRRRr.....",".DRRRRRRWWWWRRRRR.....","FDRRRRRWWWWWWRRRRR....","F.DRRRRWWWWWWRRRRRr...","...RRRRWWWWWWRRRRRRr..","...rRRRRWWWWRRRR..rr..","....rRRRRRRRRRr.......",".....rRR..RRr.........",".....rR....Rr.........","....YY......YY........"],"legs":null},"imp":{"pal":{"P":"#c05ae0","p":"#8a3aa8","E":"#ffd94d","H":"#3a2a4a","F":"#ff5f9e"},"rows":["H...H....F.","HP.PH...FFF",".PPPPP...F.",".PEPEP...F.",".PPPPP...F.","..PPP....F.",".PPPPPP..F.","pPPPPPPpPF.",".pPPPPp....","..P..P..p.."],"legs":null},"demon":{"pal":{"D":"#8a3a4a","d":"#5a2030","E":"#ffd94d","H":"#2a1a2a","W":"#e8d8c8","A":"#3a2a3a"},"rows":["H....dDDd....H..","HH..dDDDDd..HH..",".H.dDDDDDDd.H...","A..DEDDDDED..A..","AA.DDDDDDDD.AA..","AAADWDDDDWDAAA..","AA.DDDDDDDD.AA..","A.dDDDDDDDDd.A..",".dDDDDDDDDDDd...",".dDdDDDDDDdDd...",".Dd.DDDDDD.dD...","....dDDDDd......","....dDDDDd......"],"legs":{"c":"#5a2030","x1":5,"x2":9,"w":2,"h":3}},"maou":{"pal":{"V":"#5a3aa8","v":"#3a2478","S":"#b8a8e8","H":"#e8c83a","E":"#ff4a4a","C":"#2a1e3a","Y":"#ffd94d","B":"#1a1226","P":"#ff4ae0"},"rows":["H.....CCCC.....H....","HH...CCCCCC...HH....",".HH.CCHCCHCC.HH.....","..HCCCCCCCCCCH...PP.","...CSSSSSSSSC...PPPP","...SSESSSSESS....PP.","...SSSSSSSSSS.....B.","....SSSSSSSS......B.","..VCCCCCCCCCCV....B.",".VVCCYCCCCYCCVV...B.","VVVCCCCCCCCCCVVV..B.","VVvCCCCCCCCCCvVVSSB.","VVvCCCCCCCCCCvVS..B.","VvvCCCCCCCCCCvv...B.","Vv.vCCCCCCCCv.....B.","...vCCCCCCCCv.....B."],"legs":{"c":"#2a1e3a","x1":7,"x2":12,"w":2,"h":3}},"ninja":{"pal":{"K":"#23233a","S":"#3a3a56","G":"#e23b3b","P":"#2a2a44","p":"#1a1a30","B":"#b8c4d0"},"rows":["...KKKKKK...B.","..KKKKKKKK.BB.","..GGGGGGGG.B..","..SSSSSSSS.B..","..SSSSSSSS.B..","...SSSSSS..B..","..PPPPPPPP.B..",".SPPPPPPPPSB..",".SPpPPPPpPSS..","..PpPPPPpP....","...pPPPPp....."],"legs":{"c":"#1a1a30","x1":4,"x2":8,"w":2,"h":3}},"dsoldier":{"pal":{"M":"#5a4a7a","m":"#3a2a5a","S":"#b8a8d0","A":"#4a3a6a","a":"#2a1e4a","R":"#ff3a5a","P":"#c9a06a","T":"#ff8a3d","E":"#2a2a2a"},"rows":["...MMMMMM....T.","..MMMMMMMM...T.","..MmRRRRmM...P.","..SSSSSSSS...P.","..SESSSSES...P.","...SSSSSS....P.","..AAAAAAAA...P.",".AAARRRRAAA..P.",".AAAAAAAAAASSP.",".AaAAAAAAaAS.P.","..aAAAAAAa...P.","...aAAAAa....P."],"legs":{"c":"#5a6478","x1":4,"x2":8,"w":2,"h":3}},"dknight":{"pal":{"M":"#2e2e3a","m":"#1a1a24","R":"#c02040","D":"#3a3a4a","d":"#20202e","E":"#ff3a3a"},"rows":["...mMMMMm..DDD.","..mMMMMMMm.DDD.","..MMRRRRMM.DdD.","..MmEMMEmM.DdD.","..MMMMMMMM.DdD.","..mMMMMMMm.DdD.",".MMMMMMMMMMDdD.",".MMMRRRRMMMDdD.",".MMMMMMMMMMDdD.",".MmMMMMMMmMDDD.",".Mm.MMMM.mMDDD.","...mMMMMm......"],"legs":{"c":"#4a5468","x1":5,"x2":9,"w":2,"h":3}},"redwyvern":{"pal":{"G":"#d63a3a","g":"#8a1a1a","W":"#f8b8a0","E":"#ffe94d","w":"#a82a2a"},"rows":["....gg........","g..gGGg.......","gg.GGGGGE.....","gggGGGGGGG....",".ggGWWGGG.....","..gGWWGGGg....","...GGGGg.gg...","....G..G......"],"legs":null},"golem":{"pal":{"M":"#8a7a5a","m":"#5a4e38","R":"#4a8a5a","D":"#6a5e44","d":"#443a28","E":"#7ee8a0"},"rows":["...mMMMMm..DDD.","..mMMMMMMm.DDD.","..MMRRRRMM.DdD.","..MmEMMEmM.DdD.","..MMMMMMMM.DdD.","..mMMMMMMm.DdD.",".MMMMMMMMMMDdD.",".MMMRRRRMMMDdD.",".MMMMMMMMMMDdD.",".MmMMMMMMmMDDD.",".Mm.MMMM.mMDDD.","...mMMMMm......"],"legs":{"c":"#4a5468","x1":5,"x2":9,"w":2,"h":3}},"shadowdemon":{"pal":{"D":"#3a2a4a","d":"#241a30","E":"#54e8ff","H":"#54e8ff","W":"#b8c4d0","A":"#1a1226"},"rows":["H....dDDd....H..","HH..dDDDDd..HH..",".H.dDDDDDDd.H...","A..DEDDDDED..A..","AA.DDDDDDDD.AA..","AAADWDDDDWDAAA..","AA.DDDDDDDD.AA..","A.dDDDDDDDDd.A..",".dDDDDDDDDDDd...",".dDdDDDDDDdDd...",".Dd.DDDDDD.dD...","....dDDDDd......","....dDDDDd......"],"legs":{"c":"#5a2030","x1":5,"x2":9,"w":2,"h":3}},"darkmaou":{"pal":{"V":"#a82030","v":"#6a1220","S":"#e8c8c8","H":"#d8dce8","E":"#ff2a2a","C":"#16101e","Y":"#ff3a5a","B":"#1a1226","P":"#54ff8a"},"rows":["H.....CCCC.....H....","HH...CCCCCC...HH....",".HH.CCHCCHCC.HH.....","..HCCCCCCCCCCH...PP.","...CSSSSSSSSC...PPPP","...SSESSSSESS....PP.","...SSSSSSSSSS.....B.","....SSSSSSSS......B.","..VCCCCCCCCCCV....B.",".VVCCYCCCCYCCVV...B.","VVVCCCCCCCCCCVVV..B.","VVvCCCCCCCCCCvVVSSB.","VVvCCCCCCCCCCvVS..B.","VvvCCCCCCCCCCvv...B.","Vv.vCCCCCCCCv.....B.","...vCCCCCCCCv.....B."],"legs":{"c":"#2a1e3a","x1":7,"x2":12,"w":2,"h":3}},"kento2":{"pal":{"K":"#2a221e","S":"#f6c9a0","R":"#ffd94d","O":"#e0483a","o":"#a82a20","W":"#ffd94d","E":"#33302c"},"rows":["...KKKKKK....","..KKKKKKKK...","..RRRRRRRRR..","..SSSSSSSS.RR","..SESSSSES...","..SSSSSSSS...","...SSSSSS....","..OOOOOOOO...",".SOOOOOOOOS..",".SOoWWWWoOS..","..oOOOOOOo..."],"legs":{"c":"#f6c9a0","x1":4,"x2":8,"w":2,"h":2}},"taichi2":{"pal":{"K":"#2a221e","S":"#f6c9a0","Y":"#ffe66b","y":"#b8932a","G":"#2ecf6a","g":"#1a9a48","M":"#ffd94d","W":"#ffffff","E":"#33302c"},"rows":["....KKKKKK......","...KKKKKKKK.....","..KKKKKKKKKK....","..KKyYYyYYyK....","..KSSSSSSSSK....","..SSESSSSES.....","..SSSSSSSSS..W..","...SSSSSSS...M..","..GGGGGGGGG..M..",".GGGGGGGGGGG.M..",".GgGGGGGGGgGSM..",".Gg.GGGGGG.SSM..","....gGGGGg......","....gGGGGg......"],"legs":{"c":"#4a3a2c","x1":5,"x2":9,"w":2,"h":3}},"nozomi2":{"pal":{"K":"#3a2c22","S":"#f8d0ab","P":"#ff5fd0","p":"#c02aa0","R":"#ffd94d","Y":"#ffd94d","E":"#33302c","W":"#ffffff"},"rows":["R...KKKKK...R.","RR.KKKKKKK.RR.","KK.KKKKKKK.KK.","KKKKSSSSSKKKK.","KK.SESSSES.KK.","KK.SSSSSSS.KKY",".K..SSSSS..KYY","....PPPPP..SYY","...PPPPPPPSS.Y","..PPPPPPPPP...",".PPpPPPPPpPP..",".PppppppppPP.."],"legs":{"c":"#f8d0ab","x1":5,"x2":8,"w":2,"h":2}},"erika2":{"pal":{"K":"#2e2620","S":"#f6c9a0","A":"#f0e8ff","a":"#b8a8d8","M":"#ffd94d","C":"#7affff","c":"#e0ffff","E":"#33302c","G":"#5a4632","W":"#ffffff","D":"#e8608a"},"rows":["...KKKKKK.....c.","..KKKKKKKK....C.","..KKKKKKKK....C.","..KSSSSSSK....C.","..KGWWGWWK....C.","..KSSSSSSK....C.","..K.SSSS.K....C.","..MMAAAAMM...MM.",".MAAADAAAAM.MSM.",".MAAAAAAAAASSM..",".AaAAAAAAaAS....",".Aa.AAAAA.aA....","...aAAAAAa......","...aAAAAAa......"],"legs":{"c":"#3d5ca8","x1":5,"x2":9,"w":2,"h":3}},"yushi2":{"pal":{"K":"#2a221e","S":"#f2c49c","V":"#efe4c0","v":"#c8b890","M":"#ffd94d","B":"#8a5a33","Y":"#ff8a3d","G":"#efe7d8","T":"#d8863a","E":"#33302c"},"rows":["...KKKKKKKK...Y.","..KKKKKKKKKK.YYY",".KKKKKKKKKKKK.Y.",".KKKKKKKKKKKK.B.",".KKKKSGGSGGKK.B.",".KKKKSSSSSSKK.B.","..KKKSSSSSKK..B.","..MVVVVVVM....B.",".MVVVVVVVVM..SB.",".VVVVVVVVVVSSB..",".VvVVVVVVvVS.B..",".Vv.VVVVV.vT.B..","...vVVVVVvTT.B..","...vVVVVVv......"],"legs":{"c":"#5a3fa8","x1":5,"x2":9,"w":2,"h":2}}};
+
+const spriteCache = {};
+function makeSprite(name, scale=4, flip=false){
+  const key = name+"_"+scale+"_"+(flip?1:0);
+  if(spriteCache[key]) return spriteCache[key];
+  const def = SPRITES[name];
+  if(!def) return null;
+  const rows = def.rows, pal = def.pal, legs = def.legs;
+  const w = rows[0].length, bodyH = rows.length;
+  const legH = legs ? legs.h : 0;
+  const frames = [];
+  for(let f=0; f<2; f++){
+    const c = document.createElement("canvas");
+    c.width = w*scale; c.height = (bodyH+legH)*scale;
+    const g = c.getContext("2d");
+    const bob = (f===1 && legs) ? 1 : 0;
+    for(let y=0;y<bodyH;y++){
+      const row = rows[y];
+      for(let x=0;x<w;x++){
+        const ch = row[x];
+        if(ch===".") continue;
+        const col = pal[ch]; if(!col) continue;
+        const px = flip ? (w-1-x) : x;
+        g.fillStyle = col;
+        g.fillRect(px*scale,(y+bob)*scale,scale,scale);
+      }
+    }
+    if(legs){
+      g.fillStyle = legs.c;
+      const y0 = bodyH*scale;
+      let x1 = legs.x1, x2 = legs.x2;
+      if(flip){ const t=w-legs.x1-legs.w, t2=w-legs.x2-legs.w; x1=t2; x2=t; }
+      if(f===0){
+        g.fillRect(x1*scale, y0, legs.w*scale, legs.h*scale);
+        g.fillRect((x2+1)*scale, y0, legs.w*scale, Math.max(1,(legs.h-1))*scale);
+      }else{
+        g.fillRect((x1+1)*scale, y0, legs.w*scale, Math.max(1,(legs.h-1))*scale);
+        g.fillRect(x2*scale, y0, legs.w*scale, legs.h*scale);
+      }
+    }
+    frames.push(c);
+  }
+  const out = {frames, w:w*scale, h:(bodyH+legH)*scale};
+  spriteCache[key]=out;
+  return out;
+}
+function spriteEl(name, scale=4, flip=false){
+  const sp = makeSprite(name, scale, flip);
+  const d = document.createElement("div");
+  d.className = "spr";
+  if(!sp){ d.textContent="?"; return d; }
+  // キャッシュした canvas は使い回さず、都度コピー描画する
+  for(let f=0; f<2; f++){
+    const c = document.createElement("canvas");
+    c.width = sp.frames[f].width; c.height = sp.frames[f].height;
+    c.getContext("2d").drawImage(sp.frames[f],0,0);
+    d.appendChild(c);
+  }
+  return d;
+}
+/* あるきアニメ(0.4びょうごとに フレームきりかえ) */
+setInterval(()=>document.body.classList.toggle("walk2"), 400);
+
+/* ================= サウンドエンジン(Web Audio チップチューン / だい1だんから けいしょう) ================= */
+const AudioEng = {
+  ctx:null, master:null, bgmGain:null, muted:false,
+  bgmTimer:null, cur:null, step:0, nextT:0,
+  init(){
+    if(this.ctx) return;
+    try{
+      this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+      this.master = this.ctx.createGain(); this.master.gain.value = .8;
+      this.master.connect(this.ctx.destination);
+      this.bgmGain = this.ctx.createGain(); this.bgmGain.gain.value = .3;
+      this.bgmGain.connect(this.master);
+      if(this.pending){ const p=this.pending; this.pending=null; this.playBGM(p); }
+    }catch(e){}
+  },
+  resume(){ if(this.ctx && this.ctx.state==="suspended") this.ctx.resume(); },
+  toggleMute(){
+    this.muted=!this.muted;
+    if(this.master) this.master.gain.value = this.muted?0:.8;
+    return this.muted;
+  },
+  f(n){ return 440*Math.pow(2,(n-69)/12); },
+  tone(n, t, dur, type, vol, dest, slide){
+    if(!this.ctx||this.muted) return;
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(this.f(n),t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20,this.f(n+slide)), t+dur);
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g); g.connect(dest||this.master);
+    o.start(t); o.stop(t+dur+.02);
+  },
+  noise(t,dur,vol,hp){
+    if(!this.ctx||this.muted) return;
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=vol;
+    const flt=this.ctx.createBiquadFilter(); flt.type=hp?"highpass":"lowpass"; flt.frequency.value=hp?3000:900;
+    src.connect(flt); flt.connect(g); g.connect(this.master);
+    src.start(t);
+  },
+  sfx(kind){
+    if(!this.ctx) return;
+    const t=this.ctx.currentTime;
+    switch(kind){
+      case "tap":    this.tone(88,t,.07,"square",.12); break;
+      case "deploy": this.tone(72,t,.06,"square",.16); this.tone(79,t+.06,.09,"square",.16); break;
+      case "hit":    this.noise(t,.08,.22); break;
+      case "slash":  this.noise(t,.1,.18,true); this.tone(70,t,.08,"sawtooth",.1,null,-12); break;
+      case "shoot":  this.tone(92,t,.09,"square",.1,null,-10); break;
+      case "magic":  this.tone(84,t,.14,"triangle",.16,null,10); this.tone(91,t+.05,.14,"triangle",.13,null,8); break;
+      case "heal":   this.tone(76,t,.12,"sine",.16); this.tone(83,t+.09,.14,"sine",.16); this.tone(88,t+.18,.2,"sine",.15); break;
+      case "coin":   this.tone(93,t,.05,"square",.14); this.tone(98,t+.05,.14,"square",.14); break;
+      case "wallet": this.tone(69,t,.06,"square",.15); this.tone(76,t+.06,.06,"square",.15); this.tone(81,t+.12,.14,"square",.15); break;
+      case "boss":   this.tone(38,t,.5,"sawtooth",.28,null,-5); this.tone(31,t+.1,.6,"sawtooth",.25,null,-4); this.noise(t,.35,.2); break;
+      case "thunder":this.noise(t,.28,.35); this.tone(40,t,.3,"sawtooth",.2,null,-10); break;
+      case "crit":   this.tone(96,t,.06,"square",.15); this.tone(103,t+.05,.1,"square",.15); break;
+      case "block":  this.tone(60,t,.08,"triangle",.14); this.tone(67,t+.05,.08,"triangle",.12); break;
+      case "lose":   [60,56,53,48].forEach((n,i)=>this.tone(n,t+i*.22,.24,"triangle",.2)); break;
+      case "win":    [72,76,79,84,79,84,88].forEach((n,i)=>this.tone(n,t+i*.13,.16,"square",.18)); this.tone(60,t,.9,"triangle",.15); break;
+    }
+  },
+  tracks:{
+    home:{ bpm:112, mel:[76,0,79,0, 81,79,76,0, 74,0,76,0, 72,0,0,0, 76,0,79,0, 84,0,81,0, 79,76,74,0, 72,0,0,0],
+           bass:[48,0,55,0, 53,0,55,0, 50,0,57,0, 48,0,55,0, 48,0,55,0, 53,0,55,0, 50,0,57,0, 48,0,52,0], type:"triangle" },
+    battle:{ bpm:150, mel:[72,72,0,76, 79,0,76,79, 81,0,79,76, 74,0,72,0, 72,72,0,76, 79,0,84,81, 79,81,84,0, 84,0,0,0],
+           bass:[48,48,55,48, 53,53,60,53, 50,50,57,50, 55,55,55,53, 48,48,55,48, 53,53,60,53, 50,50,57,50, 48,48,48,0], type:"square" },
+    boss:{ bpm:158, mel:[69,0,69,72, 75,0,72,69, 68,0,68,71, 74,0,71,68, 69,0,69,72, 75,0,77,75, 72,75,77,80, 81,0,0,0],
+           bass:[45,45,45,45, 44,44,44,44, 41,41,41,41, 44,44,45,45, 45,45,45,45, 44,44,44,44, 41,41,43,43, 45,45,45,45], type:"square" }
+  },
+  playBGM(name){
+    if(!this.ctx){ this.pending=name; return; }
+    if(this.cur===name) return;
+    this.stopBGM(); this.cur=name;
+    const tr=this.tracks[name]; if(!tr) return;
+    this.step=0; this.nextT=this.ctx.currentTime+.06;
+    const stepDur=60/tr.bpm/2;
+    this.bgmTimer=setInterval(()=>{
+      if(this.muted) { this.nextT=this.ctx.currentTime+.06; return; }
+      while(this.nextT < this.ctx.currentTime+.22){
+        const i=this.step % tr.mel.length;
+        const m=tr.mel[i], b=tr.bass[i];
+        if(m) this.tone(m,this.nextT,stepDur*.95,tr.type,.13,this.bgmGain);
+        if(b) this.tone(b,this.nextT,stepDur*.9,"triangle",.15,this.bgmGain);
+        if(i%4===0) this.noise(this.nextT,.03,.05,true);
+        if(i%8===4) this.noise(this.nextT,.05,.07);
+        this.nextT+=stepDur; this.step++;
+      }
+    },90);
+  },
+  stopBGM(){ if(this.bgmTimer){clearInterval(this.bgmTimer); this.bgmTimer=null;} this.cur=null; }
+};
+document.addEventListener("pointerdown", ()=>{ AudioEng.init(); AudioEng.resume(); }, true);
+function toggleMute(btn){ btn.textContent = AudioEng.toggleMute() ? "🔇" : "🔊"; }
+
+/* ================= キャラクター(ひがしやまけ の 5にん) ================= */
+const CHARS = {
+  kento:{
+    id:"kento", name:"けんと", role:"ぶとうか・とうぞく", spr:"kento", ccSpr:"kento2", color:"var(--red)", cc:"#ff6b5a", sym:"け",
+    hp:62, relic:"sneaker",
+    desc:"じなん。ちいさくて せかいいち すばやい。パンチと キックの れんぞくわざで てきを ほんろうする!",
+    mech:"とくぎ【コンボ】— そのターンに つかった カードの かずだけ わざが パワーアップ!",
+    starter:["renda","renda","renda","renda","step_guard","step_guard","step_guard","step_guard","tozoku_kokoroe","shippu_kick"]
+  },
+  taichi:{
+    id:"taichi", name:"たいち", role:"レンジャー・はつめいか", spr:"taichi", ccSpr:"taichi2", color:"var(--green)", cc:"#5ad46a", sym:"た",
+    hp:70, relic:"toolbox",
+    desc:"ちょうなん。てんさい はつめいか。けんで たたかいながら、じさくの ばくだんで だいばくはつを おこす!",
+    mech:"とくぎ【はつめい】— カードで はつめいを ためるほど、ばくだんの いりょくが あがる!",
+    starter:["spanner","spanner","spanner","spanner","kosaku_tate","kosaku_tate","kosaku_tate","kosaku_tate","kenkyu","bakudan_nage"]
+  },
+  nozomi:{
+    id:"nozomi", name:"のぞみ", role:"おどりこ・まほうつかい", spr:"nozomi", ccSpr:"nozomi2", color:"var(--pink)", cc:"#ff8fb8", sym:"の",
+    hp:64, relic:"ribbon",
+    desc:"ちょうじょ。うたと ダンスの スター。おんぷを ためて はなつ ミラクルボイスは とうを ゆるがす!",
+    mech:"とくぎ【おんぷ】— カードで おんぷを ためて、いっきに はきだして ドカン!",
+    starter:["dance_attack","dance_attack","dance_attack","dance_attack","step_mamori","step_mamori","step_mamori","step_mamori","kirakira_voice","humming"]
+  },
+  erika:{
+    id:"erika", name:"えりか", role:"せんし(ママ)", spr:"erika", ccSpr:"erika2", color:"var(--blue)", cc:"#6aa8ff", sym:"え",
+    hp:80, relic:"penlight",
+    desc:"おかあさん。かがやく けんの じゅうせんし。おしかつで きたえた あいの ちからで かいしんの いちげき!",
+    mech:"とくぎ【ファンサ☆】— こうげきが ときどき クリティカル(2ばい)! カードで かくりつアップ!",
+    starter:["bunmawashi","bunmawashi","bunmawashi","bunmawashi","mama_tate","mama_tate","mama_tate","mama_tate","fansa_wink","ouen_koe"]
+  },
+  yushi:{
+    id:"yushi", name:"ゆうし", role:"けんじゃ(パパ)", spr:"yushi", ccSpr:"yushi2", color:"var(--purple)", cc:"#b78ee0", sym:"ゆ",
+    hp:72, relic:"ochoko",
+    desc:"おとうさん。アフロの だいけんじゃ。かいふくまほうと カミナリを あやつる らっかんしゅぎしゃ。",
+    mech:"とくぎ【ほろよい】— めいそう(でるとき 気+2)と ほろよい(あたえる・うける ダメージ2ばい)を きりかえて たたかう!",
+    starter:["tsue_ichigeki","tsue_ichigeki","tsue_ichigeki","tsue_ichigeki","kenja_kamae","kenja_kamae","kenja_kamae","kenja_kamae","cha_susuru","kanpai"]
+  }
+};
+
+/* ---------- カード ----------
+ type: atk / skl / pow | rar: S(スターター) C U R | v/vu: つうじょう & きょうか後 */
+const CARDS = {
+  /* --- けんと (コンボ) --- */
+  renda:{ch:"kento",type:"atk",rar:"S",cost:1,name:"れんぞくパンチ",v:{d:3,hits:2},vu:{d:5,hits:2},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい あたえる。`},
+  step_guard:{ch:"kento",type:"skl",rar:"S",cost:1,name:"みがわりステップ",v:{b:5},vu:{b:8},
+    desc:c=>`${c.b}ブロックを える。`},
+  tozoku_kokoroe:{ch:"kento",type:"skl",rar:"S",cost:0,name:"とうぞくのこころえ",v:{bm:2},vu:{bm:3},
+    desc:c=>`このターンに つかった カード1まいにつき ${c.bm}ブロック。`},
+  shippu_kick:{ch:"kento",type:"atk",rar:"S",cost:0,name:"しっぷうキック",v:{d:4},vu:{d:6},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  combo_rush:{ch:"kento",type:"atk",rar:"C",cost:1,name:"コンボラッシュ",v:{dm:3},vu:{dm:4},
+    desc:c=>`このターンに つかった カード1まいにつき ${c.dm}ダメージ。`},
+  okashi_pocket:{ch:"kento",type:"skl",rar:"C",cost:1,name:"おかしポケット",v:{dr:2},vu:{dr:3},
+    desc:c=>`カードを ${c.dr}まい ひく。`},
+  iki_totonoeru:{ch:"kento",type:"skl",rar:"C",cost:0,name:"いきをととのえる",v:{e:2},vu:{e:3},ex:1,
+    desc:c=>`気を ${c.e} える。<b>しょうめつ</b>。`},
+  kage_bunshin:{ch:"kento",type:"skl",rar:"C",cost:2,name:"かげぶんしん",v:{b:11,dr:1},vu:{b:15,dr:1},
+    desc:c=>`${c.b}ブロック。カードを ${c.dr}まい ひく。`},
+  subayai_miugoki:{ch:"kento",type:"skl",rar:"U",cost:0,name:"すばやいみうごき",v:{dr:1,b:3},vu:{dr:2,b:3},
+    desc:c=>`${c.b}ブロック。カードを ${c.dr}まい ひく。`},
+  tsubame_gaeshi:{ch:"kento",type:"atk",rar:"U",cost:2,name:"つばめがえし",v:{d:7,hits:2},vu:{d:9,hits:2},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい あたえる。`},
+  shippu_kensei:{ch:"kento",type:"pow",rar:"R",cost:2,name:"しっぷうのけんせい",v:{n:2},vu:{n:3},
+    desc:c=>`こうげきカードの ダメージが +${c.n}(1ヒットごと)。`},
+  hyakuretsu:{ch:"kento",type:"atk",rar:"R",cost:3,name:"ひゃくれつけんぶ",v:{d:6,hits:3},vu:{d:8,hits:3},all:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージを ${c.hits}かい あたえる。`},
+
+  /* --- たいち (はつめい) --- */
+  spanner:{ch:"taichi",type:"atk",rar:"S",cost:1,name:"スパナのいちげき",v:{d:6},vu:{d:9},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  kosaku_tate:{ch:"taichi",type:"skl",rar:"S",cost:1,name:"こうさくたて",v:{b:5},vu:{b:8},
+    desc:c=>`${c.b}ブロックを える。`},
+  kenkyu:{ch:"taichi",type:"skl",rar:"S",cost:1,name:"けんきゅう",v:{w:2,dr:1},vu:{w:3,dr:1},
+    desc:c=>`<b>はつめい</b>を ${c.w} える。カードを ${c.dr}まい ひく。`},
+  bakudan_nage:{ch:"taichi",type:"atk",rar:"S",cost:1,name:"ばくだんなげ",v:{d:4,wm:2},vu:{d:6,wm:2},
+    desc:c=>`${c.d}+<b>はつめい</b>×${c.wm}の ダメージ。`},
+  sekkeizu:{ch:"taichi",type:"skl",rar:"C",cost:1,name:"せっけいず",v:{dr:2,w:1},vu:{dr:3,w:1},
+    desc:c=>`カードを ${c.dr}まい ひく。<b>はつめい</b>を ${c.w} える。`},
+  rocket_punch:{ch:"taichi",type:"atk",rar:"C",cost:2,name:"ロケットパンチ",v:{d:12,w:1},vu:{d:16,w:1},
+    desc:c=>`${c.d}ダメージ。<b>はつめい</b>を ${c.w} える。`},
+  barrier_ki:{ch:"taichi",type:"skl",rar:"C",cost:2,name:"バリアはっせいき",v:{b:13,w:1},vu:{b:17,w:1},
+    desc:c=>`${c.b}ブロック。<b>はつめい</b>を ${c.w} える。`},
+  renzoku_bakudan:{ch:"taichi",type:"atk",rar:"U",cost:2,name:"れんぞくばくだん",v:{d:3},vu:{d:4},
+    desc:c=>`<b>はつめい</b>(さいだい7)の かずだけ、${c.d}ダメージを あたえる。`},
+  hiruyasumi:{ch:"taichi",type:"skl",rar:"U",cost:1,name:"ひるやすみ",v:{h:6,e:1},vu:{h:9,e:1},ex:1,
+    desc:c=>`HPを ${c.h} かいふくし、気を ${c.e} える。<b>しょうめつ</b>。`},
+  kemuridama:{ch:"taichi",type:"skl",rar:"U",cost:1,name:"けむりだま",v:{wk:2},vu:{wk:3},all:1,
+    desc:c=>`てき ぜんたいに すいじゃく${c.wk}を あたえる。`},
+  tensai_ou:{ch:"taichi",type:"pow",rar:"R",cost:2,name:"てんさいはつめいおう",v:{w:1},vu:{w:2},
+    desc:c=>`ターンかいしじ、<b>はつめい</b>を ${c.w} える。`},
+  daibakuhatsu:{ch:"taichi",type:"atk",rar:"R",cost:3,name:"だいばくはつ",v:{d:18,vn:2},vu:{d:24,vn:3},
+    desc:c=>`${c.d}ダメージ。ぜいじゃく${c.vn}を あたえる。`},
+
+  /* --- のぞみ (おんぷ) --- */
+  dance_attack:{ch:"nozomi",type:"atk",rar:"S",cost:1,name:"ダンシングアタック",v:{d:6},vu:{d:9},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  step_mamori:{ch:"nozomi",type:"skl",rar:"S",cost:1,name:"ステップガード",v:{b:5},vu:{b:8},
+    desc:c=>`${c.b}ブロックを える。`},
+  kirakira_voice:{ch:"nozomi",type:"atk",rar:"S",cost:1,name:"キラキラボイス",v:{d:5,f:1},vu:{d:7,f:1},
+    desc:c=>`${c.d}ダメージ。<b>おんぷ</b>を ${c.f} える。`},
+  humming:{ch:"nozomi",type:"skl",rar:"S",cost:1,name:"ハミング",v:{b:4,f:1},vu:{b:6,f:1},
+    desc:c=>`${c.b}ブロック。<b>おんぷ</b>を ${c.f} える。`},
+  miracle_voice:{ch:"nozomi",type:"atk",rar:"C",cost:2,name:"ミラクルボイス",v:{d:8,fm:3},vu:{d:11,fm:4},
+    desc:c=>`${c.d}+<b>おんぷ</b>×${c.fm}の ダメージ。おんぷを ぜんぶ つかう。`},
+  iyashi_uta:{ch:"nozomi",type:"skl",rar:"C",cost:1,name:"いやしのうた",v:{h:5},vu:{h:8},ex:1,
+    desc:c=>`HPを ${c.h} かいふく。<b>しょうめつ</b>。`},
+  zenryoku_stage:{ch:"nozomi",type:"atk",rar:"C",cost:0,name:"ぜんりょくステージ",v:{d:11,sd:3},vu:{d:15,sd:3},
+    desc:c=>`HPを ${c.sd} うしない、${c.d}ダメージを あたえる。`},
+  veil_mai:{ch:"nozomi",type:"skl",rar:"C",cost:2,name:"ベールのまい",v:{b:12,f:1},vu:{b:16,f:1},
+    desc:c=>`${c.b}ブロック。<b>おんぷ</b>を ${c.f} える。`},
+  encore:{ch:"nozomi",type:"skl",rar:"C",cost:1,name:"アンコール",v:{dr:2,f:1},vu:{dr:3,f:1},
+    desc:c=>`カードを ${c.dr}まい ひく。<b>おんぷ</b>を ${c.f} える。`},
+  spotlight:{ch:"nozomi",type:"pow",rar:"U",cost:1,name:"スポットライト",v:{s:2},vu:{s:3},
+    desc:c=>`きんりょくを ${c.s} える。`},
+  minna_chorus:{ch:"nozomi",type:"atk",rar:"U",cost:2,name:"みんなでコーラス",v:{d:10},vu:{d:14},all:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージ。`},
+  refrain:{ch:"nozomi",type:"skl",rar:"U",cost:1,name:"リフレイン",v:{h:4,f:2},vu:{h:6,f:2},ex:1,
+    desc:c=>`HPを ${c.h} かいふくし、<b>おんぷ</b>を ${c.f} える。<b>しょうめつ</b>。`},
+  ultra_hitone:{ch:"nozomi",type:"atk",rar:"R",cost:3,name:"ウルトラハイトーン",v:{d:24},vu:{d:32},ex:1,
+    desc:c=>`${c.d}ダメージ。<b>しょうめつ</b>。`},
+  star_utahime:{ch:"nozomi",type:"pow",rar:"R",cost:2,name:"スターうたひめ",v:{n:2},vu:{n:3},
+    desc:c=>`ターンかいしじ、<b>おんぷ</b>を 1 えて HPを ${c.n-1} かいふくする。`},
+
+  /* --- えりか (ファンサ☆) --- */
+  bunmawashi:{ch:"erika",type:"atk",rar:"S",cost:1,name:"ぶんまわし",v:{d:6},vu:{d:9},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  mama_tate:{ch:"erika",type:"skl",rar:"S",cost:1,name:"ママのたて",v:{b:5},vu:{b:8},
+    desc:c=>`${c.b}ブロックを える。`},
+  fansa_wink:{ch:"erika",type:"atk",rar:"S",cost:1,name:"ファンサウィンク",v:{d:5,cr:4},vu:{d:7,cr:5},
+    desc:c=>`${c.d}ダメージ。<b>ファンサ</b>りつ+${c.cr}%。`},
+  ouen_koe:{ch:"erika",type:"skl",rar:"S",cost:1,name:"おうえんのこえ",v:{b:4,cr:4},vu:{b:6,cr:5},
+    desc:c=>`${c.b}ブロック。<b>ファンサ</b>りつ+${c.cr}%。`},
+  kaishin_hitofuri:{ch:"erika",type:"atk",rar:"C",cost:1,name:"かいしんのひとふり",v:{d:9,cr:3},vu:{d:12,cr:3},
+    desc:c=>`${c.d}ダメージ。<b>ファンサ</b>りつ+${c.cr}%。`},
+  uchiwa_guard:{ch:"erika",type:"skl",rar:"C",cost:1,name:"うちわガード",v:{b:8,cr:3},vu:{b:11,cr:3},
+    desc:c=>`${c.b}ブロック。<b>ファンサ</b>りつ+${c.cr}%。`},
+  ensei_junbi:{ch:"erika",type:"skl",rar:"C",cost:1,name:"えんせいのじゅんび",v:{dr:2,b:3},vu:{dr:2,b:6},
+    desc:c=>`${c.b}ブロック。カードを ${c.dr}まい ひく。`},
+  sashiire:{ch:"erika",type:"skl",rar:"C",cost:1,name:"さしいれタイム",v:{h:5},vu:{h:8},ex:1,
+    desc:c=>`HPを ${c.h} かいふく。<b>しょうめつ</b>。`},
+  kiai_sakebi:{ch:"erika",type:"skl",rar:"C",cost:1,name:"きあいのさけび",v:{s:1,b:5},vu:{s:1,b:8},
+    desc:c=>`きんりょくを ${c.s} えて、${c.b}ブロック。`},
+  penlight_swing:{ch:"erika",type:"atk",rar:"U",cost:2,name:"ペンライトスイング",v:{d:9},vu:{d:13},all:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージ。`},
+  chozetsu_fansa:{ch:"erika",type:"pow",rar:"U",cost:1,name:"ちょうぜつファンサ",v:{cr:12},vu:{cr:18},
+    desc:c=>`<b>ファンサ</b>りつ+${c.cr}%。`},
+  gokai_zangeki:{ch:"erika",type:"atk",rar:"U",cost:2,name:"ごうかいざんげき",v:{d:14},vu:{d:19},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  densetsu_senshi:{ch:"erika",type:"pow",rar:"R",cost:3,name:"でんせつのせんし",v:{s:1},vu:{s:2},
+    desc:c=>`ターンかいしじ、きんりょくを ${c.s} える。`},
+  magnum_slash:{ch:"erika",type:"atk",rar:"R",cost:3,name:"マグナムスラッシュ",v:{d:20,cr:10},vu:{d:26,cr:12},ex:1,
+    desc:c=>`${c.d}ダメージ。<b>ファンサ</b>りつ+${c.cr}%。<b>しょうめつ</b>。`},
+
+  /* --- ゆうし (ほろよい) --- */
+  tsue_ichigeki:{ch:"yushi",type:"atk",rar:"S",cost:1,name:"つえのいちげき",v:{d:6},vu:{d:9},
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  kenja_kamae:{ch:"yushi",type:"skl",rar:"S",cost:1,name:"けんじゃのかまえ",v:{b:5},vu:{b:8},
+    desc:c=>`${c.b}ブロックを える。`},
+  cha_susuru:{ch:"yushi",type:"skl",rar:"S",cost:1,name:"ちゃをすする",v:{b:5},vu:{b:8},stance:"calm",
+    desc:c=>`${c.b}ブロック。<b>めいそう</b>に はいる。`},
+  kanpai:{ch:"yushi",type:"atk",rar:"S",cost:1,name:"かんぱい!",v:{d:7},vu:{d:10},stance:"wrath",
+    desc:c=>`<b>ほろよい</b>に なって、${c.d}ダメージを あたえる。`},
+  yopparai_kenpo:{ch:"yushi",type:"atk",rar:"C",cost:1,name:"よっぱらいけんぽう",v:{d:9},vu:{d:12},stance:"exit",
+    desc:c=>`${c.d}ダメージ。かまえを かいじょする。`},
+  futsukayoi_guard:{ch:"yushi",type:"skl",rar:"C",cost:1,name:"けんじゃのめいそう",v:{b:7,cb:4},vu:{b:10,cb:5},
+    desc:c=>`${c.b}ブロック。<b>めいそう</b>ちゅうなら さらに+${c.cb}。`},
+  recycle:{ch:"yushi",type:"skl",rar:"C",cost:1,name:"もったいないのじゅつ",v:{dr:1},vu:{dr:2},special:"rinne",
+    desc:c=>`すてふだから ランダムな 1まいを てふだに もどし、カードを ${c.dr}まい ひく。`},
+  papa_kaifuku:{ch:"yushi",type:"skl",rar:"C",cost:1,name:"パパのかいふくじゅつ",v:{h:4,b:4},vu:{h:6,b:6},ex:1,
+    desc:c=>`HPを ${c.h} かいふくし、${c.b}ブロックを える。<b>しょうめつ</b>。`},
+  kaminari_otoshi:{ch:"yushi",type:"atk",rar:"U",cost:2,name:"カミナリおとし",v:{d:14},vu:{d:19},thunder:1,
+    desc:c=>`${c.d}ダメージを あたえる。`},
+  satori_jikan:{ch:"yushi",type:"skl",rar:"U",cost:0,name:"さとりのじかん",v:{dr:1,cdr:1},vu:{dr:2,cdr:1},
+    desc:c=>`カードを ${c.dr}まい ひく。<b>めいそう</b>ちゅうなら さらに+${c.cdr}まい。`},
+  horoyoi_kenja:{ch:"yushi",type:"pow",rar:"R",cost:2,name:"ほろよいだいけんじゃ",v:{b:3},vu:{b:4},
+    desc:c=>`ターンかいしじ、${c.b}ブロックを える。`},
+  raijin_ikari:{ch:"yushi",type:"atk",rar:"R",cost:3,name:"らいじんのいかり",v:{d:22},vu:{d:30},stance:"calm",thunder:1,
+    desc:c=>`${c.d}ダメージを あたえ、<b>めいそう</b>に はいる。`},
+
+  /* --- むしょく(きょうつう) --- */
+  ganbari_muchi:{ch:"none",type:"atk",rar:"C",cost:1,name:"がんばりのいちげき",v:{d:10,sd:2},vu:{d:13,sd:2},
+    desc:c=>`HPを ${c.sd} うしない、${c.d}ダメージを あたえる。`},
+  mama_onigiri:{ch:"none",type:"skl",rar:"C",cost:1,name:"おうちのおにぎり",v:{h:4},vu:{h:6},ex:1,
+    desc:c=>`HPを ${c.h} かいふく。<b>しょうめつ</b>。`},
+  shinkokyu:{ch:"none",type:"skl",rar:"C",cost:0,name:"しんこきゅう",v:{b:6},vu:{b:9},ex:1,
+    desc:c=>`${c.b}ブロック。<b>しょうめつ</b>。`}
+};
+
+/* ---------- レリック(たからもの) ---------- */
+const RELICS = {
+  sneaker:{glyph:"👟",name:"ぼろぼろスニーカー",desc:"まいターン、カードを 1まい おおく ひく。"},
+  toolbox:{glyph:"🧰",name:"はつめいこうぐばこ",desc:"せんとうかいしじ、はつめいを 2 える。"},
+  ribbon:{glyph:"🎀",name:"おうえんリボン",desc:"せんとうに かつたび、HPを 4 かいふくする。"},
+  penlight:{glyph:"🔦",name:"きんのペンライト",desc:"せんとうかいしじ、きんりょくを 1 える。"},
+  ochoko:{glyph:"🍶",name:"おちょこのじゅず",desc:"せんとうかいしじ、めいそうに はいる。"},
+  bento:{glyph:"🍱",name:"おべんとうばこ",desc:"にゅうしゅじ、さいだいHPが 8 ふえる。"},
+  clock:{glyph:"⏰",name:"めざましどけい",desc:"かくせんとうの さいしょの ターン、気を 1 おおく える。"},
+  piggy:{glyph:"🐷",name:"ちょきんばこ",desc:"せんとうしょうりじの ゴールドが +15 される。"},
+  lamp:{glyph:"🏮",name:"よなきのランプ",desc:"気の さいだいちが +1。ターンかいしじに HPを 1 うしなう。"},
+  doorbell:{glyph:"🔔",name:"げんかんのベル",desc:"せんとうかいしじ、てき ぜんたいに すいじゃく1を あたえる。"},
+  photo:{glyph:"🖼️",name:"かぞくのしゃしん",desc:"せんとうかいしじ、6ブロックを える。"},
+  ojiichan:{glyph:"🪄",name:"おじいちゃんのつえ",desc:"せんとうかいしじ、きんりょくを 1 える。"}
+};
+const RELIC_POOL = ["photo","bento","clock","ojiichan","piggy","lamp","doorbell"];
+
+
+/* ---------- てき(だい1だんの てきたちが とうに しゅうけつ) ---------- */
+const ENEMIES = {
+  punkA:{name:"チンピラ",spr:"punkA",scale:4,hp:[38,44],
+    moves:[{t:"atk",d:8,txt:"なぐりかかる"},{t:"atk_debuff",d:4,wk:1,txt:"すごむ"},{t:"blk",b:6,txt:"みがまえる"}],
+    ai:(e,t)=>t%3===0?0:(t%3===1?1:2)},
+  slime:{name:"スライム",spr:"slime",scale:4,hp:[34,40],
+    moves:[{t:"multi",d:5,hits:2,txt:"ぷるぷるアタック"},{t:"atk",d:9,txt:"とびかかる"}],
+    ai:(e,t)=>t%2},
+  punkB:{name:"チンピラばんちょう",spr:"punkB",scale:4,hp:[52,58],
+    moves:[{t:"blk",b:9,txt:"うでぐみ"},{t:"atk",d:13,txt:"おもいいちげき"}],
+    ai:(e,t)=>t%2},
+  bat:{name:"コウモリ",spr:"bat",scale:4,hp:[20,24],
+    moves:[{t:"atk",d:5,txt:"かみつく"},{t:"atk_debuff",d:3,vn:1,txt:"ちょうおんぱ"}],
+    ai:(e,t)=>rnd(2)},
+  goblin:{name:"ゴブリン",spr:"goblin",scale:4,hp:[36,42],
+    moves:[{t:"buff",s:2,txt:"いきりたつ"},{t:"atk",d:6,txt:"こんぼう"}],
+    ai:(e,t)=>t%3===0?0:1},
+  imp:{name:"インプ",spr:"imp",scale:4,hp:[22,26],
+    moves:[{t:"atk",d:6,txt:"ひっかく"},{t:"atk_debuff",d:3,vn:1,txt:"いたずらのつめ"}],
+    ai:(e,t)=>rnd(2)},
+  soldier:{name:"ていこくへい",spr:"soldier",scale:4,hp:[50,56],
+    moves:[{t:"atk",d:10,txt:"やりつき"},{t:"blk",b:8,txt:"たてをかまえる"},{t:"atk_debuff",d:5,wk:1,txt:"とつげきめいれい"}],
+    ai:(e,t)=>t%3},
+  wyvern:{name:"ワイバーン",spr:"wyvern",scale:4,hp:[44,50],
+    moves:[{t:"buff",s:2,txt:"ほえる"},{t:"multi",d:6,hits:2,txt:"つばさのれんげき"}],
+    ai:(e,t)=>t%3===0?0:1},
+  ninja:{name:"やみにんじゃ",spr:"ninja",scale:4,hp:[28,33],
+    moves:[{t:"multi",d:4,hits:3,txt:"しゅりけんらんぶ"},{t:"debuff",wk:1,txt:"けむりがくれ"},{t:"atk",d:8,txt:"きりつけ"}],
+    ai:(e,t)=>t%3},
+  /* エリート */
+  knight:{name:"てつのナイト",spr:"knight",scale:4,hp:[78,84],elite:1,
+    moves:[{t:"atk_debuff",d:9,vn:2,txt:"たてでなぐる"},{t:"atk",d:14,txt:"おおぶりのけん"},{t:"blk_buff",b:10,s:1,txt:"よろいをかためる"}],
+    ai:(e,t)=>t%3},
+  cannon:{name:"ほうだいロボ",spr:"cannon",scale:4,hp:[70,76],elite:1,
+    moves:[{t:"debuff",wk:2,txt:"けむりだん"},{t:"multi",d:6,hits:2,txt:"れんしゃ"},{t:"buff",s:2,txt:"ほうしんちょうせい"}],
+    ai:(e,t)=>t%3},
+  /* ボス */
+  maou:{name:"まおう",spr:"maou",scale:5,hp:[130,130],boss:1,
+    moves:[{t:"buff",s:2,txt:"やみのちからをためる"},{t:"atk",d:16,txt:"ダークブレス"},{t:"multi",d:5,hits:3,txt:"つめのれんげき"},{t:"blk_atk",b:12,d:8,txt:"まおうのいあつ"}],
+    ai:(e,t)=>t%4}
+};
+const POOL_EASY = [["punkA"],["slime"],["goblin"],["bat","bat"],["punkA","imp"]];
+const POOL_HARD = [["punkB"],["soldier"],["wyvern"],["imp","imp","imp"],["ninja","slime"],["punkB","bat"]];
+const POOL_ELITE = [["knight"],["cannon"]];
+
+/* ---------- カードアート ---------- */
+const CARD_ART = {
+  renda:"👊", step_guard:"💨", tozoku_kokoroe:"🥷", shippu_kick:"🦶", combo_rush:"⚡",
+  okashi_pocket:"🍬", iki_totonoeru:"😤", kage_bunshin:"👥", subayai_miugoki:"🏃", tsubame_gaeshi:"🗡️",
+  shippu_kensei:"🌪️", hyakuretsu:"💥",
+  spanner:"🔧", kosaku_tate:"🛡️", kenkyu:"🔬", bakudan_nage:"💣", sekkeizu:"📐",
+  rocket_punch:"🚀", barrier_ki:"🔋", renzoku_bakudan:"🧨", hiruyasumi:"🍙", kemuridama:"🌫️",
+  tensai_ou:"👑", daibakuhatsu:"💥",
+  dance_attack:"💃", step_mamori:"🩰", kirakira_voice:"✨", humming:"🎵", miracle_voice:"🎤",
+  iyashi_uta:"💖", zenryoku_stage:"🌟", veil_mai:"🎀", encore:"🎶", spotlight:"🔆",
+  minna_chorus:"🎼", refrain:"💞", ultra_hitone:"📢", star_utahime:"🌠",
+  bunmawashi:"⚔️", mama_tate:"🛡️", fansa_wink:"😉", ouen_koe:"📣", kaishin_hitofuri:"🗡️",
+  uchiwa_guard:"🪭", ensei_junbi:"🎒", sashiire:"🍩", kiai_sakebi:"🔥", penlight_swing:"🔦",
+  chozetsu_fansa:"💖", gokai_zangeki:"⚔️", densetsu_senshi:"👸", magnum_slash:"🌈",
+  tsue_ichigeki:"🪄", kenja_kamae:"🧙", cha_susuru:"🍵", kanpai:"🍶", yopparai_kenpo:"🥴",
+  futsukayoi_guard:"🧘", recycle:"♻️", papa_kaifuku:"🤲", kaminari_otoshi:"⚡", satori_jikan:"💡",
+  horoyoi_kenja:"🌙", raijin_ikari:"🌩️",
+  ganbari_muchi:"💪", mama_onigiri:"🍙", shinkokyu:"🫁"
+};
+const ART_BG = {
+  kento:["#8a3324","#2a0d08"], taichi:["#1e6b34","#0a2010"],
+  nozomi:["#8a3a5e","#2a0d1c"], erika:["#2c4784","#0d1530"],
+  yushi:["#5a3a8a","#180d2a"], none:["#4a4a66","#16162a"]
+};
+
+/* ================= じょうたい ================= */
+let S = null;
+let EASY = false;
+const MAX_FLOOR = 14;
+
+/* ---------- あいことば(クリアきろく) ---------- */
+const CHAR_ORDER = ["kento","taichi","nozomi","erika","yushi"];
+const B36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let CLEARED = [false,false,false,false,false];
+function encodePass(){
+  let flags = 0;
+  CLEARED.forEach((c,i)=>{ if(c) flags |= (1<<i); });
+  const body = "Q" + B36[flags];
+  let sum = 0; for(const ch of body) sum += ch.charCodeAt(0);
+  return body + B36[sum % 36];
+}
+function decodePass(p){
+  p = (p||"").trim().toUpperCase();
+  if(p.length!==3 || p[0]!=="Q") return null;
+  let sum = 0; for(const ch of p.slice(0,2)) sum += ch.charCodeAt(0);
+  if(B36[sum % 36] !== p[2]) return null;
+  const flags = B36.indexOf(p[1]);
+  if(flags < 0 || flags > 31) return null;
+  return CHAR_ORDER.map((_,i)=>!!(flags & (1<<i)));
+}
+function enterPass(){
+  const v = $("pass-input").value;
+  const r = decodePass(v);
+  if(!r){ toast("あいことばが ちがうみたい…"); return; }
+  CLEARED = r;
+  AudioEng.sfx("wallet");
+  toast("あいことばを おもいだした!");
+  renderTitle();
+}
+function renderTitle(){
+  const box = $("title-sprites"); box.innerHTML="";
+  const allClear = CLEARED.every(c=>c);
+  CHAR_ORDER.forEach((id,i)=>{
+    const ch = CHARS[id];
+    const el = spriteEl(allClear ? ch.ccSpr : ch.spr, MOBILE?3:4);
+    box.appendChild(el);
+  });
+  const n = CLEARED.filter(c=>c).length;
+  $("clear-stars").textContent =
+    allClear ? "★★★★★ かぞく ぜんいん とうは! でんせつの きんいろファミリー!" :
+    n>0 ? "とうは: " + CHAR_ORDER.map((id,i)=>CLEARED[i]?"★":"☆").join(" ") + `　(${n}/5にん クリア)` : "";
+}
+
+function startGame(easy){
+  EASY = easy;
+  AudioEng.playBGM("home");
+  toChar();
+}
+
+function newRun(chId){
+  _ended=false;
+  const ch = CHARS[chId];
+  const bonus = EASY ? 10 : 0;
+  S = {
+    ch, hp:ch.hp+bonus, maxHp:ch.hp+bonus, gold:90, floor:0,
+    deck: ch.starter.map(id=>mkCard(id)),
+    relics:[ch.relic],
+    combat:null
+  };
+  AudioEng.sfx("deploy");
+  updateTopbar(); $("topbar").classList.add("on");
+  nextFloor();
+}
+let CARD_UID = 0;
+function mkCard(id, up=false){ return {uid:++CARD_UID, id, up}; }
+function cv(card){
+  const d = CARDS[card.id];
+  return Object.assign({}, d.v, card.up ? d.vu : {});
+}
+function cname(card){ return CARDS[card.id].name + (card.up ? "＋" : ""); }
+
+/* ---------- がめん ---------- */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+}
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.style.display="block";
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.style.display="none",1800);
+}
+function updateTopbar(){
+  if(!S) return;
+  const nm=$("tb-name"); nm.innerHTML="";
+  const face = spriteEl(S.ch.spr, 2);
+  face.style.transform="translateY(2px)";
+  nm.appendChild(face);
+  nm.appendChild(document.createTextNode(S.ch.name));
+  $("tb-hp").textContent = `${S.hp}/${S.maxHp}`;
+  $("tb-gold").textContent = S.gold;
+  $("tb-floor").textContent = `${S.floor}かい / ${MAX_FLOOR}かい`;
+  const rr=$("relic-row"); rr.innerHTML="";
+  S.relics.forEach(r=>{
+    const R=RELICS[r], el=document.createElement("div");
+    el.className="relic"; el.textContent=R.glyph;
+    el.setAttribute("data-tip", `${R.name}：${R.desc}`);
+    rr.appendChild(el);
+  });
+}
+function hasRelic(id){ return S.relics.includes(id); }
+function gainRelic(id){
+  S.relics.push(id);
+  if(id==="bento"){ S.maxHp+=8; S.hp+=8; }
+  AudioEng.sfx("wallet");
+  toast(`たからもの ゲット：${RELICS[id].name}`);
+  updateTopbar();
+}
+
+/* ---------- キャラせんたく ---------- */
+function toChar(){
+  const g=$("char-grid"); g.innerHTML="";
+  Object.values(CHARS).forEach((ch,i)=>{
+    const el=document.createElement("div");
+    el.className="char-card"; el.style.setProperty("--c", ch.color);
+    const cleared = CLEARED[CHAR_ORDER.indexOf(ch.id)];
+    el.innerHTML = `${cleared?'<div class="cleared">★とうはずみ</div>':""}
+      <div class="glyph"></div>
+      <h3>${ch.name}</h3><div class="role">${ch.role}</div>
+      <p>${ch.desc}</p>
+      <div class="mech">${ch.mech}<br>はじめの たからもの：${RELICS[ch.relic].glyph} ${RELICS[ch.relic].name}</div>`;
+    el.querySelector(".glyph").appendChild(spriteEl(cleared ? ch.ccSpr : ch.spr, 4));
+    el.onclick=()=>{ AudioEng.sfx("tap"); newRun(ch.id); };
+    g.appendChild(el);
+  });
+  show("char-screen");
+}
+
+/* ---------- マップ ---------- */
+const NODE_DEFS = {
+  battle:{glyph:"⚔️",title:"まものの へや",desc:"とうの まものたちが まちかまえている。"},
+  elite:{glyph:"🔥",title:"つよてき ちゅうい!",desc:"きょうてき。だけど かてば たからものが もらえる。"},
+  rest:{glyph:"⛺",title:"キャンプ",desc:"やすんで かいふくするか、カードを きたえる。"},
+  shop:{glyph:"🏪",title:"とうの どうぐや",desc:"カードや たからものを うっている ふしぎな みせ。"},
+  event:{glyph:"❓",title:"なにかの けはい",desc:"なにが まっているかは、いってみないと わからない。"},
+  boss:{glyph:"👿",title:"まおう",desc:"とうの ちょうじょうで まちうける、さいごの てき。"}
+};
+function nextFloor(){
+  S.floor++;
+  if(S.floor > MAX_FLOOR){ return; }
+  AudioEng.playBGM("home");
+  let choices;
+  if(S.floor===1) choices=["battle"];
+  else if(S.floor===MAX_FLOOR) choices=["boss"];
+  else if(S.floor===7) choices=["rest","shop","event"];
+  else {
+    const pool=["battle","battle","event"];
+    if(S.floor>=4) pool.push("elite");
+    if(S.floor>=3) pool.push("rest","shop");
+    choices = shuffle(pool).slice(0,3);
+    if(!choices.includes("battle") && Math.random()<.5) choices[0]="battle";
+    choices=[...new Set(choices)];
+  }
+  $("map-title").textContent = `とうの ${S.floor}かい`;
+  $("map-sub").textContent = S.floor===MAX_FLOOR ? "ちょうじょうは めのまえ。やみの けはいが つよくなる…" : "すすむ みちを えらぼう";
+  const row=$("node-row"); row.innerHTML="";
+  choices.forEach(t=>{
+    const n=NODE_DEFS[t], el=document.createElement("div");
+    el.className="node";
+    el.innerHTML=`<span class="nglyph">${n.glyph}</span><div class="ntitle">${n.title}</div><div class="ndesc">${n.desc}</div>`;
+    el.onclick=()=>{ AudioEng.sfx("tap"); enterNode(t); };
+    row.appendChild(el);
+  });
+  const tp=$("tower-progress"); tp.innerHTML="";
+  for(let i=1;i<=MAX_FLOOR;i++){
+    const d=document.createElement("div"); d.className="tp"+(i<S.floor?" done":i===S.floor?" now":"");
+    d.textContent=i; tp.appendChild(d);
+  }
+  updateTopbar();
+  show("map-screen");
+}
+function enterNode(t){
+  if(t==="battle") startCombat(S.floor<=5 ? pick(POOL_EASY) : pick(POOL_HARD), "battle");
+  else if(t==="elite") startCombat(pick(POOL_ELITE), "elite");
+  else if(t==="boss") startCombat(["maou"], "boss");
+  else if(t==="rest") restScreen();
+  else if(t==="shop") shopScreen();
+  else if(t==="event") eventScreen();
+}
+
+/* ================= せんとう ================= */
+function startCombat(enemyIds, kind){
+  const scale = 1 + Math.max(0, S.floor-1)*0.03;
+  const enemies = enemyIds.map((id,i)=>{
+    const E=ENEMIES[id];
+    const hp = Math.round((E.hp[0]+rnd(E.hp[1]-E.hp[0]+1)) * (E.boss?1:scale) * (EASY?0.85:1));
+    return {id, uid:i, name:E.name, spr:E.spr, sprScale:E.scale, hp, maxHp:hp, blk:0,
+      st:{}, turn:0, boss:!!E.boss, elite:!!E.elite, move:null};
+  });
+  S.combat = {
+    kind, enemies, turn:0, energyMax:3 + (hasRelic("lamp")?1:0),
+    energy:0, hand:[], draw:shuffle(S.deck.map(c=>({...c}))), discard:[], exhaust:[],
+    blk:0, st:{}, faith:0, wisdom:0, played:0, stance:null, selected:null,
+    crit: S.ch.id==="erika" ? 15 : 0
+  };
+  const C=S.combat;
+  if(hasRelic("toolbox") && S.ch.id==="taichi") C.wisdom=2;
+  if(hasRelic("ochoko") && S.ch.id==="yushi") C.stance="calm";
+  if(hasRelic("photo")) C.blk=6;
+  if(hasRelic("penlight")||hasRelic("ojiichan")) C.st.str=(C.st.str||0)+ (hasRelic("penlight")?1:0) + (hasRelic("ojiichan")?1:0);
+  if(hasRelic("doorbell")) enemies.forEach(e=>e.st.weak=(e.st.weak||0)+1);
+  enemies.forEach(e=>chooseMove(e));
+  if(kind==="boss"){ AudioEng.sfx("boss"); AudioEng.playBGM("boss"); }
+  else AudioEng.playBGM("battle");
+  show("combat-screen");
+  startPlayerTurn();
+}
+function chooseMove(e){
+  const E=ENEMIES[e.id];
+  e.move = E.moves[E.ai(e, e.turn)];
+  e.turn++;
+}
+function showBanner(txt, foe){
+  const b=$("turn-banner");
+  b.textContent=txt;
+  b.className=foe?"foe":"";
+  void b.offsetWidth;
+  b.classList.add("show");
+}
+function startPlayerTurn(){
+  const C=S.combat;
+  C.turn++;
+  showBanner(C.turn===1 ? `${S.ch.name}の ターン` : "きみの ターン");
+  C.blk = 0;
+  C.energy = C.energyMax + (hasRelic("clock") && C.turn===1 ? 1 : 0);
+  C.played = 0;
+  if(hasRelic("lamp")) damagePlayer(1, true);
+  C.powers = C.powers||{};
+  if(C.powers.star_utahime){ C.faith+=1; S.hp=Math.min(S.maxHp,S.hp+(C.powers.star_utahime-1)); }
+  if(C.powers.tensai_ou) C.wisdom += C.powers.tensai_ou;
+  if(C.powers.horoyoi_kenja) C.blk += C.powers.horoyoi_kenja;
+  if(C.powers.densetsu_senshi) C.st.str=(C.st.str||0)+C.powers.densetsu_senshi;
+  const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0);
+  drawCards(n);
+  C.dealAnim = true;
+  renderCombat();
+}
+function drawCards(n){
+  const C=S.combat;
+  for(let i=0;i<n;i++){
+    if(C.draw.length===0){
+      if(C.discard.length===0) break;
+      C.draw = shuffle(C.discard); C.discard=[];
+    }
+    C.hand.push(C.draw.pop());
+  }
+}
+function pStr(){ return (S.combat.st.str||0); }
+function calcPlayerDmg(base, perHitBonus=0){
+  const C=S.combat;
+  let d = base + pStr() + perHitBonus + (C.powers && C.powers.shippu_kensei ? C.powers.shippu_kensei : 0);
+  if(C.stance==="wrath") d*=2;
+  if(C.st.weak) d*=0.75;
+  return Math.max(0, Math.floor(d));
+}
+function dealToEnemy(e, dmg){
+  const C=S.combat;
+  let isCrit=false;
+  if(C.crit>0 && rnd(100) < C.crit){ dmg = Math.floor(dmg*2); isCrit=true; }
+  if(e.st.vuln) dmg = Math.floor(dmg*1.5);
+  const absorbed = Math.min(e.blk, dmg);
+  e.blk -= absorbed; dmg -= absorbed;
+  e.hp -= dmg;
+  if(isCrit && dmg>0){
+    AudioEng.sfx("crit");
+    floatText(`e-${e.uid}`, `ファンサ☆-${dmg}`, "#ffd94d");
+  } else {
+    floatText(`e-${e.uid}`, dmg>0?`-${dmg}`:"ガード", dmg>0?"#ff8a7a":"#7fb2e5");
+  }
+  if(e.hp<=0){
+    e.hp=0; e.dying=true;
+    setTimeout(()=>{ e.dying=false; if(S.combat) renderCombat(); }, 560);
+  } else {
+    setTimeout(()=>{
+      const el=$(`e-${e.uid}`);
+      if(el){ el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); }
+    }, 30);
+  }
+}
+function damagePlayer(dmg, pierce=false){
+  const C=S.combat;
+  if(!pierce){
+    const absorbed=Math.min(C.blk,dmg); C.blk-=absorbed; dmg-=absorbed;
+  }
+  if(dmg>0){
+    S.hp-=dmg;
+    AudioEng.sfx("hit");
+    floatText("p-portrait", `-${dmg}`, "#ff8a7a");
+    $("p-portrait").classList.remove("shake"); void $("p-portrait").offsetWidth;
+    $("p-portrait").classList.add("shake");
+  } else if(!pierce){ AudioEng.sfx("block"); floatText("p-portrait","ガード","#7fb2e5"); }
+  if(S.hp<=0){ S.hp=0; setTimeout(defeat, 600); }
+}
+function pulse(cls){
+  setTimeout(()=>{
+    const p=$("p-portrait");
+    p.classList.remove(cls); void p.offsetWidth; p.classList.add(cls);
+    setTimeout(()=>p.classList.remove(cls), 650);
+  }, 30);
+}
+function floatText(elId, txt, color){
+  setTimeout(()=>{
+    const host=$(elId);
+    if(!host) return;
+    const f=document.createElement("div");
+    f.className="floaty"; f.textContent=txt; f.style.color=color;
+    f.style.left=(10+rnd(40))+"%"; f.style.top="10%";
+    host.style.position="relative"; host.appendChild(f);
+    setTimeout(()=>f.remove(), 850);
+  }, 30);
+}
+/* かまえ */
+function setStance(st){
+  const C=S.combat;
+  if(st==="exit") st=null;
+  if(C.stance===st) return;
+  if(C.stance==="calm" && st!=="calm"){ C.energy+=2; toast("めいそうから めが さめて 気が みちる (+2)"); }
+  C.stance = st;
+}
+
+/* ---------- カードプレイ ---------- */
+function canPlay(card){
+  const C=S.combat;
+  return cardCost(card) <= C.energy;
+}
+function cardCost(card){ return CARDS[card.id].cost; }
+function aliveEnemies(){ return S.combat.enemies.filter(e=>e.hp>0); }
+
+function clickCard(idx){
+  const C=S.combat;
+  const card=C.hand[idx];
+  if(!canPlay(card)){ AudioEng.sfx("tap"); toast("気が たりない!"); return; }
+  const def=CARDS[card.id];
+  const needsTarget = def.type==="atk" && !def.all && aliveEnemies().length>1;
+  if(needsTarget){
+    if(C.selected===idx){ C.selected=null; }
+    else { C.selected=idx; toast("こうげきする あいてを えらぼう"); }
+    renderCombat();
+    return;
+  }
+  const tgt = def.type==="atk" ? aliveEnemies()[0] : null;
+  flyCard(idx, tgt, def.type);
+  playCard(idx, tgt);
+}
+function flyCard(idx, target, type){
+  const src = $("hand").children[idx];
+  if(!src) return;
+  const r = src.getBoundingClientRect();
+  const clone = src.cloneNode(true);
+  clone.classList.add("fly-card");
+  clone.classList.remove("selected","deal","unplayable");
+  clone.style.left=r.left+"px"; clone.style.top=r.top+"px";
+  clone.style.width=r.width+"px"; clone.style.height=r.height+"px";
+  document.body.appendChild(clone);
+  let dest;
+  if(type==="atk" && target){
+    const te=$(`e-${target.uid}`);
+    dest = te ? te.getBoundingClientRect() : {left:innerWidth/2, top:120, width:0, height:0};
+  } else {
+    dest = $("p-portrait").getBoundingClientRect();
+  }
+  requestAnimationFrame(()=>{
+    const dx = dest.left+dest.width/2 - (r.left+r.width/2);
+    const dy = dest.top+dest.height/2 - (r.top+r.height/2);
+    clone.style.transform=`translate(${dx}px,${dy}px) scale(.35) rotate(${type==="atk"?14:-8}deg)`;
+    clone.classList.add("gone");
+  });
+  setTimeout(()=>clone.remove(), 480);
+}
+function clickEnemy(uid){
+  const C=S.combat;
+  if(C.selected===null) return;
+  const e=C.enemies.find(x=>x.uid===uid);
+  if(!e || e.hp<=0) return;
+  const idx=C.selected; C.selected=null;
+  flyCard(idx, e, "atk");
+  playCard(idx, e);
+}
+function playCard(idx, target){
+  const C=S.combat;
+  const card=C.hand[idx], def=CARDS[card.id], v=cv(card);
+  C.energy -= def.cost;
+  if(def.cost>0){
+    setTimeout(()=>{ const o=$("energy-orb"); o.classList.add("spend"); setTimeout(()=>o.classList.remove("spend"),160); }, 30);
+  }
+  C.hand.splice(idx,1);
+  C.played++;
+
+  /* こうかおん */
+  if(def.thunder) AudioEng.sfx("thunder");
+  else if(def.type==="atk") AudioEng.sfx(v.hits>1 ? "slash" : "hit");
+  else if(def.type==="pow") AudioEng.sfx("magic");
+  else if(v.h) AudioEng.sfx("heal");
+  else AudioEng.sfx("deploy");
+
+  if(def.stance) setStance(def.stance);
+
+  if(def.type==="atk"){
+    let hits = v.hits || (card.id==="renzoku_bakudan" ? Math.min(C.wisdom,7) : 1);
+    if(card.id==="renzoku_bakudan" && hits===0) hits=1;
+    let base = v.d || 0;
+    if(v.fm!==undefined){ base = v.d + C.faith*v.fm; C.faith=0; }
+    if(v.wm!==undefined){ base = v.d + C.wisdom*v.wm; }
+    if(v.dm!==undefined){ base = v.dm * C.played; }
+    const targets = def.all ? aliveEnemies() : [target||aliveEnemies()[0]];
+    for(let h=0; h<hits; h++){
+      targets.forEach(t=>{ if(t.hp>0) dealToEnemy(t, calcPlayerDmg(base)); });
+    }
+    if(v.vn) targets.forEach(t=>{ if(t.hp>0) t.st.vuln=(t.st.vuln||0)+v.vn; });
+  }
+  let blk = 0;
+  if(v.b) blk += v.b;
+  if(v.bm) blk += v.bm * C.played;
+  if(v.cb && C.stance==="calm") blk += v.cb;
+  if(blk>0){ C.blk += blk; pulse("blockp"); }
+  if(v.f) C.faith += v.f;
+  if(v.w) C.wisdom += v.w;
+  if(v.e) C.energy += v.e;
+  if(v.cr && def.type!=="pow") C.crit += v.cr;
+  if(v.h){ S.hp = Math.min(S.maxHp, S.hp + v.h); pulse("healp"); floatText("p-portrait", `+${v.h}`, "#8ce6a0"); }
+  if(v.sd){ damagePlayer(v.sd, true); if(!S.combat || S.hp<=0) return; }
+  if(v.s && def.type!=="pow") C.st.str=(C.st.str||0)+v.s;
+  if(v.wk){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>t.st.weak=(t.st.weak||0)+v.wk); }
+  let dr = v.dr||0;
+  if(v.cdr && C.stance==="calm") dr += v.cdr;
+  if(def.special==="rinne" && C.discard.length){
+    const i=rnd(C.discard.length);
+    C.hand.push(C.discard.splice(i,1)[0]);
+  }
+  if(def.type==="pow"){
+    C.powers = C.powers||{};
+    if(card.id==="spotlight"){ C.st.str=(C.st.str||0)+v.s; }
+    else if(card.id==="chozetsu_fansa"){ C.crit += v.cr; }
+    else if(card.id==="star_utahime") C.powers.star_utahime = v.n;
+    else if(card.id==="tensai_ou") C.powers.tensai_ou = (C.powers.tensai_ou||0)+v.w;
+    else if(card.id==="horoyoi_kenja") C.powers.horoyoi_kenja = (C.powers.horoyoi_kenja||0)+v.b;
+    else if(card.id==="shippu_kensei") C.powers.shippu_kensei = (C.powers.shippu_kensei||0)+v.n;
+    else if(card.id==="densetsu_senshi") C.powers.densetsu_senshi = (C.powers.densetsu_senshi||0)+v.s;
+    C.exhaust.push(card);
+  } else if(def.ex){
+    C.exhaust.push(card);
+  } else {
+    C.discard.push(card);
+  }
+  if(dr>0) drawCards(dr);
+  if(!S.combat || S.hp<=0) return;
+  if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory, 500); return; }
+  renderCombat();
+}
+
+/* ---------- てきターン ---------- */
+function endTurn(){
+  const C=S.combat;
+  if(!C || C.busy) return;
+  C.busy = true;
+  C.selected=null;
+  C.discard.push(...C.hand); C.hand=[];
+  renderCombat();
+  if(aliveEnemies().length) showBanner("てきの ターン", true);
+  const acts = aliveEnemies();
+  let i=0;
+  (function step(){
+    if(!S.combat || S.hp<=0) return;
+    if(i>=acts.length){
+      const dec=o=>{ if(o.weak)o.weak--; if(o.vuln)o.vuln--; };
+      dec(C.st); C.enemies.forEach(e=>dec(e.st));
+      C.enemies.forEach(e=>{ if(e.hp>0){ e.blk=0; chooseMove(e); } });
+      C.busy=false;
+      startPlayerTurn();
+      return;
+    }
+    const e=acts[i++];
+    if(e.hp>0){ C.actingUid=e.uid; doEnemyMove(e); }
+    if(!S.combat || S.hp<=0) return;
+    renderCombat();
+    C.actingUid=null;
+    setTimeout(step, 550);
+  })();
+}
+function enemyDmg(e, base){
+  let d = base + (e.st.str||0);
+  if(e.st.weak) d*=0.75;
+  if(EASY) d*=0.85;
+  const C=S.combat;
+  if(!C) return Math.max(0,Math.floor(d));
+  if(C.st.vuln) d*=1.5;
+  if(C.stance==="wrath") d*=2;
+  return Math.max(0, Math.floor(d));
+}
+function doEnemyMove(e){
+  const m=e.move, C=S.combat;
+  if(m.t==="atk") damagePlayer(enemyDmg(e,m.d));
+  else if(m.t==="multi"){ for(let h=0;h<m.hits;h++){ if(!S.combat||S.hp<=0) break; damagePlayer(enemyDmg(e,m.d)); } }
+  else if(m.t==="blk") e.blk+=m.b;
+  else if(m.t==="buff") e.st.str=(e.st.str||0)+m.s;
+  else if(m.t==="debuff"){ if(m.wk)C.st.weak=(C.st.weak||0)+m.wk; if(m.vn)C.st.vuln=(C.st.vuln||0)+m.vn; }
+  else if(m.t==="atk_debuff"){ damagePlayer(enemyDmg(e,m.d)); if(m.wk)C.st.weak=(C.st.weak||0)+m.wk; if(m.vn)C.st.vuln=(C.st.vuln||0)+m.vn; }
+  else if(m.t==="blk_buff"){ e.blk+=m.b; e.st.str=(e.st.str||0)+m.s; }
+  else if(m.t==="blk_atk"){ e.blk+=m.b; damagePlayer(enemyDmg(e,m.d)); }
+}
+
+/* ================= びょうが ================= */
+const TYPE_LABEL={atk:"アタック",skl:"スキル",pow:"パワー"};
+const TYPE_COLOR={atk:"var(--atk)",skl:"var(--skl)",pow:"var(--pow)"};
+function cardEl(card, opts={}){
+  const def=CARDS[card.id], v=cv(card);
+  const chSym = def.ch==="none" ? "✦" : CHARS[def.ch].sym;
+  const chColor = def.ch==="none" ? "#9a8fb8" : CHARS[def.ch].cc;
+  const el=document.createElement("div");
+  el.className="card"+(card.up?" upg":"");
+  el.style.setProperty("--cc", TYPE_COLOR[def.type]);
+  el.style.borderColor = chColor;
+  const bg = ART_BG[def.ch]||ART_BG.none;
+  el.innerHTML = `<div class="cost">${def.cost}</div>
+    <div class="cname">${cname(card)}</div>
+    <div class="cart" style="--artg1:${bg[0]};--artg2:${bg[1]}">
+      <span class="cemo">${CARD_ART[card.id]||"✦"}</span>
+      <span class="csym" style="color:${chColor}">${chSym}</span>
+    </div>
+    <div class="ctype">${TYPE_LABEL[def.type]}</div>
+    <div class="cdesc">${def.desc(v)}</div>`;
+  if(opts.onclick) el.onclick=opts.onclick;
+  return el;
+}
+function stEl(list, host){
+  host.innerHTML="";
+  const NAMES={str:["きんりょく","こうげきりょくが あがる","buff"],weak:["すいじゃく","あたえるダメージ-25%","debuff"],vuln:["ぜいじゃく","うけるダメージ+50%","debuff"]};
+  for(const k in list){
+    if(!list[k]) continue;
+    const [n,tip,cls]=NAMES[k];
+    const s=document.createElement("span");
+    s.className="st "+cls; s.textContent=`${n} ${list[k]}`; s.title=tip;
+    host.appendChild(s);
+  }
+}
+function intentText(e){
+  const m=e.move;
+  if(!m) return "";
+  const d = m.d!==undefined ? enemyDmg(e,m.d) : null;
+  let s = m.txt+"：";
+  if(m.t==="atk"||m.t==="atk_debuff") s+=`⚔ <b>${d}</b>`;
+  if(m.t==="multi") s+=`⚔ <b>${d}×${m.hits}</b>`;
+  if(m.t==="blk") s+=`🛡 ${m.b}`;
+  if(m.t==="buff") s+=`✦ きょうか`;
+  if(m.t==="debuff") s+=`💫 じゃくたい`;
+  if(m.t==="atk_debuff") s+=` +💫`;
+  if(m.t==="blk_buff") s+=`🛡${m.b} ✦`;
+  if(m.t==="blk_atk") s+=`🛡${m.b} ⚔<b>${d}</b>`;
+  return s;
+}
+function renderCombat(){
+  const C=S.combat; if(!C) return;
+  updateTopbar();
+  const ez=$("enemy-zone"); ez.innerHTML="";
+  C.enemies.forEach(e=>{
+    const el=document.createElement("div");
+    let cls="enemy"+(e.boss?" boss":"")+(C.selected!==null?" targetable":"");
+    if(e.hp<=0) cls += e.dying ? " slain" : " dead";
+    if(C.actingUid===e.uid) cls += " lunge";
+    el.className=cls;
+    el.id=`e-${e.uid}`;
+    el.innerHTML=`<div class="eglyph"></div>
+      <div class="ename">${e.elite?"🔥 ":""}${e.boss?"👿 ":""}${e.name}</div>
+      <div class="intent">${intentText(e)}</div>
+      <div class="hpbar">${e.blk>0?`<div class="blkfill"></div>`:""}<div class="fill" style="width:${e.hp/e.maxHp*100}%"></div><div class="txt">${e.hp}/${e.maxHp}${e.blk>0?` 🛡${e.blk}`:""}</div></div>
+      <div class="statuses"></div>`;
+    el.querySelector(".eglyph").appendChild(spriteEl(e.spr, Math.max(2, e.sprScale-(MOBILE?1:0)), true));
+    stEl(e.st, el.querySelector(".statuses"));
+    el.onclick=()=>clickEnemy(e.uid);
+    ez.appendChild(el);
+  });
+  const pp=$("p-portrait");
+  if(!pp.dataset.spr || pp.dataset.spr!==S.ch.spr){
+    pp.innerHTML=""; pp.dataset.spr=S.ch.spr;
+    pp.appendChild(spriteEl(S.ch.spr, MOBILE?3:4));
+  }
+  pp.style.borderColor = S.ch.cc;
+  let extra=[];
+  if(S.ch.id==="nozomi") extra.push(`♪おんぷ ${C.faith}`);
+  if(S.ch.id==="taichi") extra.push(`💡はつめい ${C.wisdom}`);
+  if(S.ch.id==="kento") extra.push(`👊コンボ ${C.played}`);
+  if(S.ch.id==="erika") extra.push(`☆ファンサ ${C.crit}%`);
+  if(S.ch.id==="yushi") extra.push(C.stance==="calm"?"かまえ：めいそう":C.stance==="wrath"?"かまえ：ほろよい":"かまえ：なし");
+  if(C.blk>0) extra.push(`🛡 ${C.blk}`);
+  $("p-name").innerHTML = `${S.ch.name}　<span style="color:${S.ch.cc}">${extra.join("　")}</span>`;
+  $("p-hpfill").style.width = (S.hp/S.maxHp*100)+"%";
+  $("p-hptxt").textContent = `${S.hp}/${S.maxHp}`;
+  stEl(C.st, $("p-statuses"));
+  $("energy-orb").textContent = `${C.energy}/${C.energyMax}`;
+  $("pi-draw").textContent=C.draw.length;
+  $("pi-discard").textContent=C.discard.length;
+  $("pi-exhaust").textContent=C.exhaust.length;
+  const h=$("hand"); h.innerHTML="";
+  C.hand.forEach((card,i)=>{
+    const el=cardEl(card,{onclick:()=>clickCard(i)});
+    if(!canPlay(card)) el.classList.add("unplayable");
+    if(C.selected===i) el.classList.add("selected");
+    if(C.dealAnim){ el.classList.add("deal"); el.style.animationDelay=(i*70)+"ms"; }
+    h.appendChild(el);
+  });
+  C.dealAnim = false;
+}
+
+/* ================= しょうり / はいぼく / ほうしゅう ================= */
+function victory(){
+  const C=S.combat; if(!C) return;
+  const kind=C.kind;
+  S.combat=null;
+  if(hasRelic("ribbon") && S.ch.id==="nozomi") S.hp=Math.min(S.maxHp,S.hp+4);
+  if(kind==="boss"){ ending(true); return; }
+  AudioEng.sfx("win"); AudioEng.playBGM("home");
+  let gold = 18+rnd(15) + (kind==="elite"?25:0) + (hasRelic("piggy")?15:0);
+  S.gold += gold;
+  AudioEng.sfx("coin");
+  const scr=$("reward-screen"); scr.innerHTML="";
+  scr.innerHTML = `<h2>たたかいに かった!</h2>
+    <p class="flavor">まものたちは にげていった。<br>◆ ${gold} ゴールドを ゲット!</p>
+    <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
+  const list=document.createElement("div"); list.className="card-list";
+  const offers = rollCardRewards(3);
+  offers.forEach(card=>{
+    list.appendChild(cardEl(card,{onclick:()=>{ AudioEng.sfx("wallet"); S.deck.push(card); toast(`「${cname(card)}」を デッキに いれた`); afterReward(kind); }}));
+  });
+  scr.appendChild(list);
+  const skip=document.createElement("button");
+  skip.textContent="もらわずに すすむ"; skip.style.marginTop="10px";
+  skip.onclick=()=>afterReward(kind);
+  scr.appendChild(skip);
+  updateTopbar();
+  show("reward-screen");
+}
+function afterReward(kind){
+  if(kind==="elite"){
+    const pool=RELIC_POOL.filter(r=>!hasRelic(r));
+    if(pool.length) gainRelic(pick(pool));
+  }
+  nextFloor();
+}
+function rollCardRewards(n){
+  const pool = Object.keys(CARDS).filter(id=>{
+    const d=CARDS[id];
+    return d.ch===S.ch.id && d.rar!=="S";
+  });
+  const weights = {C:5,U:3,R:1};
+  const out=[]; const used=new Set();
+  let guard=0;
+  while(out.length<n && guard++<200){
+    const bag=[];
+    pool.forEach(id=>{ for(let i=0;i<weights[CARDS[id].rar];i++) bag.push(id); });
+    const id=pick(bag);
+    if(used.has(id)) continue;
+    used.add(id);
+    out.push(mkCard(id));
+  }
+  return out;
+}
+let _ended=false;
+function defeat(){ if(_ended) return; ending(false); }
+const ENDINGS = {
+  kento:"「よゆうだったし!」ちょうじょうの かぜのなか、けんとは ガッツポーズ。その すばやさは でんせつになった。",
+  taichi:"「けいさんどおり!」たいちの さいごの だいはつめいが、まおうを ふっとばした。とうは きょうも へいわだ。",
+  nozomi:"ちょうじょうに ひびく のぞみの うたごえ。まものたちまで きょうは ダンスを おどりだしたという。",
+  erika:"「ばんごはんまでに かえらなきゃ」えりかは けんを おさめ、ゆうやけの とうを あとにした。ママは つよい。",
+  yushi:"「かんぱーい!」ちょうじょうで ひとり うちあげを はじめる ゆうし。だいけんじゃの よるは ながい。"
+};
+function ending(win){
+  _ended=true;
+  S.combat=null;
+  AudioEng.stopBGM();
+  const scr=$("end-screen");
+  scr.innerHTML="";
+  if(win){
+    AudioEng.sfx("win");
+    const ci = CHAR_ORDER.indexOf(S.ch.id);
+    CLEARED[ci] = true;
+    const allClear = CLEARED.every(c=>c);
+    const box=document.createElement("div");
+    box.className="glyph";
+    box.appendChild(spriteEl(S.ch.ccSpr, MOBILE?4:6));
+    scr.appendChild(box);
+    const inner=document.createElement("div");
+    inner.innerHTML=`
+      <h2 style="color:var(--gold)">とうは! まおうを たおした!</h2>
+      <p class="flavor">${ENDINGS[S.ch.id]}</p>
+      ${allClear?'<p class="flavor" style="color:var(--gold)">★かぞく ぜんいんで まおうを たおした!<br>ひがしやまけに でんせつの きんいろの ひかりが かがやく…!</p>':""}
+      <p class="small">とうたつ：${S.floor}かい　のこりHP：${S.hp}</p>
+      <p style="margin-top:6px;">あいことば：<b style="color:var(--gold); font-size:20px; letter-spacing:.3em;">${encodePass()}</b></p>
+      <p class="small">※メモしておくと、つぎに あそぶとき クリアきろくが ひきつげるよ</p>`;
+    scr.appendChild(inner);
+  } else {
+    AudioEng.sfx("lose");
+    scr.innerHTML=`<div style="font-size:60px">🕯️</div>
+      <h2 style="color:var(--hp)">ちからつきた…</h2>
+      <p class="flavor">でも だいじょうぶ。おうちで ごはんを たべて、また ちょうせんしよう!</p>
+      <p class="small">とうたつ：${S.floor}かい</p>`;
+  }
+  const btn=document.createElement("button");
+  btn.textContent = win ? "タイトルへ もどる" : "もういちど ちょうせん!";
+  btn.onclick=()=>{ backToTitle(); };
+  scr.appendChild(btn);
+  show("end-screen");
+}
+function backToTitle(){
+  S=null; _ended=false;
+  $("topbar").classList.remove("on");
+  AudioEng.stopBGM();
+  renderTitle();
+  $("pass-input").value = CLEARED.some(c=>c) ? encodePass() : "";
+  show("title-screen");
+}
+
+/* ================= キャンプ / みせ / イベント / オーバーレイ ================= */
+function restScreen(){
+  const scr=$("rest-screen");
+  scr.innerHTML=`<div style="font-size:48px">⛺</div><h2>キャンプ</h2>
+    <p class="flavor">たきびが パチパチと もえている。ここなら すこし やすめそうだ。</p>
+    <div class="opt-col">
+      <button id="rest-heal">やすむ（HPを ${Math.floor(S.maxHp*0.3)} かいふく）</button>
+      <button id="rest-forge">とっくん（カードを 1まい きょうかする）</button>
+    </div>`;
+  $("rest-heal").onclick=()=>{ AudioEng.sfx("heal"); S.hp=Math.min(S.maxHp,S.hp+Math.floor(S.maxHp*0.3)); updateTopbar(); toast("げんきが もどった!"); nextFloor(); };
+  $("rest-forge").onclick=()=>pickCardFromDeck("きょうかする カードを えらぼう", c=>!c.up, card=>{ AudioEng.sfx("wallet"); card.up=true; toast(`「${cname(card)}」が つよくなった!`); nextFloor(); }, ()=>restScreen());
+  show("rest-screen");
+}
+function pickCardFromDeck(title, filter, onPick, onCancel){
+  const ov=$("overlay"); $("overlay-title").textContent=title;
+  const list=$("overlay-list"); list.innerHTML="";
+  const cands=S.deck.filter(filter);
+  if(cands.length===0){ toast("えらべる カードが ない"); if(onCancel)onCancel(); return; }
+  cands.forEach(card=>{
+    list.appendChild(cardEl(card,{onclick:()=>{ ov.classList.remove("on"); onPick(card); }}));
+  });
+  $("overlay-close").onclick=()=>{ ov.classList.remove("on"); if(onCancel)onCancel(); };
+  ov.classList.add("on");
+}
+function showDeck(){
+  if(!S) return;
+  const ov=$("overlay"); $("overlay-title").textContent=`もっている デッキ（${S.deck.length}まい）`;
+  const list=$("overlay-list"); list.innerHTML="";
+  S.deck.forEach(card=>list.appendChild(cardEl(card)));
+  $("overlay-close").onclick=closeOverlay;
+  ov.classList.add("on");
+}
+function showPile(which){
+  const C=S.combat; if(!C) return;
+  const names={draw:"やまふだ（じゅんばんは ひみつ）",discard:"すてふだ",exhaust:"しょうめつ"};
+  const ov=$("overlay"); $("overlay-title").textContent=names[which];
+  const list=$("overlay-list"); list.innerHTML="";
+  (which==="draw"?shuffle(C.draw):C[which]).forEach(card=>list.appendChild(cardEl(card)));
+  $("overlay-close").onclick=closeOverlay;
+  ov.classList.add("on");
+}
+function closeOverlay(){ $("overlay").classList.remove("on"); }
+
+/* ---------- みせ ---------- */
+function shopScreen(){
+  const scr=$("shop-screen");
+  const cards = rollCardRewards(3).map(c=>({card:c, price:45+rnd(30)+(CARDS[c.id].rar==="R"?40:CARDS[c.id].rar==="U"?15:0)}));
+  cards.push({card:mkCard(pick(["ganbari_muchi","mama_onigiri","shinkokyu"])), price:30+rnd(15)});
+  const relicPool = RELIC_POOL.filter(r=>!hasRelic(r));
+  const relic = relicPool.length ? {id:pick(relicPool), price:140+rnd(30)} : null;
+  scr.innerHTML=`<div style="font-size:48px">🏪</div><h2>とうの どうぐや</h2>
+    <p class="flavor">「いらっしゃい! とうの ぼうけんしゃさんかい? いいものが あるよ」</p>
+    <div class="shop-grid" id="shop-grid"></div>
+    <div class="opt-col">
+      <button id="shop-remove">カードを 1まい てばなす（75 ◆）</button>
+      <button id="shop-leave">みせを でる</button>
+    </div>`;
+  const g=$("shop-grid");
+  cards.forEach(it=>{
+    const w=document.createElement("div"); w.className="shop-item";
+    const el=cardEl(it.card);
+    const p=document.createElement("div"); p.className="price"; p.textContent=`◆ ${it.price}`;
+    w.appendChild(el); w.appendChild(p);
+    el.onclick=()=>{
+      if(w.classList.contains("sold")) return;
+      if(S.gold<it.price){ toast("ゴールドが たりない…"); return; }
+      AudioEng.sfx("coin");
+      S.gold-=it.price; S.deck.push(it.card); w.classList.add("sold");
+      toast(`「${cname(it.card)}」を かった!`); updateTopbar();
+    };
+    g.appendChild(w);
+  });
+  if(relic){
+    const w=document.createElement("div"); w.className="shop-item";
+    const R=RELICS[relic.id];
+    w.innerHTML=`<div class="relic" style="width:64px;height:64px;font-size:30px" data-tip="${R.name}：${R.desc}">${R.glyph}</div>
+      <div style="font-size:12px">${R.name}</div><div class="price">◆ ${relic.price}</div>`;
+    w.onclick=()=>{
+      if(w.classList.contains("sold")) return;
+      if(S.gold<relic.price){ toast("ゴールドが たりない…"); return; }
+      AudioEng.sfx("coin");
+      S.gold-=relic.price; w.classList.add("sold"); gainRelic(relic.id);
+    };
+    g.appendChild(w);
+  }
+  $("shop-remove").onclick=()=>{
+    if(S.gold<75){ toast("ゴールドが たりない…"); return; }
+    pickCardFromDeck("てばなす カードを えらぼう", ()=>true, card=>{
+      S.gold-=75; S.deck.splice(S.deck.indexOf(card),1);
+      toast(`「${cname(card)}」を てばなした`); updateTopbar(); shopScreen();
+    });
+  };
+  $("shop-leave").onclick=()=>nextFloor();
+  updateTopbar();
+  show("shop-screen");
+}
+
+/* ---------- イベント ---------- */
+const EVENTS = [
+  {glyph:"♨️",title:"とちゅうの おんせん",flavor:"とうの なかに、ゆげの たちのぼる おんせんが わいていた。まものも ここでは あらそわないらしい。",
+   opts:s=>[
+     {txt:"ゆっくり つかる（ぜんかいふく。でも のぼせて さいだいHP-5）",fn:()=>{S.maxHp-=5;S.hp=S.maxHp;AudioEng.sfx("heal");}},
+     {txt:"あしゆだけ（HP12 かいふく）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+12);AudioEng.sfx("heal");}},
+     {txt:"とおりすぎる",fn:()=>{}}
+   ]},
+  {glyph:"🏋️",title:"トレーニングルーム",flavor:"だれかが おいていった トレーニングきぐが ならんでいる。かべには「つよくなりたければ きたえよ」の はりがみ。",
+   opts:s=>[
+     {txt:"とっくんする（カード1まい きょうか）",fn:null,forge:true},
+     {txt:"ジュースをかう（-30◆、HP10 かいふく）",fn:()=>{if(S.gold<30){toast("ゴールドが たりない…");return"stay";}S.gold-=30;S.hp=Math.min(S.maxHp,S.hp+10);AudioEng.sfx("heal");}},
+     {txt:"たちさる",fn:()=>{}}
+   ]},
+  {glyph:"🗿",title:"ゆうしゃの どうぞう",flavor:"むかし とうに いどんだ ゆうしゃの どうぞうが たっている。だいざには「あせを ささげし ものに ちからを」と ほられている。",
+   opts:s=>[
+     {txt:"うでたて 100かい ささげる（HP-8、たからもの ゲット）",fn:()=>{S.hp=Math.max(1,S.hp-8);const p=RELIC_POOL.filter(r=>!hasRelic(r));if(p.length)gainRelic(pick(p));}},
+     {txt:"どうぞうを そうじする（-25◆、カード1まい てばなす）",fn:null,remove:true},
+     {txt:"おじぎして とおりすぎる",fn:()=>{}}
+   ]},
+  {glyph:"🕊️",title:"まいごの ハト",flavor:"あしに ちいさな ふくろを つけた ハトが まどべに とまった。ふくろには おかねと、だれかの てがみが はいっている。",
+   opts:s=>[
+     {txt:"おかねを あずかる（+45◆）",fn:()=>{S.gold+=45;AudioEng.sfx("coin");}},
+     {txt:"そらへ にがす（HP6 かいふく）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+6);AudioEng.sfx("heal");}}
+   ]},
+  {glyph:"🚪",title:"あかずの とびら",flavor:"くさりの まかれた とびらの おくから、キラキラした おとが きこえる。あけるには ちからずくしか なさそうだ。",
+   opts:s=>[
+     {txt:"こじあける（HP-6、+70◆）",fn:()=>{S.hp=Math.max(1,S.hp-6);S.gold+=70;AudioEng.sfx("coin");}},
+     {txt:"みなかったことに する",fn:()=>{}}
+   ]},
+  {glyph:"📦",title:"おうちからの こづつみ",flavor:"「がんばってるみんなへ」— とうの ふもとの おうちから、こづつみが とどいた。かぞくは いつでも みかたなのだ。",
+   opts:s=>[
+     {txt:"あける（HP8 かいふく ＆ +20◆）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+8);S.gold+=20;AudioEng.sfx("heal");}},
+   ]}
+];
+function eventScreen(){
+  const ev = pick(EVENTS);
+  const scr=$("event-screen");
+  scr.innerHTML=`<div style="font-size:48px">${ev.glyph}</div><h2>${ev.title}</h2>
+    <p class="flavor">${ev.flavor}</p><div class="opt-col" id="ev-opts"></div>`;
+  const box=$("ev-opts");
+  ev.opts(S).forEach(o=>{
+    const b=document.createElement("button"); b.textContent=o.txt;
+    b.onclick=()=>{
+      if(o.forge){ pickCardFromDeck("きょうかする カードを えらぼう", c=>!c.up, card=>{card.up=true; toast(`「${cname(card)}」が つよくなった!`); afterEvent();}, ()=>{}); return; }
+      if(o.remove){
+        if(S.gold<25){ toast("ゴールドが たりない…"); return; }
+        pickCardFromDeck("てばなす カードを えらぼう", ()=>true, card=>{S.gold-=25; S.deck.splice(S.deck.indexOf(card),1); toast(`「${cname(card)}」を てばなした`); afterEvent();}, ()=>{});
+        return;
+      }
+      const r=o.fn(); if(r==="stay") return;
+      afterEvent();
+    };
+    box.appendChild(b);
+  });
+  updateTopbar();
+  show("event-screen");
+}
+function afterEvent(){ updateTopbar(); nextFloor(); }
+
+/* ================= きどう ================= */
+renderTitle();
+
+</script>
+<!-- HOME_BUTTON -->
+<style>
+  #homeBtn{
+    position:fixed; top:env(safe-area-inset-top,8px); left:8px; z-index:99999;
+    display:flex; align-items:center; gap:6px;
+    padding:8px 14px; border-radius:999px;
+    background:rgba(20,10,35,.72); color:#ffd94d;
+    font-family:'DotGothic16','Hiragino Maru Gothic ProN',sans-serif;
+    font-size:15px; line-height:1; text-decoration:none;
+    border:2px solid rgba(255,217,77,.6);
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    opacity:.45; transition:opacity .15s;
+  }
+  #homeBtn:hover,#homeBtn:active{opacity:1;}
+</style>
+<a id="homeBtn" href="../../index.html">&#8962; ゲームセンター</a>
+
+</body>
+</html>
