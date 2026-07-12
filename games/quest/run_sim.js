@@ -84,6 +84,32 @@ const SUITE = `
   ok("maxfloor_28", MAX_FLOOR===28, MAX_FLOOR);
   ok("diffs_3", Object.keys(DIFFS).length===3);
   ok("stage_split", stageOf(14)===1 && stageOf(15)===2);
+  ok("version_defined", typeof VERSION==="string" && VERSION.length>0, VERSION);
+
+  /* --- ルート分岐マップ --- */
+  const pathLen = cols => cols.reduce((n,c)=> n + (c.kind==="single"?1:c.lanes[0].nodes.length), 0);
+  const laneBattles = cols => { const a=[]; cols.forEach(c=>{ if(c.kind==="branch") c.lanes.forEach(L=>a.push(L.nodes.filter(n=>n.t==="battle"||n.t==="elite").length)); }); return a; };
+  DIFF=DIFFS.normal; const MN=buildMap(1);
+  ok("map_pathlen_14", pathLen(MN)===14, pathLen(MN));
+  ok("map_first_battle", MN[0].kind==="single" && MN[0].node.t==="battle");
+  ok("map_last_boss", MN[MN.length-1].kind==="single" && MN[MN.length-1].node.t==="boss");
+  ok("map_3_branches", MN.filter(c=>c.kind==="branch").length===3);
+  ok("map_3_lanes_each", MN.filter(c=>c.kind==="branch").every(c=>c.lanes.length===3));
+  ok("map_every_lane_2plus_battles", Math.min.apply(null, laneBattles(MN))>=2, "min="+Math.min.apply(null, laneBattles(MN)));
+  DIFF=DIFFS.hard; const MH=buildMap(1);
+  ok("map_hard_pathlen_14", pathLen(MH)===14);
+  ok("map_hard_fewer_camps", MH[2].node.t==="event" && MN[2].node.t==="rest");
+  ok("map_hard_lanes_2plus", Math.min.apply(null, laneBattles(MH))>=2);
+  DIFF=DIFFS.normal;
+  /* マップ ポインタ 走破（レーン0を えらび つづけて ボスに とうたつ） */
+  (function(){
+    newRun("kento"); const M=S.map; let steps=0, reached=false;
+    while(steps++<80){ const col=M.cols[M.ci];
+      if(col.kind==="single"){ if(col.node.t==="boss"){ reached=true; break; } col.node.done=true; M.ci++; M.lane=-1; M.li=0; }
+      else { if(M.lane===-1){ M.lane=0; col.chosen=0; } col.lanes[M.lane].nodes[M.li].done=true; M.li++;
+        if(M.li>=col.lanes[M.lane].nodes.length){ M.ci++; M.lane=-1; M.li=0; } } }
+    ok("map_traverse_to_boss", reached && (steps-1)===13, "steps="+(steps-1));
+  })();
 
   /* --- 新パワー/新カード 単体検証 --- */
   DIFF=DIFFS.normal; newRun("taichi"); startCombat(["dsoldier"],"battle"); const C=S.combat;

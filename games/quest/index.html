@@ -105,26 +105,54 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
 }
 #deck-btn,#mute-btn{margin-left:8px; padding:5px 12px; font-size:12px;}
 
-/* ---------- Map ---------- */
+/* ---------- バージョンタグ ---------- */
+.ver-tag{margin-top:6px; font-size:11px; letter-spacing:.12em; color:var(--ink-dim); opacity:.6;}
+
+/* ---------- Map (ルート分岐) ---------- */
 #map-screen{align-items:center;}
 #map-screen h2{margin-bottom:4px;}
-.map-sub{color:var(--ink-dim); font-size:13px; margin-bottom:20px; letter-spacing:.15em;}
-.node-row{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
-.node{
-  width:210px; background:var(--panel); border:2px solid var(--line); border-radius:12px;
-  padding:20px 16px; text-align:center; cursor:pointer; transition:all .15s;
+.map-sub{color:var(--ink-dim); font-size:13px; margin-bottom:16px; letter-spacing:.12em; text-align:center;}
+/* たてに つらなる ルートマップ（うえ=スタート / した=ボス） */
+.map-view{display:flex; flex-direction:column; align-items:center; gap:0; width:100%; max-width:520px; margin:0 auto;}
+.map-col{display:flex; justify-content:center; align-items:flex-start; width:100%; position:relative;}
+.map-col.single{padding:4px 0;}
+.map-col.branch{gap:10px; padding:2px 0;}
+/* れつ どうしを つなぐ たて線 */
+.map-col::before{content:""; position:absolute; top:-14px; left:50%; width:3px; height:16px; background:var(--line); transform:translateX(-50%); z-index:0;}
+.map-col:first-child::before{display:none;}
+.map-lane{display:flex; flex-direction:column; gap:8px; flex:1; align-items:center; max-width:150px; position:relative;}
+.map-lane .lane-name{font-size:11px; color:var(--ink-dim); letter-spacing:.06em; margin-bottom:2px; min-height:14px; text-align:center;}
+.map-lane.laneskip{opacity:.32; filter:grayscale(.6);}
+/* レーンないの ノードを つなぐ たて線 */
+.map-lane .map-node:not(:last-child)::after{content:""; position:absolute; bottom:-8px; left:50%; width:2px; height:8px; background:var(--line); transform:translateX(-50%);}
+.map-node{
+  position:relative; z-index:1; width:132px; max-width:100%;
+  background:var(--panel); border:2px solid var(--line); border-radius:10px;
+  padding:9px 8px; display:flex; align-items:center; gap:8px; justify-content:center;
+  transition:transform .12s, border-color .12s, background .12s;
 }
-.node:hover{transform:translateY(-4px); border-color:var(--gold); background:var(--panel2);}
-.node .nglyph{font-size:34px;}
-.node .ntitle{margin:10px 0 6px; font-size:16px; letter-spacing:.1em;}
-.node .ndesc{font-size:12px; color:var(--ink-dim); line-height:1.7;}
-#tower-progress{display:flex; gap:5px; margin-top:26px; flex-wrap:wrap; justify-content:center;}
-.tp{
-  width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
-  display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-dim);
+.map-node .mn-glyph{font-size:22px; line-height:1;}
+.map-node .mn-label{font-size:12px; letter-spacing:.06em;}
+.map-node.future{opacity:.62;}
+.map-node.done{opacity:.4; border-color:var(--green);}
+.map-node.done .mn-label::after{content:" ✓"; color:var(--green);}
+.map-node.now{
+  border-color:var(--gold); background:var(--panel2); cursor:pointer;
+  box-shadow:0 0 0 0 rgba(255,217,77,.5); animation:mapPulse 1.3s infinite;
 }
-.tp.done{background:var(--panel2); color:var(--green); border-color:var(--green);}
-.tp.now{background:var(--gold); color:#241c0a; border-color:var(--gold); font-weight:bold;}
+@keyframes mapPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,217,77,.45);}50%{box-shadow:0 0 0 7px rgba(255,217,77,0);}}
+.map-node.now:hover{transform:translateY(-2px);}
+.map-node.boss{border-color:var(--red);}
+.map-node.boss .mn-glyph{font-size:26px;}
+@media (max-width:700px){
+  .map-view{max-width:100%;}
+  .map-col.branch{gap:5px;}
+  .map-lane{max-width:none;}
+  .map-node{width:auto; min-width:0; padding:8px 5px; flex-direction:column; gap:3px; text-align:center;}
+  .map-node .mn-glyph{font-size:19px;}
+  .map-node .mn-label{font-size:10px;}
+  .map-lane .lane-name{font-size:9.5px;}
+}
 
 /* ---------- Combat ---------- */
 #combat-screen{padding:10px 16px; overflow:hidden;}
@@ -316,7 +344,6 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   .title-note{font-size:12px;}
   #turn-banner{font-size:20px; letter-spacing:.25em;}
   #overlay-box{padding:12px; max-height:86vh;}
-  .node{width:100%; max-width:340px; padding:14px 12px;}
   .opt-col{min-width:0; width:100%; max-width:340px;}
   button{padding:9px 14px; font-size:14px;}
 }
@@ -355,6 +382,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
       <input id="pass-input" maxlength="4" placeholder="あいことば">
       <button onclick="enterPass()" style="font-size:13px; padding:8px 14px;">いれる</button>
     </div>
+    <div class="ver-tag" id="ver-tag"></div>
   </div>
 
   <div id="char-screen" class="screen">
@@ -365,8 +393,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   <div id="map-screen" class="screen">
     <h2 id="map-title"></h2>
     <div class="map-sub" id="map-sub"></div>
-    <div class="node-row" id="node-row"></div>
-    <div id="tower-progress"></div>
+    <div id="map-view"></div>
   </div>
 
   <div id="combat-screen" class="screen">
@@ -941,6 +968,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
+const VERSION = "2.3";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
@@ -1025,7 +1053,7 @@ function newRun(chId){
   };
   AudioEng.sfx("deploy");
   updateTopbar(); $("topbar").classList.add("on");
-  nextFloor();
+  startStage(1);
 }
 let CARD_UID = 0;
 function mkCard(id, up=false){ return {uid:++CARD_UID, id, up}; }
@@ -1091,63 +1119,122 @@ function toChar(){
   show("char-screen");
 }
 
-/* ---------- マップ ---------- */
-const NODE_DEFS = {
-  battle:{glyph:"⚔️",title:"まものの へや",desc:"とうの まものたちが まちかまえている。"},
-  elite:{glyph:"🔥",title:"つよてき ちゅうい!",desc:"きょうてき。だけど かてば たからものが もらえる。"},
-  rest:{glyph:"⛺",title:"キャンプ",desc:"やすんで かいふくするか、カードを きたえる。"},
-  shop:{glyph:"🏪",title:"とうの どうぐや",desc:"カードや たからものを うっている ふしぎな みせ。"},
-  event:{glyph:"❓",title:"なにかの けはい",desc:"なにが まっているかは、いってみないと わからない。"},
-  boss:{glyph:"👿",title:"まおう",desc:"とうの ちょうじょうで まちうける、さいごの てき。"}
+/* ---------- マップ（ルート分岐） ----------
+   スタート(1マス) → 3ルート分岐(各3マス一本道) → 合流(1マス) → …をくり返し、
+   さいごに ボス。各ステージ ちょうど14マス（ボス=14/28かい）。
+   ルートの さきの みちも すべて みえる（せんとうは さけられない設計）。 */
+const NODE_LABEL = {
+  battle:{glyph:"⚔️",label:"たたかい"},
+  elite:{glyph:"🔥",label:"つよてき"},
+  rest:{glyph:"⛺",label:"やすみ"},
+  shop:{glyph:"🏪",label:"みせ"},
+  event:{glyph:"❓",label:"？"},
+  boss:{glyph:"👿",label:"ボス"}
 };
-function nextFloor(){
-  S.floor++;
-  if(S.floor > MAX_FLOOR){ return; }
+function buildMap(stage){
+  const hard = DIFF.key==="hard";
+  /* むずかしい: レーンの みせ(shop)を たたかいに して まものマスを ふやす（イベントは のこす） */
+  const mk = arr => { arr=arr.slice(); if(hard){ const i=arr.indexOf("shop"); if(i>=0) arr[i]="battle"; } return arr; };
+  const branch = lanes => ({ kind:"branch", chosen:-1,
+    lanes: shuffle(lanes).map(L=>({ name:L.name, nodes:mk(L.nodes).map(t=>({t,done:false})) })) });
+  const single = t => ({ kind:"single", node:{t,done:false} });
+  return [
+    single("battle"),                                           // スタート（かならず たたかい）
+    branch([
+      {name:"せんとうの みち", nodes:["battle","battle","event"]},
+      {name:"たからの みち",   nodes:["battle","shop","battle"]},
+      {name:"けものの みち",   nodes:["event","battle","battle"]}
+    ]),
+    single(hard ? "event" : "rest"),                            // 合流1（むずかしいは やすみを へらす）
+    branch([
+      {name:"しれんの みち",   nodes:["battle","elite","battle"]},
+      {name:"ぼうけんの みち", nodes:["battle","event","battle"]},
+      {name:"あきないの みち", nodes:["battle","shop","battle"]}
+    ]),
+    single("shop"),                                             // 合流2
+    branch([
+      {name:"やみの みち",     nodes:["elite","battle","battle"]},
+      {name:"けわしい みち",   nodes:["battle","battle","event"]},
+      {name:"うかいの みち",   nodes:["shop","battle","battle"]}
+    ]),
+    single("rest"),                                             // ボスまえの やすみ
+    single("boss")                                             // ボス（14 / 28かい）
+  ];
+}
+function startStage(stage){
+  S.floor = (stage-1)*14;                                       // ステージ1=0 / ステージ2=14 から
+  S.map = { stage, cols:buildMap(stage), ci:0, lane:-1, li:0 };
+  showMap();
+}
+function nodeChip(node, ci, laneIdx, ni){
+  const M=S.map;
+  const el=document.createElement("div");
+  const info=NODE_LABEL[node.t];
+  let reachable=false;
+  if(ci===M.ci){
+    const col=M.cols[ci];
+    if(col.kind==="single") reachable = !node.done;
+    else reachable = (M.lane===-1) ? (ni===0) : (laneIdx===M.lane && ni===M.li);
+  }
+  el.className = "map-node " + (node.t==="boss"?"boss ":"") + (node.done?"done":reachable?"now":"future");
+  const glyph = (node.t==="boss" && M.stage===2) ? "😈" : info.glyph;
+  el.innerHTML = `<span class="mn-glyph">${glyph}</span><span class="mn-label">${info.label}</span>`;
+  if(reachable) el.onclick=()=>{ AudioEng.sfx("tap"); playNode(ci, laneIdx); };
+  return el;
+}
+function showMap(){
+  const M=S.map;
   AudioEng.playBGM("home");
-  const stage = stageOf(S.floor);
-  let choices;
-  if(S.floor===1 || S.floor===15) choices=["battle"];                 // ステージ さいしょは battle固定
-  else if(S.floor===14 || S.floor===28) choices=["boss"];             // 14=まおう / 28=やみのまおう
-  else if(S.floor===7 || S.floor===21) choices=["rest","shop","event"];
-  else {
-    const hard = DIFF.key==="hard";
-    const pool=["battle","battle","event"];
-    if(hard) pool.push("battle");                          // むずかしい: まものマスを ふやす
-    const eliteFloor = stage===2 ? 17 : 4;
-    const restFloor  = stage===2 ? 16 : 3;
-    if(S.floor>=eliteFloor) pool.push("elite");
-    if(S.floor>=restFloor){
-      pool.push("shop");
-      if(!hard || Math.random()<0.35) pool.push("rest");   // むずかしい: キャンプ(やすみ)マスを へらす
-    }
-    choices = shuffle(pool).slice(0,3);
-    if(!choices.includes("battle") && (hard || Math.random()<.5)) choices[0]="battle";
-    choices=[...new Set(choices)];
-  }
-  if(stage===2){
-    $("map-title").textContent = `やみのとうの ${S.floor-14}かい`;
-    $("map-sub").textContent = S.floor===28 ? "やみのまおうが まっている。せかいの うんめいを かけた たたかいだ…" : "やみの とうを のぼる。ふあんな けはいが ただよう…";
+  if(M.stage===2){
+    $("map-title").textContent = "やみのとう";
+    $("map-sub").textContent = "ルートを えらんで のぼれ。この さきの みちも みえるよ";
   } else {
-    $("map-title").textContent = `とうの ${S.floor}かい`;
-    $("map-sub").textContent = S.floor===14 ? "ちょうじょうは めのまえ。やみの けはいが つよくなる…" : "すすむ みちを えらぼう";
+    $("map-title").textContent = "まおうの とう";
+    $("map-sub").textContent = "ルートを えらぼう。えらんだ みちは 一本道、たたかいは さけられない!";
   }
-  const row=$("node-row"); row.innerHTML="";
-  choices.forEach(t=>{
-    const n=NODE_DEFS[t], el=document.createElement("div");
-    el.className="node";
-    let glyph=n.glyph, title=n.title, desc=n.desc;
-    if(t==="boss" && S.floor===28){ glyph="😈"; title="やみのまおう"; desc="やみのとうの ちょうじょうで まちうける、しんの まおう。"; }
-    el.innerHTML=`<span class="nglyph">${glyph}</span><div class="ntitle">${title}</div><div class="ndesc">${desc}</div>`;
-    el.onclick=()=>{ AudioEng.sfx("tap"); enterNode(t); };
-    row.appendChild(el);
+  const host=$("map-view"); host.className="map-view"; host.innerHTML="";
+  M.cols.forEach((col,ci)=>{
+    const colEl=document.createElement("div");
+    if(col.kind==="single"){
+      colEl.className="map-col single";
+      colEl.appendChild(nodeChip(col.node, ci, null, 0));
+    } else {
+      colEl.className="map-col branch";
+      col.lanes.forEach((lane,laneIdx)=>{
+        const laneEl=document.createElement("div"); laneEl.className="map-lane";
+        if(col.chosen>=0 && col.chosen!==laneIdx) laneEl.classList.add("laneskip");
+        const head=document.createElement("div"); head.className="lane-name"; head.textContent=lane.name;
+        laneEl.appendChild(head);
+        lane.nodes.forEach((node,ni)=>laneEl.appendChild(nodeChip(node, ci, laneIdx, ni)));
+        colEl.appendChild(laneEl);
+      });
+    }
+    host.appendChild(colEl);
   });
-  const tp=$("tower-progress"); tp.innerHTML="";
-  for(let i=1;i<=MAX_FLOOR;i++){
-    const d=document.createElement("div"); d.className="tp"+(i<S.floor?" done":i===S.floor?" now":"");
-    d.textContent=i; tp.appendChild(d);
-  }
   updateTopbar();
   show("map-screen");
+  setTimeout(()=>{ const cur=host.querySelector(".map-node.now"); if(cur && cur.scrollIntoView) cur.scrollIntoView({block:"center",behavior:"smooth"}); }, 40);
+}
+function playNode(ci, laneIdx){
+  const M=S.map, col=M.cols[ci];
+  let t;
+  if(col.kind==="single"){ t=col.node.t; }
+  else {
+    if(M.lane===-1){ M.lane=laneIdx; col.chosen=laneIdx; }       // ルート確定
+    t = col.lanes[M.lane].nodes[M.li].t;
+  }
+  S.floor++;
+  enterNode(t);
+}
+function afterNode(){
+  const M=S.map, col=M.cols[M.ci];
+  if(col.kind==="single"){ col.node.done=true; M.ci++; M.lane=-1; M.li=0; }
+  else {
+    col.lanes[M.lane].nodes[M.li].done=true;
+    M.li++;
+    if(M.li >= col.lanes[M.lane].nodes.length){ M.ci++; M.lane=-1; M.li=0; }
+  }
+  showMap();
 }
 function enterNode(t){
   const stage = stageOf(S.floor);
@@ -1684,7 +1771,7 @@ function midResult(){
         <button style="border-color:var(--gold)" id="mid-go">とうの おくへ すすむ（ステージ2 やみのとうへ）</button>
         <button id="mid-home">おうちへ かえる（ここまでの きろくで タイトルへ）</button>
       </div>`;
-    $("mid-go").onclick=()=>{ AudioEng.sfx("deploy"); nextFloor(); };
+    $("mid-go").onclick=()=>{ AudioEng.sfx("deploy"); startStage(2); };
     $("mid-home").onclick=()=>{ ending(true, 1); };
     show("reward-screen");
   }
@@ -1710,7 +1797,7 @@ function afterReward(kind){
     const pool=RELIC_POOL.filter(r=>!hasRelic(r));
     if(pool.length) gainRelic(pick(pool));
   }
-  nextFloor();
+  afterNode();
 }
 function rollCardRewards(n){
   const pool = Object.keys(CARDS).filter(id=>{
@@ -1841,8 +1928,8 @@ function restScreen(){
       <button id="rest-heal">やすむ（HPを ${Math.floor(S.maxHp*0.3)} かいふく）</button>
       <button id="rest-forge">とっくん（カードを 1まい きょうかする）</button>
     </div>`;
-  $("rest-heal").onclick=()=>{ AudioEng.sfx("heal"); S.hp=Math.min(S.maxHp,S.hp+Math.floor(S.maxHp*0.3)); updateTopbar(); toast("げんきが もどった!"); nextFloor(); };
-  $("rest-forge").onclick=()=>pickCardFromDeck("きょうかする カードを えらぼう", c=>!c.up, card=>{ AudioEng.sfx("wallet"); card.up=true; toast(`「${cname(card)}」が つよくなった!`); nextFloor(); }, ()=>restScreen());
+  $("rest-heal").onclick=()=>{ AudioEng.sfx("heal"); S.hp=Math.min(S.maxHp,S.hp+Math.floor(S.maxHp*0.3)); updateTopbar(); toast("げんきが もどった!"); afterNode(); };
+  $("rest-forge").onclick=()=>pickCardFromDeck("きょうかする カードを えらぼう", c=>!c.up, card=>{ AudioEng.sfx("wallet"); card.up=true; toast(`「${cname(card)}」が つよくなった!`); afterNode(); }, ()=>restScreen());
   show("rest-screen");
 }
 function pickCardFromDeck(title, filter, onPick, onCancel){
@@ -1929,7 +2016,7 @@ function shopScreen(){
       toast(`「${cname(card)}」を てばなした`); updateTopbar(); shopScreen();
     });
   };
-  $("shop-leave").onclick=()=>nextFloor();
+  $("shop-leave").onclick=()=>afterNode();
   updateTopbar();
   show("shop-screen");
 }
@@ -1992,9 +2079,10 @@ function eventScreen(){
   updateTopbar();
   show("event-screen");
 }
-function afterEvent(){ updateTopbar(); nextFloor(); }
+function afterEvent(){ updateTopbar(); afterNode(); }
 
 /* ================= きどう ================= */
+$("ver-tag").textContent = "ver " + VERSION;
 renderTitle();
 
 </script>
