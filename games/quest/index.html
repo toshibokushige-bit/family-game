@@ -119,6 +119,12 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
 /* ---------- バージョンタグ ---------- */
 .ver-tag{margin-top:6px; font-size:11px; letter-spacing:.12em; color:var(--ink-dim); opacity:.6;}
 
+/* ---------- カードずかん ---------- */
+#cards-screen{align-items:stretch;}
+.cat-section{max-width:960px; margin:0 auto 22px; width:100%;}
+.cat-head{text-align:center; letter-spacing:.12em; margin-bottom:10px; border-bottom:1px dashed var(--line); padding-bottom:6px;}
+.cat-grid{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+
 /* ---------- Map (ルート分岐) ---------- */
 #map-screen{align-items:center;}
 #map-screen h2{margin-bottom:4px;}
@@ -396,6 +402,9 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
       <input id="pass-input" maxlength="4" placeholder="あいことば">
       <button onclick="enterPass()" style="font-size:13px; padding:8px 14px;">いれる</button>
     </div>
+    <div style="margin-top:6px;">
+      <button onclick="showCardList()" style="font-size:13px; padding:8px 16px;">📖 カードずかん</button>
+    </div>
     <div class="ver-tag" id="ver-tag"></div>
   </div>
 
@@ -435,6 +444,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   <div id="shop-screen" class="screen center-col"></div>
   <div id="event-screen" class="screen center-col"></div>
   <div id="end-screen" class="screen center-col"></div>
+  <div id="cards-screen" class="screen"></div>
 
   <div id="overlay"><div id="overlay-box"><h3 id="overlay-title"></h3><div class="card-list" id="overlay-list"></div><button id="overlay-close" onclick="closeOverlay()">とじる</button></div></div>
   <div id="toast"></div>
@@ -1099,7 +1109,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "2.5";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "2.6";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
@@ -2282,6 +2292,38 @@ function eventScreen(){
   show("event-screen");
 }
 function afterEvent(){ updateTopbar(); afterNode(); }
+
+/* ---------- カードずかん（タイトルから 参照）---------- */
+let catalogUp = false;
+function showCardList(){
+  AudioEng.sfx("tap");
+  const scr=$("cards-screen");
+  scr.innerHTML=`<div style="display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:4px;">
+      <h2 style="color:var(--gold)">📖 カードずかん</h2>
+      <button id="cat-toggle" style="font-size:12px; padding:6px 12px;"></button>
+      <button id="cat-back" style="font-size:12px; padding:6px 12px; border-color:var(--gold);">タイトルへ もどる</button>
+    </div>
+    <p class="small" style="text-align:center; margin-bottom:14px;">ぜんぶで ${Object.keys(CARDS).length}まい　（アタック / スキル / <span style="color:var(--pow)">パワー</span>）</p>
+    <div id="cat-body"></div>`;
+  const body=$("cat-body");
+  [["kento","けんと（コンボ）"],["taichi","たいち（はつめい）"],["nozomi","のぞみ（おんぷ）"],["erika","えりか（ファンサ☆）"],["yushi","ゆうし（ほろよい）"],["none","きょうつう・エンシェント"]].forEach(([ch,label])=>{
+    const ids=Object.keys(CARDS).filter(id=>CARDS[id].ch===ch);
+    if(!ids.length) return;
+    const sec=document.createElement("div"); sec.className="cat-section";
+    const h=document.createElement("h3"); h.className="cat-head"; h.textContent=`${label}　${ids.length}まい`;
+    if(ch!=="none" && CHARS[ch]) h.style.color=CHARS[ch].cc;
+    sec.appendChild(h);
+    const grid=document.createElement("div"); grid.className="cat-grid";
+    ids.forEach(id=>grid.appendChild(cardEl({id, up:catalogUp})));
+    sec.appendChild(grid);
+    body.appendChild(sec);
+  });
+  const tog=$("cat-toggle");
+  tog.textContent = catalogUp ? "きほんを みる" : "きょうか後(＋)を みる";
+  tog.onclick=()=>{ AudioEng.sfx("tap"); catalogUp=!catalogUp; showCardList(); };
+  $("cat-back").onclick=()=>{ AudioEng.sfx("tap"); show("title-screen"); };
+  show("cards-screen");
+}
 
 /* ================= きどう ================= */
 $("ver-tag").textContent = "ver " + VERSION;
