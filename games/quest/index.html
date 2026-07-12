@@ -98,6 +98,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
   font-size:15px; cursor:help; position:relative;
 }
+.relic.ancient{border:2px solid var(--gold); box-shadow:0 0 8px rgba(255,217,77,.4);}
 .relic:hover::after,.potion:hover::after{
   content:attr(data-tip); position:absolute; top:34px; right:0; width:200px; z-index:30;
   background:#0a0d24; border:1px solid var(--gold); border-radius:6px; padding:8px 10px;
@@ -623,35 +624,35 @@ const CHARS = {
     hp:62, relic:"sneaker",
     desc:"じなん。ちいさくて せかいいち すばやい。パンチと キックの れんぞくわざで てきを ほんろうする!",
     mech:"とくぎ【コンボ】— そのターンに つかった カードの かずだけ わざが パワーアップ!",
-    starter:["renda","renda","renda","renda","step_guard","step_guard","step_guard","step_guard","tozoku_kokoroe","shippu_kick"]
+    starter:["renda","renda","renda","step_guard","step_guard","step_guard","tozoku_kokoroe","shippu_kick"]
   },
   taichi:{
     id:"taichi", name:"たいち", role:"レンジャー・はつめいか", spr:"taichi", ccSpr:"taichi2", color:"var(--green)", cc:"#5ad46a", sym:"た",
     hp:70, relic:"toolbox",
     desc:"ちょうなん。てんさい はつめいか。けんで たたかいながら、じさくの ばくだんで だいばくはつを おこす!",
     mech:"とくぎ【はつめい】— カードで はつめいを ためるほど、ばくだんの いりょくが あがる!",
-    starter:["spanner","spanner","spanner","spanner","kosaku_tate","kosaku_tate","kosaku_tate","kosaku_tate","kenkyu","bakudan_nage"]
+    starter:["spanner","spanner","spanner","kosaku_tate","kosaku_tate","kosaku_tate","kenkyu","bakudan_nage"]
   },
   nozomi:{
     id:"nozomi", name:"のぞみ", role:"おどりこ・まほうつかい", spr:"nozomi", ccSpr:"nozomi2", color:"var(--pink)", cc:"#ff8fb8", sym:"の",
     hp:64, relic:"ribbon",
     desc:"ちょうじょ。うたと ダンスの スター。おんぷを ためて はなつ ミラクルボイスは とうを ゆるがす!",
     mech:"とくぎ【おんぷ】— カードで おんぷを ためて、いっきに はきだして ドカン!",
-    starter:["dance_attack","dance_attack","dance_attack","dance_attack","step_mamori","step_mamori","step_mamori","step_mamori","kirakira_voice","humming"]
+    starter:["dance_attack","dance_attack","dance_attack","step_mamori","step_mamori","step_mamori","kirakira_voice","humming"]
   },
   erika:{
     id:"erika", name:"えりか", role:"せんし(ママ)", spr:"erika", ccSpr:"erika2", color:"var(--blue)", cc:"#6aa8ff", sym:"え",
     hp:80, relic:"penlight",
     desc:"おかあさん。かがやく けんの じゅうせんし。おしかつで きたえた あいの ちからで かいしんの いちげき!",
     mech:"とくぎ【ファンサ☆】— こうげきが ときどき クリティカル(2ばい)! カードで かくりつアップ!",
-    starter:["bunmawashi","bunmawashi","bunmawashi","bunmawashi","mama_tate","mama_tate","mama_tate","mama_tate","fansa_wink","ouen_koe"]
+    starter:["bunmawashi","bunmawashi","bunmawashi","mama_tate","mama_tate","mama_tate","fansa_wink","ouen_koe"]
   },
   yushi:{
     id:"yushi", name:"ゆうし", role:"けんじゃ(パパ)", spr:"yushi", ccSpr:"yushi2", color:"var(--purple)", cc:"#b78ee0", sym:"ゆ",
     hp:72, relic:"ochoko",
     desc:"おとうさん。アフロの だいけんじゃ。かいふくまほうと カミナリを あやつる らっかんしゅぎしゃ。",
     mech:"とくぎ【ほろよい】— めいそう(でるとき 気+2)と ほろよい(あたえる・うける ダメージ2ばい)を きりかえて たたかう!",
-    starter:["tsue_ichigeki","tsue_ichigeki","tsue_ichigeki","tsue_ichigeki","kenja_kamae","kenja_kamae","kenja_kamae","kenja_kamae","cha_susuru","kanpai"]
+    starter:["tsue_ichigeki","tsue_ichigeki","tsue_ichigeki","kenja_kamae","kenja_kamae","kenja_kamae","cha_susuru","kanpai"]
   }
 };
 
@@ -852,7 +853,47 @@ const CARDS = {
   mama_onigiri:{ch:"none",type:"skl",rar:"C",cost:1,name:"おうちのおにぎり",v:{h:4},vu:{h:6},ex:1,
     desc:c=>`HPを ${c.h} かいふく。<b>しょうめつ</b>。`},
   shinkokyu:{ch:"none",type:"skl",rar:"C",cost:0,name:"しんこきゅう",v:{b:6},vu:{b:9},ex:1,
-    desc:c=>`${c.b}ブロック。<b>しょうめつ</b>。`}
+    desc:c=>`${c.b}ブロック。<b>しょうめつ</b>。`},
+
+  /* --- スケーリング用パワー（安価・共通レア）B：はやめに スケールできる ように --- */
+  hitamuki_lesson:{ch:"kento",type:"pow",rar:"C",cost:1,name:"ひたむきレッスン",v:{n:1},vu:{n:2},
+    desc:c=>`ターンかいしじ、<b>コンボ</b>を ${c.n} ふやす。`},
+  jido_kenkyusho:{ch:"taichi",type:"pow",rar:"C",cost:1,name:"じどうけんきゅうしょ",v:{w:1},vu:{w:2},
+    desc:c=>`ターンかいしじ、<b>はつめい</b>を ${c.w} える。`},
+  kuchizusamu:{ch:"nozomi",type:"pow",rar:"C",cost:1,name:"くちずさむくせ",v:{n:1},vu:{n:2},
+    desc:c=>`ターンかいしじ、<b>おんぷ</b>を 1 えて HPを ${c.n-1} かいふく。`},
+  mainichi_lesson:{ch:"erika",type:"pow",rar:"C",cost:1,name:"まいにちレッスン",v:{cr:4},vu:{cr:6},
+    desc:c=>`ターンかいしじ、<b>ファンサ</b>りつ+${c.cr}%。`},
+  keiko_no_hibi:{ch:"yushi",type:"pow",rar:"C",cost:1,name:"けいこのひび",v:{bp:3},vu:{bp:4},
+    desc:c=>`ターンかいしじ、${c.bp}ブロックを える。`},
+
+  /* --- デバフふよ（1ターン → 強化で2ターン）各キャラ 0コスト＆中コストの2まい --- */
+  miyaburi:{ch:"kento",type:"skl",rar:"C",cost:0,name:"みやぶり",v:{vn:1},vu:{vn:2},
+    desc:c=>`てきに <b>ぜいじゃく</b>${c.vn}(うける ダメージ+50%)。`},
+  kakuran_kamae:{ch:"kento",type:"skl",rar:"C",cost:2,name:"かくらんのかまえ",v:{vn:1,dr:1},vu:{vn:2,dr:1},all:1,
+    desc:c=>`てき ぜんたいに <b>ぜいじゃく</b>${c.vn}。カードを ${c.dr}まい ひく。`},
+  misukashi_wink:{ch:"erika",type:"skl",rar:"C",cost:0,name:"みすかしウィンク",v:{vn:1},vu:{vn:2},
+    desc:c=>`てきに <b>ぜいじゃく</b>${c.vn}。`},
+  gekisho_spot:{ch:"erika",type:"skl",rar:"C",cost:2,name:"げきしょうスポット",v:{vn:1,dr:1},vu:{vn:2,dr:1},all:1,
+    desc:c=>`てき ぜんたいに <b>ぜいじゃく</b>${c.vn}。カードを ${c.dr}まい ひく。`},
+  kona_kemuri:{ch:"taichi",type:"skl",rar:"C",cost:0,name:"こなけむり",v:{wk:1},vu:{wk:2},
+    desc:c=>`てきに <b>すいじゃく</b>${c.wk}(あたえる ダメージ-25%)。`},
+  dai_kemuridama:{ch:"taichi",type:"skl",rar:"C",cost:2,name:"だいけむりだま",v:{wk:1,dr:1},vu:{wk:2,dr:1},all:1,
+    desc:c=>`てき ぜんたいに <b>すいじゃく</b>${c.wk}。カードを ${c.dr}まい ひく。`},
+  komoriuta:{ch:"nozomi",type:"skl",rar:"C",cost:0,name:"こもりうた",v:{wk:1},vu:{wk:2},
+    desc:c=>`てきに <b>すいじゃく</b>${c.wk}。`},
+  minna_komoriuta:{ch:"nozomi",type:"skl",rar:"C",cost:2,name:"みんなでこもりうた",v:{wk:1,dr:1},vu:{wk:2,dr:1},all:1,
+    desc:c=>`てき ぜんたいに <b>すいじゃく</b>${c.wk}。カードを ${c.dr}まい ひく。`},
+  horoyoi_iki:{ch:"yushi",type:"skl",rar:"C",cost:0,name:"ほろよいのいき",v:{wk:1},vu:{wk:2},
+    desc:c=>`てきに <b>すいじゃく</b>${c.wk}。`},
+  sakazuki_kamae:{ch:"yushi",type:"skl",rar:"C",cost:2,name:"さかずきのかまえ",v:{vn:1,dr:1},vu:{vn:2,dr:1},all:1,
+    desc:c=>`てき ぜんたいに <b>ぜいじゃく</b>${c.vn}。カードを ${c.dr}まい ひく。`},
+
+  /* --- エンシェントカード（レリックで デッキに 追加される・報酬には でない）--- */
+  anc_barrier:{ch:"none",type:"skl",rar:"S",cost:2,name:"エンシェントバリア",v:{},vu:{},ex:1,special:"negate2",
+    desc:c=>`つぎの 2かいの ダメージを むこうかする。<b>しょうめつ</b>。`},
+  anc_wall:{ch:"none",type:"skl",rar:"S",cost:2,name:"エンシェントウォール",v:{b:30},vu:{b:30},
+    desc:c=>`${c.b}ブロックを える。`}
 };
 
 /* むずかしさ調整: 初期カード(S)いがいの ブロック値を 底上げ（1マナ+1 / 2マナ+2）*/
@@ -887,7 +928,7 @@ const POTION_ORDER = ["mana","draw","block"];
 const POTIONS = {
   mana:  {glyph:"⚡", name:"マナポーション",   desc:"このターン 気を +2 する。",     use:()=>{ S.combat.energy += 2; }},
   draw:  {glyph:"🎴", name:"ドローポーション", desc:"カードを 3まい ひく。",         use:()=>{ drawCards(3); }},
-  block: {glyph:"🛡️", name:"ブロックポーション", desc:"このターン 10ブロックを える。", use:()=>{ S.combat.blk += 10; }}
+  block: {glyph:"🛡️", name:"ブロックポーション", desc:"このターン 15ブロックを える。", use:()=>{ S.combat.blk += 15; }}
 };
 function usePotion(id){
   if(!S) return;
@@ -900,6 +941,49 @@ function usePotion(id){
   toast(`${POTIONS[id].name}を つかった!`);
   updateTopbar();
   renderCombat();
+}
+
+/* ---------- エンシェントレリック（中間まおう撃破で 1つ えらぶ・つよい）---------- */
+const ANCIENTS = {
+  anc_mana:     {glyph:"💎",name:"むげんの まりょくせき",desc:"つねに マナ+1。"},
+  anc_maxhp30:  {glyph:"💗",name:"きょじんの こころぞう",desc:"さいだいHP +30。",
+    onGain:()=>{ S.maxHp+=30; S.hp+=30; }},
+  anc_heal8:    {glyph:"💚",name:"いのちの せいはい",desc:"せんとうかいしに HPを 8 かいふく。"},
+  anc_block2x:  {glyph:"🔷",name:"こだいの たて",desc:"2ターンごとに、その ターンの さいしょの ブロックが 2ばい。"},
+  anc_berserk:  {glyph:"🔥",name:"きょうせんしの おまもり",desc:"せんとうかいし 筋力+3・すばやさ+3。ただし まいターン HP-1。"},
+  anc_negate5:  {glyph:"🌀",name:"ごかくの まもり",desc:"5かい ダメージを うけるごとに 1かい むこうか。"},
+  anc_free1:    {glyph:"⚡",name:"はやわざの グローブ",desc:"せんとうの さいしょに つかう カードは マナ0。"},
+  anc_cap20:    {glyph:"🪨",name:"だいちの がい",desc:"1ターンに うける ダメージが さいだい20。"},
+  anc_up6:      {glyph:"✨",name:"せいなる といし",desc:"デッキの カードを ランダムで 6まい きょうか。",
+    onGain:()=>{ shuffle(S.deck.filter(c=>!c.up)).slice(0,6).forEach(c=>c.up=true); }},
+  anc_up3:      {glyph:"🌟",name:"えらびの といし",desc:"デッキの カードを 3まい えらんで きょうか。",
+    interactive:true, onGain:(cb)=>{ upgradeChoose(3, cb); }},
+  anc_potion5:  {glyph:"🎒",name:"ポーションポーチ",desc:"ポーションが 5こに。ぜんぶ ランダムで みたされる。",
+    onGain:()=>{ S.potions = Array.from({length:5},()=>({id:pick(POTION_ORDER),used:false})); }},
+  anc_barrier_card:{glyph:"🔰",name:"バリアの まどうしょ",desc:"マナ2で 2かい ダメージ むこうか(ブロックなら消費しない)・しょうめつ の カードを 1まい デッキに。",
+    onGain:()=>{ S.deck.push(mkCard("anc_barrier")); }},
+  anc_wall_cards:{glyph:"🧱",name:"じょうへきの せっけいず",desc:"マナ2で 30ブロックの エンシェントウォールを 2まい デッキに。",
+    onGain:()=>{ S.deck.push(mkCard("anc_wall"), mkCard("anc_wall")); }}
+};
+const ANCIENT_POOL = Object.keys(ANCIENTS);
+function upgradeChoose(n, done){
+  let left=n;
+  (function step(){
+    if(left<=0 || S.deck.every(c=>c.up)){ if(done)done(); return; }
+    pickCardFromDeck(`きょうかする カードを えらぼう（のこり ${left}）`, c=>!c.up, card=>{
+      card.up=true; left--; AudioEng.sfx("wallet"); step();
+    }, ()=>{ if(done)done(); });   // キャンセルで うちきり
+  })();
+}
+function gainAncient(id, cb){
+  S.relics.push(id);
+  const A=ANCIENTS[id];
+  AudioEng.sfx("wallet");
+  toast(`エンシェントレリック：${A.name}`);
+  if(A.onGain && A.interactive){ updateTopbar(); A.onGain(cb); return; }
+  if(A.onGain) A.onGain();
+  updateTopbar();
+  if(cb) cb();
 }
 
 
@@ -1001,7 +1085,11 @@ const CARD_ART = {
   bakuhatsu_nut:"🔩", kaizo_kyoka:"🔧", jido_barrier:"🛡️", drone:"🛸", megaton_bomb:"☢️",
   rinsho:"🎶", vibrato:"〰️", maho_step:"🪩", audience:"👏", grand_finale:"🎇",
   ai_no_hakushu:"👏", megane_kirari:"👓", cyalume_rain:"🌟", kanko_chikara:"📢", unmei_stage:"🎭",
-  nomikurabe:"🍺", yoizamashi:"💧", inazuma_tsue:"⚡", dai_rancho:"🍶", yusha_sakazuki:"🏆"
+  nomikurabe:"🍺", yoizamashi:"💧", inazuma_tsue:"⚡", dai_rancho:"🍶", yusha_sakazuki:"🏆",
+  hitamuki_lesson:"📖", jido_kenkyusho:"🔬", kuchizusamu:"🎵", mainichi_lesson:"📅", keiko_no_hibi:"🧘",
+  miyaburi:"👁️", kakuran_kamae:"🌀", misukashi_wink:"😉", gekisho_spot:"💫", kona_kemuri:"🌫️",
+  dai_kemuridama:"💨", komoriuta:"🌙", minna_komoriuta:"🎶", horoyoi_iki:"😮‍💨", sakazuki_kamae:"🍶",
+  anc_barrier:"🔰", anc_wall:"🧱"
 };
 const ART_BG = {
   kento:["#8a3324","#2a0d08"], taichi:["#1e6b34","#0a2010"],
@@ -1011,7 +1099,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "2.4";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "2.5";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
@@ -1128,8 +1216,9 @@ function updateTopbar(){
   $("tb-floor").textContent = `${S.floor}かい / ${MAX_FLOOR}かい`;
   const rr=$("relic-row"); rr.innerHTML="";
   S.relics.forEach(r=>{
-    const R=RELICS[r], el=document.createElement("div");
-    el.className="relic"; el.textContent=R.glyph;
+    const R=RELICS[r]||ANCIENTS[r]; if(!R) return;
+    const el=document.createElement("div");
+    el.className="relic"+(ANCIENTS[r]?" ancient":""); el.textContent=R.glyph;
     el.setAttribute("data-tip", `${R.name}：${R.desc}`);
     rr.appendChild(el);
   });
@@ -1185,17 +1274,16 @@ const NODE_LABEL = {
   boss:{glyph:"👿",label:"ボス"}
 };
 function buildMap(stage){
-  const hard = DIFF.key==="hard";
-  /* むずかしい: レーンの みせ(shop)を たたかいに して まものマスを ふやす（イベントは のこす） */
-  const mk = arr => { arr=arr.slice(); if(hard){ const i=arr.indexOf("shop"); if(i>=0) arr[i]="battle"; } return arr; };
+  /* むずかしいも マップは 通常と同じ（難易度は てきの つよさで つける）。
+     対戦マスを すこし へらし ？マスを ふやした（イベントで きょうか/パワー入手が できる）。 */
   const branch = lanes => ({ kind:"branch", chosen:-1,
-    lanes: shuffle(lanes).map(L=>({ name:L.name, nodes:mk(L.nodes).map(t=>({t,done:false})) })) });
+    lanes: shuffle(lanes).map(L=>({ name:L.name, nodes:L.nodes.map(t=>({t,done:false})) })) });
   const single = t => ({ kind:"single", node:{t,done:false} });
   return [
     single("battle"),                                           // スタート（かならず たたかい）
     branch([
       {name:"せんとうの みち", nodes:["battle","battle","event"]},
-      {name:"たからの みち",   nodes:["battle","shop","battle"]},
+      {name:"たからの みち",   nodes:["event","shop","battle"]},
       {name:"けものの みち",   nodes:["event","battle","battle"]}
     ]),
     single("rest"),                                             // 合流1（やすみ・合流ポイント）
@@ -1208,7 +1296,7 @@ function buildMap(stage){
     branch([
       {name:"やみの みち",     nodes:["elite","battle","battle"]},
       {name:"けわしい みち",   nodes:["battle","battle","event"]},
-      {name:"うかいの みち",   nodes:["shop","battle","battle"]}
+      {name:"うかいの みち",   nodes:["shop","event","battle"]}
     ]),
     single("rest"),                                             // ボスまえの やすみ
     single("boss")                                             // ボス（14 / 28かい）
@@ -1317,10 +1405,11 @@ function startCombat(enemyIds, kind){
       st:{}, turn:0, boss:!!E.boss, elite:!!E.elite, move:null, enraged:false};
   });
   S.combat = {
-    kind, enemies, turn:0, energyMax:3 + (hasRelic("lamp")?1:0),
+    kind, enemies, turn:0, energyMax:3 + (hasRelic("lamp")?1:0) + (hasRelic("anc_mana")?1:0),
     energy:0, hand:[], draw:shuffle(S.deck.map(c=>({...c}))), discard:[], exhaust:[],
     blk:0, st:{}, faith:0, wisdom:0, played:0, stance:null, selected:null,
-    crit: S.ch.id==="erika" ? 15 : 0, critMul:2
+    crit: S.ch.id==="erika" ? 15 : 0, critMul:2,
+    negate:0, dmgTaken:0, freeUsed:false, fbUsed:false
   };
   const C=S.combat;
   if(hasRelic("toolbox") && S.ch.id==="taichi") C.wisdom=2;
@@ -1328,6 +1417,8 @@ function startCombat(enemyIds, kind){
   if(hasRelic("photo")) C.blk=6;
   if(hasRelic("penlight")||hasRelic("ojiichan")) C.st.str=(C.st.str||0)+ (hasRelic("penlight")?1:0) + (hasRelic("ojiichan")?1:0);
   if(hasRelic("doorbell")) enemies.forEach(e=>e.st.weak=(e.st.weak||0)+1);
+  if(hasRelic("anc_berserk")){ C.st.str=(C.st.str||0)+3; C.st.dex=(C.st.dex||0)+3; }   // エンシェント：狂戦士
+  if(hasRelic("anc_heal8")) S.hp=Math.min(S.maxHp, S.hp+8);                              // エンシェント：命の聖杯
   enemies.forEach(e=>chooseMove(e));
   if(kind==="boss"){ AudioEng.sfx("boss"); AudioEng.playBGM("boss"); }
   else AudioEng.playBGM("battle");
@@ -1353,13 +1444,16 @@ function startPlayerTurn(){
   C.blk = 0;
   C.energy = C.energyMax + (hasRelic("clock") && C.turn===1 ? 1 : 0);
   C.played = 0;
+  C.fbUsed = false; C.dmgTaken = 0;                       // まいターン リセット(こだいの盾/だいちの鎧)
   if(hasRelic("lamp")) damagePlayer(1, true);
+  if(hasRelic("anc_berserk")) damagePlayer(1, true);      // きょうせんし：まいターン HP-1
   C.powers = C.powers||{};
   if(C.powers.star_utahime){ C.faith+=1; S.hp=Math.min(S.maxHp,S.hp+(C.powers.star_utahime-1)); }
   if(C.powers.tensai_ou) C.wisdom += C.powers.tensai_ou;
   if(C.powers.horoyoi_kenja) C.blk += C.powers.horoyoi_kenja;
   if(C.powers.densetsu_senshi) C.st.str=(C.st.str||0)+C.powers.densetsu_senshi;
   if(C.powers.shippu_mode) C.played += C.powers.shippu_mode;
+  if(C.powers.crit_gain) C.crit += C.powers.crit_gain;    // ファンサりつ 毎ターン(まいにちレッスン)
   /* むずかしいモード：ボスは 3ターンごとに きんりょく+1 */
   if(DIFF.key==="hard" && C.kind==="boss" && C.turn%3===0){
     C.enemies.forEach(e=>{ if(e.hp>0 && e.boss) e.st.str=(e.st.str||0)+1; });
@@ -1430,8 +1524,12 @@ function dealToEnemy(e, dmg){
 }
 function damagePlayer(dmg, pierce=false){
   const C=S.combat;
+  let noted=false;
   if(!pierce){
     const absorbed=Math.min(C.blk,dmg); C.blk-=absorbed; dmg-=absorbed;
+    if(dmg>0 && C.negate>0){ C.negate--; dmg=0; floatText("p-portrait","バリア!","#8ad4f5"); noted=true; }               // エンシェントバリア
+    else if(dmg>0 && hasRelic("anc_negate5")){ C.hitc=(C.hitc||0)+1; if(C.hitc%5===0){ dmg=0; floatText("p-portrait","むこうか!","#8ad4f5"); noted=true; } }  // 5かいごと むこうか
+    if(dmg>0 && hasRelic("anc_cap20")){ const room=Math.max(0,20-(C.dmgTaken||0)); if(dmg>room) dmg=room; C.dmgTaken=(C.dmgTaken||0)+dmg; }  // 1ターン ダメージ上限20
   }
   if(dmg>0){
     S.hp-=dmg;
@@ -1439,7 +1537,7 @@ function damagePlayer(dmg, pierce=false){
     floatText("p-portrait", `-${dmg}`, "#ff8a7a");
     $("p-portrait").classList.remove("shake"); void $("p-portrait").offsetWidth;
     $("p-portrait").classList.add("shake");
-  } else if(!pierce){ AudioEng.sfx("block"); floatText("p-portrait","ガード","#7fb2e5"); }
+  } else if(!pierce && !noted){ AudioEng.sfx("block"); floatText("p-portrait","ガード","#7fb2e5"); }
   if(S.hp<=0){ S.hp=0; setTimeout(defeat, 600); }
 }
 function pulse(cls){
@@ -1531,8 +1629,10 @@ function clickEnemy(uid){
 function playCard(idx, target){
   const C=S.combat;
   const card=C.hand[idx], def=CARDS[card.id], v=cv(card);
-  C.energy -= def.cost;
-  if(def.cost>0){
+  let cost=def.cost;
+  if(hasRelic("anc_free1") && !C.freeUsed){ C.freeUsed=true; if(cost>0){ cost=0; toast("はやわざ! さいしょの 1まいは マナ0"); } }   // エンシェント：はやわざ
+  C.energy -= cost;
+  if(cost>0){
     setTimeout(()=>{ const o=$("energy-orb"); o.classList.add("spend"); setTimeout(()=>o.classList.remove("spend"),160); }, 30);
   }
   C.hand.splice(idx,1);
@@ -1572,7 +1672,11 @@ function playCard(idx, target){
   if(v.bm) blk += v.bm * C.played;
   if(v.cb && C.stance==="calm") blk += v.cb;
   if(v.wb) blk += C.wisdom * v.wb;                 // はつめい×n ブロック
-  if(blk>0){ C.blk += blk; pulse("blockp"); }
+  if(blk>0){
+    blk += (C.st.dex||0);                                                              // すばやさ ぶん 上乗せ
+    if(hasRelic("anc_block2x") && C.turn%2===0 && !C.fbUsed){ blk*=2; C.fbUsed=true; }  // 2ターンごと 最初のブロック2倍
+    C.blk += blk; pulse("blockp");
+  }
   if(v.f) C.faith += v.f;
   if(v.w) C.wisdom += v.w;
   if(v.pl) C.played += v.pl;                        // コンボ(つかったカードかず)を ふやす
@@ -1581,13 +1685,15 @@ function playCard(idx, target){
   if(v.h){ S.hp = Math.min(S.maxHp, S.hp + v.h); pulse("healp"); floatText("p-portrait", `+${v.h}`, "#8ce6a0"); }
   if(v.sd){ damagePlayer(v.sd, true); if(!S.combat || S.hp<=0) return; }
   if(v.s && def.type!=="pow") C.st.str=(C.st.str||0)+v.s;
-  if(v.wk){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>t.st.weak=(t.st.weak||0)+v.wk); }
+  if(v.wk){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>{ if(t) t.st.weak=(t.st.weak||0)+v.wk; }); }
+  if(v.vn && def.type!=="atk"){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>{ if(t&&t.hp>0) t.st.vuln=(t.st.vuln||0)+v.vn; }); }  // 攻撃いがいで ぜいじゃく(デバフカード)
   let dr = v.dr||0;
   if(v.cdr && C.stance==="calm") dr += v.cdr;
   if(def.special==="rinne" && C.discard.length){
     const i=rnd(C.discard.length);
     C.hand.push(C.discard.splice(i,1)[0]);
   }
+  if(def.special==="negate2"){ C.negate=(C.negate||0)+2; floatText("p-portrait","バリア×2","#8ad4f5"); }   // エンシェントバリア
   if(def.type==="pow"){
     C.powers = C.powers||{};
     if(card.id==="spotlight"){ C.st.str=(C.st.str||0)+v.s; }
@@ -1602,6 +1708,11 @@ function playCard(idx, target){
     else if(card.id==="drone") C.powers.drone = {mul:v.dmul, flat:(C.powers.drone?C.powers.drone.flat:0)+v.dadd};
     else if(card.id==="kanko_chikara") C.critMul = v.critmul;
     else if(card.id==="yusha_sakazuki") C.powers.yusha_sakazuki = v.n;
+    else if(card.id==="hitamuki_lesson") C.powers.shippu_mode = (C.powers.shippu_mode||0)+v.n;
+    else if(card.id==="jido_kenkyusho") C.powers.tensai_ou = (C.powers.tensai_ou||0)+v.w;
+    else if(card.id==="kuchizusamu") C.powers.star_utahime = v.n;
+    else if(card.id==="mainichi_lesson") C.powers.crit_gain = (C.powers.crit_gain||0)+v.cr;
+    else if(card.id==="keiko_no_hibi") C.powers.horoyoi_kenja = (C.powers.horoyoi_kenja||0)+v.bp;
     C.exhaust.push(card);
   } else if(def.ex){
     C.exhaust.push(card);
@@ -1691,7 +1802,7 @@ function cardEl(card, opts={}){
 }
 function stEl(list, host){
   host.innerHTML="";
-  const NAMES={str:["きんりょく","こうげきりょくが あがる","buff"],weak:["すいじゃく","あたえるダメージ-25%","debuff"],vuln:["ぜいじゃく","うけるダメージ+50%","debuff"]};
+  const NAMES={str:["きんりょく","こうげきりょくが あがる","buff"],dex:["すばやさ","ブロックが ふえる","buff"],weak:["すいじゃく","あたえるダメージ-25%","debuff"],vuln:["ぜいじゃく","うけるダメージ+50%","debuff"]};
   for(const k in list){
     if(!list[k]) continue;
     const [n,tip,cls]=NAMES[k];
@@ -1808,18 +1919,18 @@ function victory(){
 function midResult(){
   AudioEng.sfx("win"); AudioEng.playBGM("home");
   const ci=CHAR_ORDER.indexOf(S.ch.id);
-  CLEARED1[ci]=true;                                  // ここで ステージ1クリアを きろく(かえっても すすんでも)
-  S.hp=Math.min(S.maxHp, S.hp+Math.floor(S.maxHp*0.5));   // HP50%かいふく
-  const relicPool=RELIC_POOL.filter(r=>!hasRelic(r));
-  const gotRelic = relicPool.length ? pick(relicPool) : null;
-  if(gotRelic) gainRelic(gotRelic);
+  CLEARED1[ci]=true;                                          // ステージ1クリアを きろく
+  S.hp=Math.min(S.maxHp, S.hp+Math.floor(S.maxHp*0.8));       // HP80%かいふく
+  const used=(S.potions||[]).filter(p=>p.used);               // つかった ポーションを 1つ 補填
+  let refilled=null;
+  if(used.length){ const p=pick(used); p.used=false; refilled=POTIONS[p.id].name; }
   updateTopbar();
   const scr=$("reward-screen");
+
   function renderPaths(){
     scr.innerHTML=`<div style="font-size:52px">🌌</div>
       <h2 style="color:var(--gold)">まおうを たおした!</h2>
       <p class="flavor">14かいで まおうは くずれおちた。<br>しかし とうは そらの うえへ つづいていた…<br>やみの ちからの みなもとは、まだ うえに ある。</p>
-      <p class="small">HPが かいふく${gotRelic?` ／ たからもの「${RELICS[gotRelic].name}」を にゅうしゅ`:""} ／ あいことばに ステージ1クリアを きろくした</p>
       <div class="opt-col">
         <button style="border-color:var(--gold)" id="mid-go">とうの おくへ すすむ（ステージ2 やみのとうへ）</button>
         <button id="mid-home">おうちへ かえる（ここまでの きろくで タイトルへ）</button>
@@ -1828,22 +1939,41 @@ function midResult(){
     $("mid-home").onclick=()=>{ ending(true, 1); };
     show("reward-screen");
   }
-  scr.innerHTML=`<div style="font-size:52px">🌌</div>
-    <h2 style="color:var(--gold)">まおうを たおした!</h2>
-    <p class="flavor">14かいで まおうは くずれおちた。しかし とうは そらの うえへ つづいていた…</p>
-    <p class="small">HPが 50% かいふく${gotRelic?` ／ たからもの「${RELICS[gotRelic].name}」`:""}</p>
-    <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
-  const list=document.createElement("div"); list.className="card-list";
-  const offers=rollCardRewards(3);
-  offers.forEach(card=>{
-    list.appendChild(cardEl(card,{onclick:()=>{ AudioEng.sfx("wallet"); S.deck.push(card); toast(`「${cname(card)}」を デッキに いれた`); renderPaths(); }}));
-  });
-  scr.appendChild(list);
-  const skip=document.createElement("button");
-  skip.textContent="カードは もらわない"; skip.style.marginTop="10px";
-  skip.onclick=()=>renderPaths();
-  scr.appendChild(skip);
-  show("reward-screen");
+  function cardRewardStep(){
+    scr.innerHTML=`<div style="font-size:44px">🎁</div>
+      <h2 style="color:var(--gold)">まおう撃破 ボーナス</h2>
+      <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
+    const list=document.createElement("div"); list.className="card-list";
+    rollCardRewards(3).forEach(card=>{
+      list.appendChild(cardEl(card,{onclick:()=>{ AudioEng.sfx("wallet"); S.deck.push(card); toast(`「${cname(card)}」を デッキに いれた`); renderPaths(); }}));
+    });
+    scr.appendChild(list);
+    const skip=document.createElement("button");
+    skip.textContent="カードは もらわない"; skip.style.marginTop="10px";
+    skip.onclick=()=>renderPaths();
+    scr.appendChild(skip);
+    show("reward-screen");
+  }
+  function relicStep(){
+    const pool=shuffle(ANCIENT_POOL.filter(id=>!hasRelic(id))).slice(0,3);
+    if(pool.length===0){ cardRewardStep(); return; }
+    scr.innerHTML=`<div style="font-size:52px">🌌</div>
+      <h2 style="color:var(--gold)">まおうを たおした!</h2>
+      <p class="small">HPを 80% かいふく${refilled?` ／ ポーション「${refilled}」を 補填`:""} ／ ステージ1クリアを きろく</p>
+      <h3 style="letter-spacing:.12em; color:var(--gold)">エンシェントレリックを 1つ えらぶ</h3>
+      <div class="opt-col" id="anc-opts"></div>`;
+    const box=$("anc-opts");
+    pool.forEach(id=>{
+      const A=ANCIENTS[id];
+      const b=document.createElement("button");
+      b.style.cssText="text-align:left; line-height:1.6; border-color:var(--gold);";
+      b.innerHTML=`<b>${A.glyph} ${A.name}</b><br><span class="small">${A.desc}</span>`;
+      b.onclick=()=>{ gainAncient(id, ()=>cardRewardStep()); };
+      box.appendChild(b);
+    });
+    show("reward-screen");
+  }
+  relicStep();
 }
 function afterReward(kind){
   if(kind==="elite"){
@@ -2075,7 +2205,26 @@ function shopScreen(){
 }
 
 /* ---------- イベント ---------- */
+function giveRandomPower(){
+  const pool=Object.keys(CARDS).filter(id=>CARDS[id].ch===S.ch.id && CARDS[id].type==="pow");
+  if(!pool.length){ toast("パワーカードが ない…"); return; }
+  const card=mkCard(pick(pool));
+  S.deck.push(card);
+  AudioEng.sfx("magic");
+  toast(`パワー「${cname(card)}」を おぼえた!`);
+}
 const EVENTS = [
+  {glyph:"⚙️",title:"はつめいか の こうぼう",flavor:"つかいこまれた どうぐと、なぞの せっけいずが おいてある こうぼう。じゆうに つかっていいらしい。",
+   opts:s=>[
+     {txt:"どうぐで カードを みがく（1まい きょうか）",fn:null,forge:true},
+     {txt:"せっけいずを もらう（ランダムな パワーカード 1まい）",fn:()=>{giveRandomPower();}},
+     {txt:"なにも せずに でる",fn:()=>{}}
+   ]},
+  {glyph:"📜",title:"ひでんの まきもの",flavor:"かべに かけられた まきものが、ぼうっと ひかっている。よむと ちからが みにつきそうだ。",
+   opts:s=>[
+     {txt:"まきものを よむ（ランダムな パワーカード 1まい）",fn:()=>{giveRandomPower();}},
+     {txt:"やぶって おかねに かえる（+40◆）",fn:()=>{S.gold+=40;AudioEng.sfx("coin");}}
+   ]},
   {glyph:"♨️",title:"とちゅうの おんせん",flavor:"とうの なかに、ゆげの たちのぼる おんせんが わいていた。まものも ここでは あらそわないらしい。",
    opts:s=>[
      {txt:"ゆっくり つかる（ぜんかいふく。でも のぼせて さいだいHP-5）",fn:()=>{S.maxHp-=5;S.hp=S.maxHp;AudioEng.sfx("heal");}},

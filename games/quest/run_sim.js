@@ -72,11 +72,13 @@ const SUITE = `
   /* --- カード / CARD_ART --- */
   const ma=[],df=[]; Object.keys(CARDS).forEach(id=>{ if(CARD_ART[id]===undefined)ma.push(id);
     try{CARDS[id].desc(Object.assign({},CARDS[id].v));CARDS[id].desc(Object.assign({},CARDS[id].v,CARDS[id].vu||{}));}catch(e){df.push(id);} });
-  ok("cards_total_92", Object.keys(CARDS).length===92, Object.keys(CARDS).length+"枚");
+  ok("cards_total_109", Object.keys(CARDS).length===109, Object.keys(CARDS).length+"枚");
   ok("cards_art_complete", ma.length===0, ma.join());
   ok("cards_desc_ok", df.length===0, df.join());
   const newIds=["nusumi_ashi","kaiten_geri","step_renshu","shippu_mode","final_rush","bakuhatsu_nut","kaizo_kyoka","jido_barrier","drone","megaton_bomb","rinsho","vibrato","maho_step","audience","grand_finale","ai_no_hakushu","megane_kirari","cyalume_rain","kanko_chikara","unmei_stage","nomikurabe","yoizamashi","inazuma_tsue","dai_rancho","yusha_sakazuki"];
   ok("cards_new25_present", newIds.filter(id=>!CARDS[id]).length===0, newIds.filter(id=>!CARDS[id]).join());
+  const addIds=["hitamuki_lesson","jido_kenkyusho","kuchizusamu","mainichi_lesson","keiko_no_hibi","miyaburi","kakuran_kamae","misukashi_wink","gekisho_spot","kona_kemuri","dai_kemuridama","komoriuta","minna_komoriuta","horoyoi_iki","sakazuki_kamae","anc_barrier","anc_wall"];
+  ok("cards_v25_add17_present", addIds.filter(id=>!CARDS[id]).length===0, addIds.filter(id=>!CARDS[id]).join());
 
   /* --- 敵 / 定数 --- */
   ok("enemies_s2_present", ["dsoldier","redwyvern","shadowdemon","dknight","golem","darkmaou"].every(id=>ENEMIES[id]));
@@ -95,11 +97,14 @@ const SUITE = `
   ok("map_last_boss", MN[MN.length-1].kind==="single" && MN[MN.length-1].node.t==="boss");
   ok("map_3_branches", MN.filter(c=>c.kind==="branch").length===3);
   ok("map_3_lanes_each", MN.filter(c=>c.kind==="branch").every(c=>c.lanes.length===3));
-  ok("map_every_lane_2plus_battles", Math.min.apply(null, laneBattles(MN))>=2, "min="+Math.min.apply(null, laneBattles(MN)));
+  ok("map_every_lane_has_battle", Math.min.apply(null, laneBattles(MN))>=1, "min="+Math.min.apply(null, laneBattles(MN)));
+  const battleNodes = cols => cols.reduce((n,c)=> n + (c.kind==="single" ? (c.node.t==="battle"?1:0) : c.lanes.reduce((m,L)=>m+L.nodes.filter(x=>x.t==="battle").length,0)), 0);
+  const eventNodes  = cols => cols.reduce((n,c)=> n + (c.kind==="single" ? (c.node.t==="event"?1:0) : c.lanes.reduce((m,L)=>m+L.nodes.filter(x=>x.t==="event").length,0)), 0);
+  ok("map_battles_reduced", battleNodes(MN)===17, "battles="+battleNodes(MN));   // 19→17（約1割減）
+  ok("map_events_increased", eventNodes(MN)===6, "events="+eventNodes(MN));       // 4→6
   DIFF=DIFFS.hard; const MH=buildMap(1);
-  ok("map_hard_pathlen_14", pathLen(MH)===14);
-  ok("map_hard_camps_restored", MH[2].node.t==="rest" && MN[2].node.t==="rest");   // ③ むずかしいの やすみを もとに戻した
-  ok("map_hard_lanes_2plus", Math.min.apply(null, laneBattles(MH))>=2);
+  ok("map_hard_same_camps", MH[2].node.t==="rest" && MN[2].node.t==="rest");      // むずかしいも 通常と同じ
+  ok("map_hard_same_battles", battleNodes(MH)===17);
   DIFF=DIFFS.normal;
   /* マップ ポインタ 走破（レーン0を えらび つづけて ボスに とうたつ） */
   (function(){
@@ -110,6 +115,52 @@ const SUITE = `
         if(M.li>=col.lanes[M.lane].nodes.length){ M.ci++; M.lane=-1; M.li=0; } } }
     ok("map_traverse_to_boss", reached && (steps-1)===13, "steps="+(steps-1));
   })();
+
+  /* --- v2.5: 初期デッキ・ポーション・デバフ・スケール・エンシェント --- */
+  DIFF=DIFFS.normal;
+  ok("starter_deck_8", (newRun("kento"), S.deck.length===8), "deck="+S.deck.length);
+  ok("block_potion_15", POTIONS.block.desc.indexOf("15")>=0);
+  ok("ancients_13", ANCIENT_POOL.length===13, ANCIENT_POOL.length);
+
+  newRun("taichi"); startCombat(["dsoldier"],"battle");
+  const V=S.combat;
+  const RE2=h=>{V.enemies=[{id:"d",uid:0,name:"m",spr:"slime",sprScale:4,hp:h,maxHp:h,blk:0,st:{},turn:0,move:null,enraged:false}];};
+  const BS2=()=>{V.wisdom=0;V.faith=0;V.played=0;V.blk=0;V.crit=0;V.critMul=2;V.stance=null;V.st={};V.powers={};V.busy=false;V.energy=99;V.negate=0;V.dmgTaken=0;V.freeUsed=false;V.fbUsed=true;V.hitc=0;};
+  const PL2=id=>{V.energy=99;const cd=mkCard(id);V.hand.push(cd);playCard(V.hand.length-1,aliveEnemies()[0]);};
+
+  BS2();RE2(999);PL2("miyaburi");      ok("debuff_vuln_skl", V.enemies[0].st.vuln===1);
+  BS2();RE2(999);PL2("kona_kemuri");   ok("debuff_weak_skl", V.enemies[0].st.weak===1);
+  BS2();V.enemies=[{id:"a",uid:0,name:"a",spr:"slime",sprScale:4,hp:999,maxHp:999,blk:0,st:{},turn:0,move:null,enraged:false},{id:"b",uid:1,name:"b",spr:"slime",sprScale:4,hp:999,maxHp:999,blk:0,st:{},turn:0,move:null,enraged:false}];
+  PL2("kakuran_kamae");                ok("debuff_all_vuln", V.enemies[0].st.vuln===1 && V.enemies[1].st.vuln===1);
+
+  BS2();PL2("hitamuki_lesson"); ok("scale_kento_combo",  V.powers.shippu_mode===1);
+  BS2();PL2("jido_kenkyusho");  ok("scale_taichi_wisdom", V.powers.tensai_ou===1);
+  BS2();PL2("kuchizusamu");     ok("scale_nozomi_faith",  V.powers.star_utahime===1);
+  BS2();PL2("mainichi_lesson"); ok("scale_erika_crit",    V.powers.crit_gain===4);
+  BS2();PL2("keiko_no_hibi");   ok("scale_yushi_block",   V.powers.horoyoi_kenja===3);
+  BS2();V.powers={crit_gain:4};V.crit=0;RE2(999);startPlayerTurn(); ok("crit_gain_applies", S.combat.crit===4);
+
+  { newRun("taichi"); const before=S.deck.length; giveRandomPower(); ok("give_random_power", S.deck.length===before+1 && CARDS[S.deck[S.deck.length-1].id].type==="pow"); }
+
+  /* エンシェントレリック */
+  newRun("kento"); S.relics.push("anc_mana"); startCombat(["dsoldier"],"battle");
+  ok("anc_mana_energymax", S.combat.energyMax===4);
+  newRun("kento"); const mh=S.maxHp; ANCIENTS.anc_maxhp30.onGain(); ok("anc_maxhp30", S.maxHp===mh+30);
+  newRun("kento"); S.hp=1; S.relics.push("anc_heal8"); startCombat(["dsoldier"],"battle"); ok("anc_heal8", S.hp===9);
+  newRun("kento"); S.relics.push("anc_berserk"); startCombat(["dsoldier"],"battle");
+  ok("anc_berserk_str_dex", (S.combat.st.str||0)>=3 && (S.combat.st.dex||0)>=3);
+  { const C3=S.combat; C3.busy=false; C3.energy=99; C3.st={dex:3}; C3.fbUsed=true; const b0=C3.blk; const cd=mkCard("step_guard"); C3.hand.push(cd); playCard(C3.hand.length-1,null); ok("dex_adds_block", (C3.blk-b0)===8); }
+  newRun("taichi"); S.relics.push("anc_free1"); startCombat(["dsoldier"],"battle");
+  { const C3=S.combat; C3.busy=false; C3.energy=3; const cd=mkCard("spanner"); C3.hand.push(cd); playCard(C3.hand.length-1, aliveEnemies()[0]); ok("anc_free1_first_free", C3.energy===3 && C3.freeUsed); }
+  newRun("kento"); S.relics.push("anc_cap20"); startCombat(["dsoldier"],"battle");
+  { const C3=S.combat; C3.busy=false; C3.blk=0; C3.dmgTaken=0; S.hp=100; damagePlayer(50); ok("anc_cap20_damage", S.hp===80); }
+  newRun("kento"); S.relics.push("anc_negate5"); startCombat(["dsoldier"],"battle");
+  { const C3=S.combat; C3.busy=false; C3.blk=0; S.hp=100; C3.hitc=0; for(let i=0;i<5;i++) damagePlayer(1); ok("anc_negate5_hit", S.hp===96); }
+  newRun("kento"); startCombat(["dsoldier"],"battle");
+  { const C3=S.combat; C3.busy=false; C3.energy=99; C3.negate=0; const cd=mkCard("anc_barrier"); C3.hand.push(cd); playCard(C3.hand.length-1,null); const set=C3.negate===2; S.hp=100; C3.blk=0; damagePlayer(10); damagePlayer(10); ok("anc_barrier_negate2", set && S.hp===100 && C3.negate===0); }
+  newRun("kento"); ANCIENTS.anc_up6.onGain(); ok("anc_up6_upgrade", S.deck.filter(c=>c.up).length>=6);
+  newRun("kento"); { const dl=S.deck.length; ANCIENTS.anc_wall_cards.onGain(); ok("anc_wall_cards_add2", S.deck.length===dl+2 && S.deck.slice(-2).every(c=>c.id==="anc_wall")); }
+  newRun("kento"); ANCIENTS.anc_potion5.onGain(); ok("anc_potion5_slots", S.potions.length===5 && S.potions.every(p=>!p.used));
 
   /* --- ブロック底上げ（初期カードいがい 1マナ+1/2マナ+2） --- */
   ok("blockbuff_c1_plus1", CARDS.kaizo_kyoka.v.b===7 && CARDS.kaizo_kyoka.vu.b===10, "kaizo v="+CARDS.kaizo_kyoka.v.b);   // C cost1 b6->7 / b9->10
@@ -126,7 +177,7 @@ const SUITE = `
   startCombat(["dsoldier"],"battle"); S.combat.busy=false;
   S.combat.energy=1; usePotion("mana");  ok("potion_mana_plus2", S.combat.energy===3 && S.potions.find(p=>p.id==="mana").used);
   S.combat.energy=1; usePotion("mana");  ok("potion_mana_oneshot", S.combat.energy===1);   // つかいきり（補填なし）
-  S.combat.blk=0;    usePotion("block"); ok("potion_block_plus10", S.combat.blk===10);
+  S.combat.blk=0;    usePotion("block"); ok("potion_block_plus15", S.combat.blk===15);
   { const hb=S.combat.hand.length; usePotion("draw"); ok("potion_draw_cards", S.combat.hand.length>hb); }
 
   /* --- 新パワー/新カード 単体検証 --- */
