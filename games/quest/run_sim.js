@@ -98,7 +98,7 @@ const SUITE = `
   ok("map_every_lane_2plus_battles", Math.min.apply(null, laneBattles(MN))>=2, "min="+Math.min.apply(null, laneBattles(MN)));
   DIFF=DIFFS.hard; const MH=buildMap(1);
   ok("map_hard_pathlen_14", pathLen(MH)===14);
-  ok("map_hard_fewer_camps", MH[2].node.t==="event" && MN[2].node.t==="rest");
+  ok("map_hard_camps_restored", MH[2].node.t==="rest" && MN[2].node.t==="rest");   // ③ むずかしいの やすみを もとに戻した
   ok("map_hard_lanes_2plus", Math.min.apply(null, laneBattles(MH))>=2);
   DIFF=DIFFS.normal;
   /* マップ ポインタ 走破（レーン0を えらび つづけて ボスに とうたつ） */
@@ -111,6 +111,24 @@ const SUITE = `
     ok("map_traverse_to_boss", reached && (steps-1)===13, "steps="+(steps-1));
   })();
 
+  /* --- ブロック底上げ（初期カードいがい 1マナ+1/2マナ+2） --- */
+  ok("blockbuff_c1_plus1", CARDS.kaizo_kyoka.v.b===7 && CARDS.kaizo_kyoka.vu.b===10, "kaizo v="+CARDS.kaizo_kyoka.v.b);   // C cost1 b6->7 / b9->10
+  ok("blockbuff_c2_plus2", CARDS.jido_barrier.v.b===10 && CARDS.jido_barrier.vu.b===13, "jido v="+CARDS.jido_barrier.v.b); // U cost2 b8->10 / b11->13
+  ok("blockbuff_starter_unchanged", CARDS.step_guard.v.b===5 && CARDS.mama_tate.v.b===5);                                   // S は そのまま
+  ok("blockbuff_cost0_unchanged", CARDS.shinkokyu.v.b===6 && CARDS.nusumi_ashi.v.b===2);                                    // 0マナは たいしょうがい
+  ok("blockbuff_cost3_unchanged", CARDS.magnum_slash.v.b===undefined);                                                     // 3マナ(bなし)は むえいきょう
+
+  /* --- ポーション(きゅうさいアイテム) --- */
+  DIFF=DIFFS.normal; newRun("kento");
+  ok("potions_3_at_start", S.potions.length===3 && S.potions.every(p=>!p.used) && S.potions.map(p=>p.id).join()==="mana,draw,block");
+  usePotion("block");   // せんとうそとでは つかえない
+  ok("potion_locked_out_of_combat", !S.potions.find(p=>p.id==="block").used);
+  startCombat(["dsoldier"],"battle"); S.combat.busy=false;
+  S.combat.energy=1; usePotion("mana");  ok("potion_mana_plus2", S.combat.energy===3 && S.potions.find(p=>p.id==="mana").used);
+  S.combat.energy=1; usePotion("mana");  ok("potion_mana_oneshot", S.combat.energy===1);   // つかいきり（補填なし）
+  S.combat.blk=0;    usePotion("block"); ok("potion_block_plus10", S.combat.blk===10);
+  { const hb=S.combat.hand.length; usePotion("draw"); ok("potion_draw_cards", S.combat.hand.length>hb); }
+
   /* --- 新パワー/新カード 単体検証 --- */
   DIFF=DIFFS.normal; newRun("taichi"); startCombat(["dsoldier"],"battle"); const C=S.combat;
   const RE=h=>{C.enemies=[{id:"d",uid:0,name:"m",spr:"slime",sprScale:4,hp:h,maxHp:h,blk:0,st:{},turn:0,move:null,enraged:false}];};
@@ -119,7 +137,7 @@ const SUITE = `
   let h0;
   BS();RE(999);C.wisdom=5;h0=C.enemies[0].hp;PL("megaton_bomb"); ok("megaton_bomb_wall", (h0-C.enemies[0].hp)===30&&C.wisdom===0);
   BS();RE(999);C.faith=4;h0=C.enemies[0].hp;PL("grand_finale"); ok("grand_finale_fall", (h0-C.enemies[0].hp)===24&&C.faith===0);
-  BS();RE(999);C.wisdom=3;let b0=C.blk;PL("jido_barrier"); ok("jido_barrier_wb", (C.blk-b0)===11);
+  BS();RE(999);C.wisdom=3;let b0=C.blk;PL("jido_barrier"); ok("jido_barrier_wb", (C.blk-b0)===13);   // b8+2(buff)+wisdom3
   BS();RE(999);C.played=3;h0=C.enemies[0].hp;PL("kaiten_geri"); ok("kaiten_geri_combo3_hi", (h0-C.enemies[0].hp)===16);
   BS();RE(999);C.played=1;h0=C.enemies[0].hp;PL("kaiten_geri"); ok("kaiten_geri_combo3_lo", (h0-C.enemies[0].hp)===10);
   BS();RE(999);C.faith=3;h0=C.enemies[0].hp;PL("vibrato"); ok("vibrato_fge_hi", (h0-C.enemies[0].hp)===11);

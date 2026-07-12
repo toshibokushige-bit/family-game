@@ -98,11 +98,21 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
   font-size:15px; cursor:help; position:relative;
 }
-.relic:hover::after{
+.relic:hover::after,.potion:hover::after{
   content:attr(data-tip); position:absolute; top:34px; right:0; width:200px; z-index:30;
   background:#0a0d24; border:1px solid var(--gold); border-radius:6px; padding:8px 10px;
   font-size:11.5px; line-height:1.6; color:var(--ink); white-space:normal;
 }
+#potion-row{display:flex; gap:6px; margin-left:10px;}
+.potion{
+  width:32px; height:32px; border-radius:8px; background:#132046;
+  border:2px solid var(--blue); display:flex; align-items:center; justify-content:center;
+  font-size:16px; cursor:pointer; position:relative; transition:transform .12s, box-shadow .12s;
+  box-shadow:0 0 8px rgba(106,168,255,.25);
+}
+.potion:hover{transform:translateY(-2px); box-shadow:0 0 12px rgba(106,168,255,.5);}
+.potion.used{opacity:.32; border-color:var(--line); box-shadow:none; cursor:default; filter:grayscale(.7);}
+.potion.used:hover{transform:none;}
 #deck-btn,#mute-btn{margin-left:8px; padding:5px 12px; font-size:12px;}
 
 /* ---------- バージョンタグ ---------- */
@@ -339,6 +349,8 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   #topbar{gap:8px; padding:6px 8px; font-size:11.5px; flex-wrap:wrap;}
   #deck-btn,#mute-btn{padding:4px 8px; font-size:11px; margin-left:4px;}
   .relic{width:24px; height:24px; font-size:12px;}
+  .potion{width:27px; height:27px; font-size:13px; border-radius:7px;}
+  #potion-row{margin-left:6px;}
   /* その他画面 */
   .title-main{font-size:30px;}
   .title-note{font-size:12px;}
@@ -358,6 +370,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
     <span>◆ <span class="gold" id="tb-gold"></span></span>
     <span class="floorv" id="tb-floor"></span>
     <div id="relic-row"></div>
+    <div id="potion-row"></div>
     <button id="deck-btn" onclick="showDeck()">デッキ</button>
     <button id="mute-btn" onclick="toggleMute(this)">🔊</button>
   </div>
@@ -842,6 +855,15 @@ const CARDS = {
     desc:c=>`${c.b}ブロック。<b>しょうめつ</b>。`}
 };
 
+/* むずかしさ調整: 初期カード(S)いがいの ブロック値を 底上げ（1マナ+1 / 2マナ+2）*/
+Object.values(CARDS).forEach(card=>{
+  if(card.rar==="S") return;
+  const bump = card.cost===1 ? 1 : card.cost===2 ? 2 : 0;
+  if(!bump) return;
+  if(card.v  && typeof card.v.b ==="number") card.v.b  += bump;
+  if(card.vu && typeof card.vu.b==="number") card.vu.b += bump;
+});
+
 /* ---------- レリック(たからもの) ---------- */
 const RELICS = {
   sneaker:{glyph:"👟",name:"ぼろぼろスニーカー",desc:"まいターン、カードを 1まい おおく ひく。"},
@@ -858,6 +880,27 @@ const RELICS = {
   ojiichan:{glyph:"🪄",name:"おじいちゃんのつえ",desc:"せんとうかいしじ、きんりょくを 1 える。"}
 };
 const RELIC_POOL = ["photo","bento","clock","ojiichan","piggy","lamp","doorbell"];
+
+/* ---------- ポーション(きゅうさいアイテム) ----------
+   スタート時に 3つ 保持。せんとうちゅうに つかえて、つかいきり（補填なし）。 */
+const POTION_ORDER = ["mana","draw","block"];
+const POTIONS = {
+  mana:  {glyph:"⚡", name:"マナポーション",   desc:"このターン 気を +2 する。",     use:()=>{ S.combat.energy += 2; }},
+  draw:  {glyph:"🎴", name:"ドローポーション", desc:"カードを 3まい ひく。",         use:()=>{ drawCards(3); }},
+  block: {glyph:"🛡️", name:"ブロックポーション", desc:"このターン 10ブロックを える。", use:()=>{ S.combat.blk += 10; }}
+};
+function usePotion(id){
+  if(!S) return;
+  const p = (S.potions||[]).find(x=>x.id===id);
+  if(!p || p.used) return;
+  if(!S.combat || S.combat.busy){ toast("せんとうちゅうの じぶんの ターンに つかえるよ"); return; }
+  POTIONS[id].use();
+  p.used = true;
+  AudioEng.sfx("magic");
+  toast(`${POTIONS[id].name}を つかった!`);
+  updateTopbar();
+  renderCombat();
+}
 
 
 /* ---------- てき(だい1だんの てきたちが とうに しゅうけつ) ---------- */
@@ -968,7 +1011,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "2.3";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "2.4";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
@@ -1049,6 +1092,7 @@ function newRun(chId){
     ch, hp:ch.hp+bonus, maxHp:ch.hp+bonus, gold:90, floor:0,
     deck: ch.starter.map(id=>mkCard(id)),
     relics:[ch.relic],
+    potions: POTION_ORDER.map(id=>({id, used:false})),   // スタート時に 3つ 保持（つかいきり・補填なし）
     combat:null
   };
   AudioEng.sfx("deploy");
@@ -1088,6 +1132,15 @@ function updateTopbar(){
     el.className="relic"; el.textContent=R.glyph;
     el.setAttribute("data-tip", `${R.name}：${R.desc}`);
     rr.appendChild(el);
+  });
+  const pr=$("potion-row"); pr.innerHTML="";
+  (S.potions||[]).forEach(p=>{
+    const P=POTIONS[p.id], el=document.createElement("div");
+    el.className="potion"+(p.used?" used":"");
+    el.textContent=P.glyph;
+    el.setAttribute("data-tip", `${P.name}：${P.desc}${p.used?"（つかいずみ）":"　←タップで つかう"}`);
+    if(!p.used) el.onclick=()=>usePotion(p.id);
+    pr.appendChild(el);
   });
 }
 function hasRelic(id){ return S.relics.includes(id); }
@@ -1145,7 +1198,7 @@ function buildMap(stage){
       {name:"たからの みち",   nodes:["battle","shop","battle"]},
       {name:"けものの みち",   nodes:["event","battle","battle"]}
     ]),
-    single(hard ? "event" : "rest"),                            // 合流1（むずかしいは やすみを へらす）
+    single("rest"),                                             // 合流1（やすみ・合流ポイント）
     branch([
       {name:"しれんの みち",   nodes:["battle","elite","battle"]},
       {name:"ぼうけんの みち", nodes:["battle","event","battle"]},
