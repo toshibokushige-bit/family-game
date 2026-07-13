@@ -277,9 +277,19 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
 .card .csym{position:absolute; right:5px; bottom:2px; font-size:11px; opacity:.95;}
 .card .ctype{font-size:9.5px; text-align:center; color:var(--cc); letter-spacing:.25em; margin-bottom:4px;}
 .card .cdesc{font-size:10.8px; line-height:1.55; text-align:center; color:#d5d9ec; flex:1; display:flex; align-items:center; justify-content:center; padding:0 2px;}
-.card .cdesc b{color:var(--gold);}
+.card .cdesc>span{display:block; width:100%; word-break:normal; overflow-wrap:anywhere;}   /* 用語(<b>)を含んでも 横読みで 折り返す */
+.card .cdesc b{color:var(--gold); font-weight:bold;}
+.card .crar{
+  position:absolute; top:-8px; right:-6px; min-width:20px; height:20px; padding:0 5px;
+  border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:bold; z-index:2; border:1px solid rgba(0,0,0,.4); color:#1a1226; letter-spacing:.02em;
+}
+.rar-S{background:#9aa0b8;} .rar-C{background:#cdd2e6;} .rar-U{background:#7fb2e5;} .rar-R{background:var(--gold);}
 .fly-card{position:fixed; z-index:60; pointer-events:none; transition:transform .42s cubic-bezier(.5,-0.1,.7,1), opacity .42s;}
 .fly-card.gone{opacity:0;}
+/* てきから ダメージを うけたとき 画面ぜんたいが ゆれる（ガードなら ゆれない）*/
+#app.shakescr{animation:shakescr .4s;}
+@keyframes shakescr{0%,100%{transform:translate(0,0);}15%{transform:translate(-7px,4px);}30%{transform:translate(6px,-4px);}45%{transform:translate(-5px,3px);}60%{transform:translate(4px,-2px);}80%{transform:translate(-2px,1px);}}
 .floaty{
   position:absolute; font-size:18px; font-weight:bold; pointer-events:none; z-index:20;
   animation:floatUp .8s forwards; text-shadow:0 2px 3px #000;
@@ -316,6 +326,21 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   max-width:860px; max-height:82vh; overflow-y:auto; padding:20px; text-align:center;
 }
 #overlay-box h3{margin-bottom:12px; letter-spacing:.15em;}
+/* かくにん ポップアップ（ホーム／ポーション）*/
+#confirm{
+  display:none; position:fixed; inset:0; background:rgba(5,7,20,.86); z-index:100000;
+  align-items:center; justify-content:center; padding:20px;
+}
+#confirm.on{display:flex;}
+#confirm-box{
+  background:var(--bg2); border:2px solid var(--gold); border-radius:14px;
+  max-width:340px; width:100%; padding:22px 20px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.6);
+}
+#confirm-msg{font-size:15px; line-height:1.9; margin-bottom:18px;}
+#confirm-msg .small{display:block; margin-top:6px; font-size:12px; color:var(--ink-dim);}
+#confirm-btns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+#confirm-btns button{min-width:110px; padding:11px 16px; font-size:15px;}
+#confirm-btns .cf-yes{border-color:var(--gold);}
 #toast{
   display:none; position:fixed; bottom:220px; left:50%; transform:translateX(-50%);
   background:#0a0d24; border:1px solid var(--gold); color:var(--ink);
@@ -327,6 +352,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   /* カード：小型化して横スクロール前提のサイズに */
   .card{width:94px; height:146px; padding:5px 5px 6px; border-radius:8px;}
   .card .cost{width:22px; height:22px; font-size:12px; top:-7px; left:-7px;}
+  .card .crar{min-width:16px; height:16px; font-size:9px; top:-6px; right:-5px; padding:0 4px;}
   .card .cname{font-size:10px; min-height:14px; margin-bottom:3px;}
   .card .cart{height:34px; margin-bottom:3px;}
   .card .cemo{font-size:19px;}
@@ -449,6 +475,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
   <div id="overlay"><div id="overlay-box"><h3 id="overlay-title"></h3><div class="card-list" id="overlay-list"></div><button id="overlay-close" onclick="closeOverlay()">とじる</button></div></div>
   <div id="toast"></div>
   <div id="turn-banner"></div>
+  <div id="confirm"><div id="confirm-box"><div id="confirm-msg"></div><div id="confirm-btns"></div></div></div>
 </div>
 
 <script>
@@ -1109,7 +1136,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "2.6";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "2.61";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
@@ -1237,8 +1264,12 @@ function updateTopbar(){
     const P=POTIONS[p.id], el=document.createElement("div");
     el.className="potion"+(p.used?" used":"");
     el.textContent=P.glyph;
-    el.setAttribute("data-tip", `${P.name}：${P.desc}${p.used?"（つかいずみ）":"　←タップで つかう"}`);
-    if(!p.used) el.onclick=()=>usePotion(p.id);
+    el.setAttribute("data-tip", `${P.name}：${P.desc}${p.used?"（つかいずみ）":"　←タップで せつめい"}`);
+    if(!p.used) el.onclick=()=>{
+      const inCombat = S.combat && !S.combat.busy;
+      confirmDialog(`<b>${P.glyph} ${P.name}</b><br>${P.desc}${inCombat?"":"<br><span class='small'>せんとうちゅうの じぶんの ターンに つかえるよ</span>"}`,
+        "つかう", ()=>usePotion(p.id));
+    };
     pr.appendChild(el);
   });
 }
@@ -1547,8 +1578,14 @@ function damagePlayer(dmg, pierce=false){
     floatText("p-portrait", `-${dmg}`, "#ff8a7a");
     $("p-portrait").classList.remove("shake"); void $("p-portrait").offsetWidth;
     $("p-portrait").classList.add("shake");
+    if(!pierce) screenShake();                          // てきの こうげきが ヒット → 画面ゆれ
   } else if(!pierce && !noted){ AudioEng.sfx("block"); floatText("p-portrait","ガード","#7fb2e5"); }
   if(S.hp<=0){ S.hp=0; setTimeout(defeat, 600); }
+}
+function screenShake(){
+  const a=$("app"); if(!a) return;
+  a.classList.remove("shakescr"); void a.offsetWidth; a.classList.add("shakescr");
+  setTimeout(()=>a.classList.remove("shakescr"), 420);
 }
 function pulse(cls){
   setTimeout(()=>{
@@ -1799,14 +1836,16 @@ function cardEl(card, opts={}){
   el.style.setProperty("--cc", TYPE_COLOR[def.type]);
   el.style.borderColor = chColor;
   const bg = ART_BG[def.ch]||ART_BG.none;
+  const RAR={S:"はじめ",C:"C",U:"U",R:"R"};
   el.innerHTML = `<div class="cost">${def.cost}</div>
+    <div class="crar rar-${def.rar}" title="レアリティ">${RAR[def.rar]||def.rar}</div>
     <div class="cname">${cname(card)}</div>
     <div class="cart" style="--artg1:${bg[0]};--artg2:${bg[1]}">
       <span class="cemo">${CARD_ART[card.id]||"✦"}</span>
       <span class="csym" style="color:${chColor}">${chSym}</span>
     </div>
     <div class="ctype">${TYPE_LABEL[def.type]}</div>
-    <div class="cdesc">${def.desc(v)}</div>`;
+    <div class="cdesc"><span>${def.desc(v)}</span></div>`;
   if(opts.onclick) el.onclick=opts.onclick;
   return el;
 }
@@ -2155,6 +2194,28 @@ function showPile(which){
 }
 function closeOverlay(){ $("overlay").classList.remove("on"); }
 
+/* ---------- かくにん ポップアップ（はい/やめる）---------- */
+function confirmDialog(html, yesLabel, onYes, noLabel){
+  const c=$("confirm"); $("confirm-msg").innerHTML=html;
+  const btns=$("confirm-btns"); btns.innerHTML="";
+  const yes=document.createElement("button"); yes.className="cf-yes"; yes.textContent=yesLabel;
+  yes.onclick=()=>{ AudioEng.sfx("tap"); c.classList.remove("on"); if(onYes) onYes(); };
+  const no=document.createElement("button"); no.textContent=noLabel||"やめる";
+  no.onclick=()=>{ AudioEng.sfx("tap"); c.classList.remove("on"); };
+  btns.appendChild(yes); btns.appendChild(no);
+  c.classList.add("on");
+}
+/* ゲームセンターボタン：ぼうけん中なら かくにんしてから もどる（ごタップ対策）*/
+function homeClick(e){
+  if(typeof S!=="undefined" && S){
+    e.preventDefault();
+    confirmDialog("ゲームを おわって<br>ゲームセンターに もどりますか？<br><span class='small'>いまの ぼうけんは きえます（あいことばは のこります）</span>",
+      "おわる", ()=>{ location.href="../../index.html"; });
+    return false;
+  }
+  return true;   // タイトルなど ぼうけん外は そのまま
+}
+
 /* ---------- みせ ---------- */
 function shopScreen(){
   const scr=$("shop-screen");
@@ -2344,8 +2405,15 @@ renderTitle();
     opacity:.45; transition:opacity .15s;
   }
   #homeBtn:hover,#homeBtn:active{opacity:1;}
+  #homeBtn .hb-ic{font-size:17px;}
+  @media (max-width:700px){
+    /* スマホは アイコンだけにして、トップバーと かぶらない ように */
+    #homeBtn{padding:7px 9px; font-size:13px; opacity:.85;}
+    #homeBtn .hb-tx{display:none;}
+    #topbar{padding-left:46px;}
+  }
 </style>
-<a id="homeBtn" href="../../index.html">&#8962; ゲームセンター</a>
+<a id="homeBtn" href="../../index.html" onclick="return homeClick(event);"><span class="hb-ic">&#8962;</span><span class="hb-tx">ゲームセンター</span></a>
 
 </body>
 </html>

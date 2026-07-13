@@ -162,6 +162,13 @@ const SUITE = `
   newRun("kento"); { const dl=S.deck.length; ANCIENTS.anc_wall_cards.onGain(); ok("anc_wall_cards_add2", S.deck.length===dl+2 && S.deck.slice(-2).every(c=>c.id==="anc_wall")); }
   newRun("kento"); ANCIENTS.anc_potion5.onGain(); ok("anc_potion5_slots", S.potions.length===5 && S.potions.every(p=>!p.used));
 
+  /* --- v2.61 UI --- */
+  ok("cardEl_rarity_badge", cardEl(mkCard("renda")).innerHTML.indexOf("crar")>=0);
+  ok("cardEl_desc_span", cardEl(mkCard("fansa_wink")).innerHTML.indexOf('cdesc"><span>')>=0);
+  S=null; ok("homeClick_no_run_navigates", homeClick({preventDefault:()=>{}})===true);
+  { newRun("kento"); let pd=false; const r=homeClick({preventDefault:()=>{pd=true;}}); ok("homeClick_in_run_confirms", r===false && pd===true); }
+  ok("screenShake_no_throw", (function(){ try{ newRun("kento"); startCombat(["dsoldier"],"battle"); screenShake(); return true; }catch(e){ return false; } })());
+
   /* --- ブロック底上げ（初期カードいがい 1マナ+1/2マナ+2） --- */
   ok("blockbuff_c1_plus1", CARDS.kaizo_kyoka.v.b===7 && CARDS.kaizo_kyoka.vu.b===10, "kaizo v="+CARDS.kaizo_kyoka.v.b);   // C cost1 b6->7 / b9->10
   ok("blockbuff_c2_plus2", CARDS.jido_barrier.v.b===10 && CARDS.jido_barrier.vu.b===13, "jido v="+CARDS.jido_barrier.v.b); // U cost2 b8->10 / b11->13
