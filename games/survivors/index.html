@@ -27,6 +27,7 @@
   #bossname { color:#ff6a6a; font-size:12px; letter-spacing:3px; text-align:center; margin-bottom:4px; text-shadow:0 0 8px #f00; }
   #bossbg { height:14px; background:rgba(255,255,255,.1); border:1px solid rgba(255,100,100,.5); border-radius:7px; overflow:hidden; }
   #bossfill { height:100%; width:100%; background:linear-gradient(90deg,#ff3b3b,#ff9d3b); }
+  #bosshp { color:#ffd0d0; font-size:11px; text-align:center; margin-top:3px; opacity:.85; text-shadow:0 0 6px rgba(0,0,0,.6); }
   #fpsbtn { position:absolute; top:46px; right:112px; z-index:7; height:42px; padding:0 10px; border-radius:10px; border:1px solid rgba(255,255,255,.25); background:rgba(0,0,0,.4); color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
   #mutebtn { position:absolute; top:46px; right:62px; z-index:7; width:42px; height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.25); background:rgba(0,0,0,.4); color:#fff; font-size:18px; cursor:pointer; }
   #pausebtn { position:absolute; top:46px; right:12px; z-index:7; width:42px; height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.25); background:rgba(0,0,0,.4); color:#fff; font-size:18px; cursor:pointer; }
@@ -130,7 +131,7 @@
 <button id="pausebtn">⏸</button>
 <button id="mutebtn">🔊</button>
 <button id="fpsbtn">30FPS</button>
-<div id="bossbar"><div id="bossname"></div><div id="bossbg"><div id="bossfill"></div></div></div>
+<div id="bossbar"><div id="bossname"></div><div id="bossbg"><div id="bossfill"></div></div><div id="bosshp"></div></div>
 
 <div class="overlay show" id="menu">
   <div class="title-jp">かぞくゲームシリーズ だい3だん</div>
@@ -1016,6 +1017,7 @@ function update(dt){
   // 6面の召喚ボスもバーに含める
   for(const en of G.enemies)if(en.boss&&en.summoned&&!en.dead){cur+=Math.max(0,en.hp);mx+=en.maxhp;}
   document.getElementById('bossfill').style.width=clamp(mx>0?cur/mx*100:0,0,100)+'%';
+  document.getElementById('bosshp').textContent=fmt(cur)+' / '+fmt(mx);
  }
  if(G.bossDone&&!G.cleared&&G.t>=G.clearAt){G.cleared=true;stageClear();return;}
  // timer: stage clear at 0 if boss done not required? ボス撃破必須。タイマーは0で停止表示
