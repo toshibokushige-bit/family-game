@@ -32,6 +32,7 @@
 <script>
 'use strict';
 const HEADLESS = (typeof window === 'undefined' || typeof globalThis.__SIM__ !== 'undefined');
+const VERSION = '3.0'; // ★タイトル画面に ひょうじ(デプロイ確認用)
 
 /* ================================================================
    ひがしやまダッシュ! v3 — かぞくゲームシリーズ (オートランナー)
@@ -2016,6 +2017,10 @@ function drawTitle(){
   ctx.fillText('あいことばで つづきから'+(TOUCH_MODE?'':' (9キー)'),bx+bw/2,by+30);
   ctx.font="14px 'DotGothic16',monospace";ctx.fillStyle='rgba(255,255,255,0.7)';
   ctx.fillText('5にんの かぞくで 4つのステージを かけぬけろ!',W/2,H*0.94);
+  ctx.textAlign='left';
+  ctx.font="12px 'DotGothic16',monospace";ctx.fillStyle='rgba(255,255,255,0.45)';
+  ctx.fillText('ver '+VERSION,10,H-8);
+  ctx.textAlign='center';
 }
 
 // ---------------- 起動 ----------------

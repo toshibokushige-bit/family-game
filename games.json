@@ -10,7 +10,8 @@
     ],
     "color": "#e0453b",
     "accent": "#ffd94d",
-    "emoji": "🦸"
+    "emoji": "🦸",
+    "ver": "1.0"
   },
   {
     "id": "quest",
@@ -23,7 +24,8 @@
     ],
     "color": "#5a4aa0",
     "accent": "#8ad4f5",
-    "emoji": "🗼"
+    "emoji": "🗼",
+    "ver": "2.61"
   },
   {
     "id": "survivors",
@@ -36,7 +38,8 @@
     ],
     "color": "#2f7d4a",
     "accent": "#a8e86a",
-    "emoji": "⚔️"
+    "emoji": "⚔️",
+    "ver": "1.0"
   },
   {
     "id": "dash",
@@ -50,6 +53,7 @@
     ],
     "color": "#ff6b8a",
     "accent": "#ffd94d",
-    "emoji": "💨"
+    "emoji": "💨",
+    "ver": "3.0"
   }
 ]

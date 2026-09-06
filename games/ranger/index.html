@@ -174,7 +174,7 @@ h2.scr-h{color:#fff;text-shadow:2px 2px 0 var(--shadow);font-size:22px;margin:6p
       <button class="pxbtn" id="btn-start">▶ ぼうけんに でかける</button>
       <button class="pxbtn blue" id="btn-pass">🔑 あいことばで つづきから</button>
     </div>
-    <div id="ver-tag">かぞくゲームシリーズ 第1弾</div>
+    <div id="ver-tag">かぞくゲームシリーズ 第1弾 ・ ver <span id="ver-num"></span></div>
   </div>
 
   <!-- ホーム -->
@@ -274,6 +274,8 @@ const SPRITES = {"taichi":{"pal":{"K":"#2a221e","S":"#f6c9a0","Y":"#ffd94d","y":
    かぞくゲームシリーズ 第1弾 - タワーディフェンス
    ================================================================ */
 'use strict';
+const VERSION = '1.0'; // ★タイトル画面に ひょうじ(デプロイ確認用)
+document.getElementById('ver-num').textContent = VERSION;
 const $ = s => document.querySelector(s);
 const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 const rand = (a,b)=>a+Math.random()*(b-a);
