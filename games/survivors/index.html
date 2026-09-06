@@ -326,8 +326,8 @@ const RDEF={ // ボス撃破ボーナス10種(1つだけ選択)。攻撃+100%は
 const CHARS={
  kento:{name:'けんと',role:'しっぷうのぶとうか',hp:80,spdM:1.25,cdM:0.85,hitR:9,
   desc:'いどうもこうげきも とてもはやい! でもたいりょくがひくい、こうそくアタッカー'},
- taichi:{name:'たいち',role:'はつめいレンジャー',hp:100,bombEvery:5,
-  desc:'5びょうごとに「つめいばくだん」がじどうばくはつ! たからものもみつけやすい'},
+ taichi:{name:'たいち',role:'はつめいレンジャー',hp:100,bombEvery:5,growM:1.2,
+  desc:'5びょうごとに「つめいばくだん」がじどうばくはつ! たからものもみつけやすく、レベルアップでぐんぐんせいちょう!'},
  nozomi:{name:'のぞみ',role:'うたひめダンサー',hp:95,slowR:170,slowF:0.62,xpM:1.15,
   desc:'うたのオーラで ちかくのてきをスローに。けいけんちもふえる、テクニカルがた'},
  erika:{name:'えりか',role:'でんせつのおしせんし',hp:135,critB:0.15,critX:3.0,
@@ -447,10 +447,11 @@ function makeBoss(hp,x,y,opts){
  Object.assign(b,opts);
  G.enemies.push(b);return b;
 }
+const BOSS_HP_MULT={2:0.7}; // ステージ別のボスHP個別調整(1面の追尾型ボスに対し2面が長引きすぎるため-30%)
 function spawnBoss(){
  const sm=stageMult();
  // ステージ別の基準HP(要塞型は0.8倍)。5面は2体なので各体0.6倍
- let hp=2600*sm*(1+1.0*(G.stage-1))*stageHP()*((G.stage===3||G.stage===6)?0.8:1)*DIFF.eHP; // ステージ倍率1.4→1.0(報酬リワークに合わせ短縮)
+ let hp=2600*sm*(1+1.0*(G.stage-1))*stageHP()*((G.stage===3||G.stage===6)?0.8:1)*(BOSS_HP_MULT[G.stage]||1)*DIFF.eHP; // ステージ倍率1.4→1.0(報酬リワークに合わせ短縮)
  const fortress=(G.stage===3||G.stage===6);
  const bd=fortress?420:Math.max(W,H)*0.6;
  if(G.stage===5){
@@ -771,10 +772,10 @@ function update(dt){
  }
  // ---- キャラ固有能力 ----
  const C=CH();
- if(C.bombEvery){ // たいち: 自動つめいばくだん
+ if(C.bombEvery){ // たいち: 自動つめいばくだん(growM: レベルアップ成長ボーナス)
   G.abT=(G.abT===undefined?C.bombEvery:G.abT)-dt;
   if(G.abT<=0){G.abT=C.bombEvery;
-   explode(G.px+rnd(-40,40),G.py+rnd(-40,40),120*stat.areaM(),16*(1+0.07*G.level)*stat.dmgMult());}
+   explode(G.px+rnd(-40,40),G.py+rnd(-40,40),120*stat.areaM(),16*(1+0.07*(C.growM||1)*G.level)*stat.dmgMult());}
  }
  if(C.healEvery){ // ゆうし: 定期回復+自動落雷
   G.healT2=(G.healT2===undefined?C.healEvery:G.healT2)-dt;
