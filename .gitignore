@@ -8,3 +8,11 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# ローカル運用ファイル(マシン固有・公開しない)
+start_remote_control.bat
+resume_rc.bat
+fal.key
+
+# 個人写真(公開リポジトリなので絶対に含めない)
+家族画像/

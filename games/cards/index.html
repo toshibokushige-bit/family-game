@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>アニマルカードバトル(仮)</title>
+<style>
+  :root {
+    --c-c: #9e9e9e;
+    --c-uc: #43a047;
+    --c-r: #1e88e5;
+    --c-sr: #f5a623;
+    --bg: #fff8ec;
+    --panel: #ffffff;
+    --accent: #ff7043;
+    --accent2: #29b6f6;
+    --text: #333;
+    --danger: #e53935;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "Yu Gothic", sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+  }
+  .screen { display: flex; flex-direction: column; min-height: 100vh; padding: 16px; }
+  .hidden { display: none !important; }
+
+  h1 { font-size: 22px; text-align: center; margin: 24px 0 8px; }
+  h2 { font-size: 20px; text-align: center; margin: 8px 0; }
+
+  button {
+    font-size: 16px;
+    font-family: inherit;
+    padding: 12px 16px;
+    min-height: 48px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--accent2); color: #fff; }
+  .btn-plain { background: #eee; color: #333; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-block { width: 100%; margin: 8px 0; }
+  button:disabled { opacity: 0.4; cursor: default; }
+
+  /* ---------- タイトル ---------- */
+  #screen-title { justify-content: center; align-items: center; gap: 12px; }
+  #screen-title .title-buttons { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+  .title-emoji { font-size: 56px; text-align: center; }
+
+  /* ---------- ルール ---------- */
+  #screen-rules ol { font-size: 15px; line-height: 1.9; padding-left: 20px; }
+
+  /* ---------- じゃんけん ---------- */
+  #screen-janken { justify-content: center; align-items: center; gap: 16px; text-align: center; }
+  .janken-emoji { font-size: 64px; }
+  #janken-result { font-size: 18px; font-weight: bold; min-height: 28px; }
+
+  /* ---------- パス画面(ホットシート) ---------- */
+  #screen-pass { justify-content: center; align-items: center; gap: 20px; text-align: center; background: #333; color: #fff; }
+  #pass-text { font-size: 22px; font-weight: bold; line-height: 1.6; }
+
+  /* ---------- ゲーム画面 ---------- */
+  #screen-game { padding: 8px; gap: 6px; }
+  /* family-games版はホームボタン(左上固定)があるので上に余白を空ける */
+  body:has(#homeBtn) #screen-game { padding-top: 46px; }
+  .bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel); border-radius: 10px; padding: 6px 10px;
+    font-size: 12px; flex-wrap: wrap;
+  }
+  .bar .name { font-weight: bold; font-size: 14px; margin-right: 2px; }
+  .hp-dots { display: flex; gap: 1px; }
+  .hp-dot { width: 9px; height: 9px; border-radius: 50%; background: #4caf50; }
+  .hp-dot.empty { background: #ddd; }
+  .bar .pill { background: #f0f0f0; border-radius: 8px; padding: 2px 6px; }
+
+  .field-row { display: flex; gap: 6px; min-height: 78px; padding: 2px 0; }
+  .field-slot {
+    flex: 1; min-width: 0;
+    border: 2px dashed #ddd; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #ccc; font-size: 11px;
+  }
+  .mon-card {
+    flex: 1; min-width: 0; border-radius: 8px; border: 3px solid #999;
+    background: #fff; padding: 4px; font-size: 11px; text-align: center;
+    position: relative; cursor: pointer;
+  }
+  .mon-card.rarity-C { border-color: var(--c-c); }
+  .mon-card.rarity-UC { border-color: var(--c-uc); }
+  .mon-card.rarity-R { border-color: var(--c-r); }
+  .mon-card.rarity-SR { border-color: var(--c-sr); box-shadow: 0 0 6px rgba(245,166,35,0.6); }
+  .mon-card .mon-icon { font-size: 28px; line-height: 1; margin-bottom: 2px; }
+  .mon-card .mon-name { font-weight: bold; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mon-card .mon-stats { font-size: 10px; color: #555; }
+  .mon-card .mon-hp { font-size: 10px; font-weight: bold; color: var(--danger); }
+  .mon-card.dimmed { opacity: 0.4; }
+  .mon-card.selectable { box-shadow: 0 0 0 3px var(--accent2); }
+  .mon-card .dmg-badge {
+    position: absolute; top: -8px; right: -8px;
+    background: var(--danger); color: #fff; font-size: 11px;
+    border-radius: 50%; width: 22px; height: 22px; line-height: 22px;
+  }
+  .mon-card.anim-hit { animation: shake 0.35s; }
+  .mon-card.anim-lunge { animation: lunge 0.3s ease-out; }
+  .mon-card.anim-summon { animation: summonpop 0.35s ease-out; }
+  .mon-card.anim-dead { animation: fadeout 0.5s forwards; }
+  .bar.anim-flash { animation: flashred 0.4s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  @keyframes lunge {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  @keyframes summonpop {
+    0% { transform: scale(0.4); opacity: 0.2; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes fadeout {
+    to { opacity: 0.15; transform: scale(0.85); }
+  }
+  @keyframes flashred {
+    0%,100% { background: var(--panel); }
+    40% { background: #ffcdd2; }
+  }
+
+  /* ---------- 浮かぶダメージ数字 ---------- */
+  .dmg-float {
+    position: absolute; top: -6px; left: 50%; z-index: 5;
+    font-size: 15px; font-weight: bold; color: var(--danger);
+    animation: floatup 0.6s ease-out forwards;
+    pointer-events: none; white-space: nowrap;
+  }
+  .dmg-float.zero { color: #999; opacity: 0.7; }
+  .dmg-float.body { top: -14px; font-size: 13px; }
+  @keyframes floatup {
+    0% { opacity: 0; transform: translate(-50%, 4px) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -6px) scale(1.05); }
+    100% { opacity: 0; transform: translate(-50%, -28px) scale(1); }
+  }
+  .pill.hp-pill { position: relative; }
+  .hp-pill.hp-hit .hp-num { animation: hpglow 0.5s ease-out; }
+  @keyframes hpglow {
+    0% { color: var(--danger); text-shadow: 0 0 6px rgba(229,57,53,0.9); }
+    100% { color: inherit; text-shadow: none; }
+  }
+
+  /* ---------- 音のオン/オフ ---------- */
+  .sound-toggle {
+    position: absolute; top: 8px; right: 8px; z-index: 60;
+    width: 36px; height: 36px; min-height: 0; padding: 0;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    font-size: 17px; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---------- バージョン表示（タイトル画面の すみ） ---------- */
+  .version-tag {
+    position: absolute; bottom: 6px; right: 10px; font-size: 11px; color: #aaa;
+  }
+
+  /* ---------- 動きを減らす設定への対応 ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    * , *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  .phase-strip { display: flex; background: var(--panel); border-radius: 10px; overflow: hidden; }
+  .phase-step {
+    flex: 1; text-align: center; padding: 8px 2px; font-size: 12px; color: #999;
+    border-bottom: 4px solid transparent;
+  }
+  .phase-step.active { color: var(--accent); font-weight: bold; border-bottom-color: var(--accent); background: #fff3ea; }
+  .phase-step.done { color: #4caf50; }
+
+  .log-area {
+    background: #fffde7; border-radius: 8px; padding: 6px 10px; font-size: 11.5px;
+    min-height: 40px; line-height: 1.5; cursor: pointer; color: #666;
+  }
+
+  .hand-wrap { position: relative; }
+  .hand-scroll {
+    display: flex; gap: 6px; overflow-x: auto; padding: 6px 2px 10px;
+    min-height: 108px;
+  }
+  .hand-card {
+    flex: 0 0 84px; border-radius: 8px; border: 3px solid #999; background: #fff;
+    padding: 5px; text-align: center; cursor: pointer;
+  }
+  .hand-card.rarity-C { border-color: var(--c-c); }
+  .hand-card.rarity-UC { border-color: var(--c-uc); }
+  .hand-card.rarity-R { border-color: var(--c-r); }
+  .hand-card.rarity-SR { border-color: var(--c-sr); box-shadow: 0 0 6px rgba(245,166,35,0.6); }
+  .hand-card .hc-icon { font-size: 24px; line-height: 1; margin-bottom: 2px; }
+  .hand-card .hc-name {
+    font-weight: bold; font-size: 10.5px; margin-bottom: 2px; min-height: 28px;
+    line-height: 1.3; white-space: normal; overflow-wrap: break-word; word-break: break-word;
+  }
+  .hand-card .hc-stats { font-size: 10.5px; color: #555; }
+  .hand-card .hc-rarity { font-size: 9.5px; color: #888; }
+  .hand-card.disabled { opacity: 0.35; }
+  .hand-back {
+    flex: 0 0 44px; border-radius: 8px; background: #bbb; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .scroll-hint {
+    position: absolute; right: 2px; top: 44px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,112,67,0.88); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold;
+    pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  .scroll-hint.hidden { display: none; }
+
+  .main-action { padding: 4px 2px 2px; }
+  .main-action button { width: 100%; font-size: 17px; min-height: 52px; }
+  .cpu-wait { text-align: center; font-size: 13px; color: #888; padding: 8px; }
+
+  /* ---------- いまのフェーズ帯（主ボタンのすぐ上） ---------- */
+  .phase-banner {
+    background: #ffe9db; color: #c73e0a; border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 8px 12px; margin: 2px 2px 0; text-align: center;
+  }
+  .phase-banner #phase-banner-title { font-size: 18px; font-weight: bold; line-height: 1.3; }
+  .phase-banner #phase-banner-desc { font-size: 12px; margin-top: 2px; color: #8a5236; }
+
+  /* ---------- モーダル ---------- */
+  #modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+    padding: 20px;
+  }
+  #modal-overlay.hidden { display: none !important; }
+  #modal-box {
+    background: #fff; border-radius: 14px; padding: 18px; width: 100%; max-width: 320px;
+    text-align: center;
+  }
+  #modal-card-big {
+    margin: 0 auto 12px; width: 140px; border-radius: 10px; border: 4px solid #999;
+    padding: 10px; background: #fafafa;
+  }
+  #modal-card-big.rarity-C { border-color: var(--c-c); }
+  #modal-card-big.rarity-UC { border-color: var(--c-uc); }
+  #modal-card-big.rarity-R { border-color: var(--c-r); }
+  #modal-card-big.rarity-SR { border-color: var(--c-sr); }
+  #modal-card-big .mcb-icon { font-size: 48px; line-height: 1; margin-bottom: 4px; }
+  #modal-card-big .mcb-name { font-weight: bold; font-size: 15px; margin-bottom: 6px; }
+  #modal-card-big .mcb-stats { font-size: 14px; }
+  #modal-title { font-size: 15px; margin-bottom: 10px; color: #666; }
+  #modal-buttons { display: flex; flex-direction: column; gap: 8px; }
+  #modal-buttons .reason { font-size: 11px; color: #e53935; margin-top: -4px; }
+
+  /* ---------- 勝敗画面 ---------- */
+  #screen-victory { justify-content: center; align-items: center; text-align: center; gap: 10px; }
+  #victory-title { font-size: 26px; }
+  #victory-detail { background: var(--panel); border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.9; width: 100%; max-width: 320px; }
+  #victory-detail table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  #victory-detail td { padding: 2px 4px; }
+
+  /* ---------- 全ログ ---------- */
+  #screen-fulllog { padding: 12px; }
+  #fulllog-content { flex: 1; overflow-y: auto; background: #fff; border-radius: 8px; padding: 10px; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <button id="btn-sound-toggle" class="sound-toggle" aria-label="音を オン/オフ">🔊</button>
+
+  <!-- タイトル画面 -->
+  <div id="screen-title" class="screen">
+    <div class="title-emoji">🐲⚔️🛡️</div>
+    <h1>アニマル<br>カードバトル(仮)</h1>
+    <div class="title-buttons">
+      <button id="btn-vs-cpu" class="btn-primary btn-block">CPUとたたかう</button>
+      <button id="btn-vs-human" class="btn-secondary btn-block">ふたりでたたかう</button>
+      <button id="btn-rules" class="btn-plain btn-block">ルールをみる</button>
+    </div>
+    <div class="version-tag">v0.1.0 ベータ</div>
+  </div>
+
+  <!-- ルール画面 -->
+  <div id="screen-rules" class="screen hidden">
+    <h2>ルール</h2>
+    <ol>
+      <li>おたがい たいりょく（HP）は10。デッキは20まい。</li>
+      <li>じぶんの ばんは「ひく→ためる→だす→たたかう」のじゅん。</li>
+      <li>ひく: 山ふだから1まいひく（せんこうの1かいめだけ ひかない）。</li>
+      <li>ためる: 手ふだを1まい、うら向きでコストにできる（にんい）。</li>
+      <li>だす: コストの まいすうぶん、モンスターをだせる（ばには合計4てんまで）。</li>
+      <li>たたかう: だしたばかりのモンスターは たたかえない。</li>
+      <li>ダメージ = こうげき力 − ぼうぎょ力（0いかは0）。ダメージは のこる。</li>
+      <li>たいりょくが0になったモンスターは しんで、もちぬしに本体ダメージ。</li>
+      <li>あいての ばがからっぽなら「ちょくせつこうげき」で本体にダメージ。</li>
+      <li>さきに あいての たいりょくを0にしたら かち！</li>
+    </ol>
+    <button id="btn-rules-back" class="btn-plain btn-block">もどる</button>
+  </div>
+
+  <!-- じゃんけん画面 -->
+  <div id="screen-janken" class="screen hidden">
+    <div class="janken-emoji">✊✌️🖐️</div>
+    <div style="font-size:18px;">じゃんけんで せんこう・こうこうを きめるよ</div>
+    <div id="janken-result"></div>
+    <button id="btn-janken-go" class="btn-primary btn-block" style="max-width:280px;">たたかいはじめる</button>
+  </div>
+
+  <!-- パス画面(ホットシート) -->
+  <div id="screen-pass" class="screen hidden">
+    <div id="pass-text"></div>
+    <button id="btn-pass-ok" class="btn-primary" style="min-width:160px;">OK</button>
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div id="screen-game" class="screen hidden">
+    <div class="bar" id="opp-bar"></div>
+    <div class="field-row" id="opp-field"></div>
+
+    <div class="phase-strip" id="phase-strip">
+      <div class="phase-step" data-phase="draw">ひく</div>
+      <div class="phase-step" data-phase="charge">ためる</div>
+      <div class="phase-step" data-phase="play">だす</div>
+      <div class="phase-step" data-phase="battle">たたかう</div>
+    </div>
+    <div class="log-area" id="log-area"></div>
+
+    <div class="field-row" id="my-field"></div>
+    <div class="bar" id="my-bar"></div>
+    <div class="hand-wrap">
+      <div class="hand-scroll" id="hand-scroll"></div>
+      <div class="scroll-hint hidden" id="hand-scroll-hint">→</div>
+    </div>
+    <div class="phase-banner" id="phase-banner">
+      <div id="phase-banner-title"></div>
+      <div id="phase-banner-desc"></div>
+    </div>
+    <div class="main-action" id="main-action">
+      <button id="btn-main-action" class="btn-primary"></button>
+    </div>
+  </div>
+
+  <!-- 勝敗画面 -->
+  <div id="screen-victory" class="screen hidden">
+    <h2 id="victory-title"></h2>
+    <div id="victory-detail"></div>
+    <button id="btn-again" class="btn-primary btn-block" style="max-width:280px;">もういちど</button>
+    <button id="btn-title2" class="btn-plain btn-block" style="max-width:280px;">タイトルへ</button>
+  </div>
+
+  <!-- 全ログ画面 -->
+  <div id="screen-fulllog" class="screen hidden">
+    <h2>ぜんぶのログ</h2>
+    <div id="fulllog-content"></div>
+    <button id="btn-fulllog-back" class="btn-plain btn-block">もどる</button>
+  </div>
+
+  <!-- モーダル -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <div id="modal-title"></div>
+      <div id="modal-card-big">
+        <div class="mcb-icon"></div>
+        <div class="mcb-name"></div>
+        <div class="mcb-stats"></div>
+      </div>
+      <div id="modal-buttons"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ==== ai.js ====
+// ai.js
+// CPUの「かんがえかた」(貪欲型 = greedy) を sim/ai.py から移植したもの。
+// ブラウザでもNodeでも同じファイルが動くようにUMD風の書き出しにしてある。
+//
+// 今回のプロトタイプでは企画書v0.2に固定なので、sim/ai.py の4戦法のうち
+// 基準AIである "greedy" のみ実装する（rush/sr/mid は移植対象外。指示書05の
+// 「CPUの正はgreedy」に従う）。ロジックは sim/ai.py のコメントも含めてそのまま。
+//
+// 共通コア（sim/ai.py 冒頭コメントより）:
+//   1. 出せるなら出す: コストと場の空きが許す限り召喚する。
+//   2. 召喚の選び方: 手札から「コスト合計<=使えるコスト」「占有点合計<=場の空き」を
+//      満たす組み合わせを全列挙し、評価値(ATK+DEF+HPの合計)最大の組み合わせを出す。
+//   3. SRを出すための退却: 手札にSRがあり、使えるコストが4なら、場を全部退却して
+//      SRを出す。ただし退却ダメージ合計>=自分の残りHPなら退却しない(自殺しない)。
+//   4. ためる(チャージ): コスト置き場が4枚未満なら毎ターン必ず1枚置く。
+//   5. 攻撃対象: 倒せる相手のうちレアリティ最大→なければ与ダメ最大。与ダメ0の攻撃はしない。
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.AI = factory();
+  }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var FIELD_CAP = 4;
+
+  function cardValue(c) {
+    return c.atk + c.df + c.hp;
+  }
+
+  // 評価値タプル(配列)を辞書式に比較する。aがbより大きければ正の値。
+  function compareKey(a, b) {
+    var len = Math.max(a.length, b.length);
+    for (var i = 0; i < len; i++) {
+      var av = i < a.length ? a[i] : -Infinity;
+      var bv = i < b.length ? b[i] : -Infinity;
+      if (av > bv) return 1;
+      if (av < bv) return -1;
+    }
+    return 0;
+  }
+
+  function comboKey(aiName, combo) {
+    var baseValue = 0;
+    var maxRarity = 0;
+    for (var i = 0; i < combo.length; i++) {
+      baseValue += cardValue(combo[i]);
+      if (combo[i].rarityNum > maxRarity) maxRarity = combo[i].rarityNum;
+    }
+    var n = combo.length;
+    if (aiName === 'rush') return [baseValue + n, n];
+    if (aiName === 'mid') return [baseValue, maxRarity];
+    return [baseValue];
+  }
+
+  // 手札から capacity(=コストと場の空きの小さい方)以内で評価値最大の組み合わせを返す。
+  // コスト=占有点=レアリティ数(1〜4)なので、レアリティ(重さ)ごとの採用枚数を
+  // 全探索する（各重さ内は価値の高い順に採用するのが常に最適）。
+  function bestSummonCombo(hand, capacity, aiName) {
+    if (capacity <= 0 || hand.length === 0) return [];
+    var buckets = { 1: [], 2: [], 3: [], 4: [] };
+    for (var i = 0; i < hand.length; i++) {
+      buckets[hand[i].rarityNum].push(hand[i]);
+    }
+    [1, 2, 3, 4].forEach(function (w) {
+      buckets[w].sort(function (a, b) { return cardValue(b) - cardValue(a); });
+    });
+
+    var bestKey = null;
+    var bestCombo = [];
+    var maxK4 = Math.min(buckets[4].length, Math.floor(capacity / 4));
+    for (var k4 = 0; k4 <= maxK4; k4++) {
+      var rem1 = capacity - k4 * 4;
+      var maxK3 = Math.min(buckets[3].length, Math.floor(rem1 / 3));
+      for (var k3 = 0; k3 <= maxK3; k3++) {
+        var rem2 = rem1 - k3 * 3;
+        var maxK2 = Math.min(buckets[2].length, Math.floor(rem2 / 2));
+        for (var k2 = 0; k2 <= maxK2; k2++) {
+          var rem3 = rem2 - k2 * 2;
+          var k1 = Math.min(buckets[1].length, rem3);
+          var combo = buckets[4].slice(0, k4)
+            .concat(buckets[3].slice(0, k3))
+            .concat(buckets[2].slice(0, k2))
+            .concat(buckets[1].slice(0, k1));
+          if (combo.length === 0) continue;
+          var key = comboKey(aiName, combo);
+          if (bestKey === null || compareKey(key, bestKey) > 0) {
+            bestKey = key;
+            bestCombo = combo;
+          }
+        }
+      }
+    }
+    return bestCombo;
+  }
+
+  function fieldOccupancy(p) {
+    var sum = 0;
+    for (var i = 0; i < p.field.length; i++) sum += p.field[i].card.rarityNum;
+    return sum;
+  }
+
+  function costAvailable(p) {
+    return p.costTotal - p.costUsed;
+  }
+
+  // 条件を満たせば「場を全部retreat + SR召喚」のアクション列を返す。満たさなければ null。
+  function tryForceSR(p, aiName) {
+    var handSR = p.hand.filter(function (c) { return c.rarity === 'SR'; });
+    if (handSR.length === 0) return null;
+    var hasFieldSR = p.field.some(function (m) { return m.card.rarity === 'SR'; });
+    if (hasFieldSR) return null;
+    var cost = costAvailable(p);
+    if (cost < FIELD_CAP) return null;
+    var occ = fieldOccupancy(p);
+    if (aiName === 'rush' && occ > 0) return null;
+    var retreatTotal = 0;
+    for (var i = 0; i < p.field.length; i++) retreatTotal += p.field[i].card.rarityNum;
+    if (retreatTotal >= p.hp) return null; // 自殺しない
+    var actions = p.field.map(function (m) { return { type: 'retreat', monster: m }; });
+    actions.push({ type: 'summon', card: handSR[0] });
+    return actions;
+  }
+
+  function decidePlayCommon(p, aiName, occCap) {
+    var occ = fieldOccupancy(p);
+    var cost = costAvailable(p);
+    var room = FIELD_CAP - occ;
+    if (occCap !== null && occCap !== undefined) {
+      room = Math.min(room, Math.max(0, occCap - occ));
+    }
+    var capacity = Math.min(cost, room);
+    var combo = bestSummonCombo(p.hand, capacity, aiName);
+    return combo.map(function (c) { return { type: 'summon', card: c }; });
+  }
+
+  function decidePlayGreedy(p) {
+    var forced = tryForceSR(p, 'greedy');
+    if (forced !== null) return forced;
+    return decidePlayCommon(p, 'greedy');
+  }
+
+  // 今回のプロトタイプでは greedy のみを実装対象とするが、将来の拡張に備えて
+  // 同じ枠組みで呼び出せるようにしておく。
+  function decidePlay(aiName, p, opp, cfg, ply) {
+    if (aiName === 'greedy') return decidePlayGreedy(p);
+    // 未対応の戦法は greedy にフォールバック。
+    return decidePlayGreedy(p);
+  }
+
+  // コストに置くカードを1枚選ぶ。置かない方が良ければ null。
+  function chooseChargeCard(aiName, p) {
+    var hand = p.hand;
+    if (hand.length === 0) return null;
+
+    if (hand.length === 1) {
+      var only = hand[0];
+      var occRoom = FIELD_CAP - fieldOccupancy(p);
+      if (only.rarityNum <= costAvailable(p) && only.rarityNum <= occRoom) {
+        return null; // 出す方に回す。ためない
+      }
+    }
+
+    var srCards = hand.filter(function (c) { return c.rarity === 'SR'; });
+    var protectedSR = srCards.length ? srCards[0] : null;
+    function isProtected(c) { return protectedSR !== null && c === protectedSR; }
+
+    function notSummonableSoon(c) { return c.rarityNum > p.costTotal + 1; }
+
+    var groupA = hand.filter(function (c) { return notSummonableSoon(c) && !isProtected(c); });
+    if (groupA.length) {
+      return groupA.reduce(function (m, c) { return cardValue(c) < cardValue(m) ? c : m; });
+    }
+
+    var seen = {};
+    var dupCandidates = [];
+    for (var i = 0; i < hand.length; i++) {
+      var c = hand[i];
+      seen[c.name] = (seen[c.name] || 0) + 1;
+      if (seen[c.name] >= 2 && !isProtected(c)) dupCandidates.push(c);
+    }
+    if (dupCandidates.length) {
+      return dupCandidates.reduce(function (m, c) { return cardValue(c) < cardValue(m) ? c : m; });
+    }
+
+    var remaining = hand.filter(function (c) { return !isProtected(c); });
+    if (remaining.length === 0) remaining = hand.slice();
+    return remaining.reduce(function (m, c) {
+      return (cardValue(c) / c.rarityNum) < (cardValue(m) / m.rarityNum) ? c : m;
+    });
+  }
+
+  // 「このターンに倒せる相手のうちレアリティ最大」→「なければ与ダメ最大」。
+  // 与ダメ0にしかならない場合は null (=攻撃しない)。
+  function chooseTarget(attackerCard, oppField) {
+    if (!oppField || oppField.length === 0) return null;
+    var bestKillIdx = null;
+    var bestKillRarity = -1;
+    var bestDmgIdx = null;
+    var bestDmg = -1;
+    for (var i = 0; i < oppField.length; i++) {
+      var m = oppField[i];
+      var dmg = Math.max(0, attackerCard.atk - m.card.df);
+      var wouldKill = (m.damage + dmg) >= m.card.hp;
+      if (wouldKill && m.card.rarityNum > bestKillRarity) {
+        bestKillRarity = m.card.rarityNum;
+        bestKillIdx = i;
+      }
+      if (dmg > bestDmg) {
+        bestDmg = dmg;
+        bestDmgIdx = i;
+      }
+    }
+    if (bestKillIdx !== null) return bestKillIdx;
+    if (bestDmg !== null && bestDmg > 0) return bestDmgIdx;
+    return null;
+  }
+
+  return {
+    FIELD_CAP: FIELD_CAP,
+    cardValue: cardValue,
+    fieldOccupancy: fieldOccupancy,
+    costAvailable: costAvailable,
+    bestSummonCombo: bestSummonCombo,
+    tryForceSR: tryForceSR,
+    decidePlay: decidePlay,
+    chooseChargeCard: chooseChargeCard,
+    chooseTarget: chooseTarget
+  };
+});
+
+</script>
+
+<script>
+// ==== engine.js ====
+// engine.js
+// アニマルカードバトル(仮) ルールエンジン（企画書_v0.2 準拠）。
+// sim/engine.py + sim/cards.py の v3 プールをブラウザ/Node両対応のJSに移植したもの。
+// ブラウザでは <script src="engine.js"><\/script> で読み込み、Nodeでは require で使う。
+//
+// 設計方針:
+//   - このプロトタイプは企画書v0.2の値に「固定」する（Config切り替えは実装しない）。
+//   - CPU戦・ふたり戦のどちらのUIからも、フェーズごとの「1手」を刻んで進められるように
+//     charge/play/battle の各フェーズは「1ステップ実行」できる関数を用意する。
+//     これにより CPU の手も0.6秒間隔で1つずつ画面に反映でき、
+//     test.js の自動対戦（高速に最後まで回す）も同じ関数で実現できる。
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory(require('./ai.js'));
+  } else {
+    root.Engine = factory(root.AI);
+  }
+})(typeof self !== 'undefined' ? self : this, function (AI) {
+  'use strict';
+
+  var FIELD_CAP = 4;
+  var RARITY_NUM = { C: 1, UC: 2, R: 3, SR: 4 };
+
+  // ---------------------------------------------------------------------
+  // カードプール v3（企画書_v0.2 3.5節 / sim/cards.py BASE_POOL_V3 そのまま）
+  // ---------------------------------------------------------------------
+  // icon: レアリティが上がるほど生き物が大きくなる階段(むし→どうぶつ→もうじゅう→きょうりゅう)。
+  // 世界観は未確定のため、あとで本番の絵に差し替えやすいよう1か所(ここ)で管理する。
+  function card(name, rarity, atk, df, hp, role, icon) {
+    return { name: name, rarity: rarity, atk: atk, df: df, hp: hp, role: role || '', rarityNum: RARITY_NUM[rarity], icon: icon || '' };
+  }
+
+  var CARD_POOL_V3 = [
+    card('C-バランス', 'C', 3, 1, 2, 'バランス', '🦗'),
+    card('C-とっこう', 'C', 4, 0, 2, 'とっこう', '🐝'),
+    card('C-かたい', 'C', 3, 2, 1, 'かたい', '🐞'),
+    card('C-体力型', 'C', 3, 0, 3, '体力型', '🐛'),
+    card('C-攻撃型', 'C', 4, 1, 1, '攻撃型', '🕷️'),
+    card('C-よわい', 'C', 3, 1, 1, 'よわい', '🐜'),
+    card('UC-バランス', 'UC', 4, 2, 3, 'バランス', '🦊'),
+    card('UC-攻撃型', 'UC', 5, 1, 3, '攻撃型', '🐍'),
+    card('UC-かたい', 'UC', 4, 3, 2, 'かたい', '🐢'),
+    card('UC-とっこう', 'UC', 5, 0, 4, 'とっこう', '🐗'),
+    card('UC-体力型', 'UC', 4, 1, 4, '体力型', '🦡'),
+    card('UC-攻守型', 'UC', 5, 2, 2, '攻守型', '🐺'),
+    card('R-バランス', 'R', 6, 3, 4, 'バランス', '🦁'),
+    card('R-攻撃型', 'R', 7, 2, 4, '攻撃型', '🐅'),
+    card('R-かたい', 'R', 5, 3, 5, 'かたい', '🦏'),
+    card('R-攻守型', 'R', 6, 2, 5, '攻守型', '🐻'),
+    card('R-とっこう', 'R', 7, 1, 5, 'とっこう', '🦬'),
+    card('R-体力型', 'R', 5, 2, 6, '体力型', '🐘'),
+    card('SR-バランス', 'SR', 8, 3, 7, 'バランス', '🦖'),
+    card('SR-攻撃型', 'SR', 9, 2, 7, '攻撃型', '🐊'),
+    card('SR-かたい', 'SR', 7, 3, 8, 'かたい', '🦣'),
+    card('SR-攻撃寄り', 'SR', 9, 3, 6, '攻撃寄り', '🐉'),
+    card('SR-攻守型', 'SR', 8, 2, 8, '攻守型', '🦈'),
+    card('SR-体力型', 'SR', 7, 2, 9, '体力型', '🦕')
+  ];
+
+  var RARITY_RULES_V3 = {
+    C: { budget: 6, atkCap: 4, defCap: 2, hpCap: 4 },
+    UC: { budget: 9, atkCap: 5, defCap: 3, hpCap: 5 },
+    R: { budget: 13, atkCap: 7, defCap: 3, hpCap: 7 },
+    SR: { budget: 18, atkCap: 9, defCap: 3, hpCap: 9 }
+  };
+  var ATK_MIN_V3 = { C: 3, UC: 4, R: 5, SR: 6 };
+
+  function validatePool(pool, rules, atkMin) {
+    rules = rules || RARITY_RULES_V3;
+    var errors = [];
+    pool.forEach(function (c) {
+      var r = rules[c.rarity];
+      var total = c.atk + c.df + c.hp;
+      if (total > r.budget) errors.push(c.name + ': 合計' + total + ' > 予算' + r.budget);
+      if (c.atk > r.atkCap) errors.push(c.name + ': ATK' + c.atk + ' > 上限' + r.atkCap);
+      if (c.df > r.defCap) errors.push(c.name + ': DEF' + c.df + ' > 上限' + r.defCap);
+      if (c.hp > r.hpCap) errors.push(c.name + ': HP' + c.hp + ' > 上限' + r.hpCap);
+      if (c.atk < 1) errors.push(c.name + ': ATKは1以上必要');
+      if (c.hp < 1) errors.push(c.name + ': HPは1以上必要');
+      if (c.df < 0) errors.push(c.name + ': DEFは0以上必要');
+      if (atkMin && c.atk < atkMin[c.rarity]) errors.push(c.name + ': ATK' + c.atk + ' < 最低' + atkMin[c.rarity]);
+    });
+    return errors;
+  }
+
+  // ---------------------------------------------------------------------
+  // 乱数（シード指定可能。テストの再現性のため mulberry32 系の簡易PRNG）
+  // ---------------------------------------------------------------------
+  function makeRng(seed) {
+    var s = (seed === undefined ? Date.now() : seed) >>> 0;
+    function next() {
+      s |= 0; s = (s + 0x6D2B79F5) | 0;
+      var t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    return {
+      next: next,
+      randint: function (a, b) { return a + Math.floor(next() * (b - a + 1)); },
+      shuffle: function (arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(next() * (i + 1));
+          var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+        return arr;
+      }
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // デッキ生成（sim/run.py build_realistic_deck の移植。既定のdeck_mode）
+  // 全デッキに SR sr_count枚、R 3〜4枚、UC 5〜7枚、残りC（同名3枚まで）。
+  // ---------------------------------------------------------------------
+  function buildDeck(pool, deckSize, rng, srCount) {
+    var srs = pool.filter(function (c) { return c.rarity === 'SR'; });
+    var rs = pool.filter(function (c) { return c.rarity === 'R'; });
+    var ucs = pool.filter(function (c) { return c.rarity === 'UC'; });
+    var cs = pool.filter(function (c) { return c.rarity === 'C'; });
+
+    var used = {};
+    var deck = [];
+
+    function take(cards, n) {
+      if (n <= 0 || cards.length === 0) return 0;
+      var candidates = cards.slice();
+      rng.shuffle(candidates);
+      var taken = 0, idx = 0, guard = 0;
+      var guardMax = n * 20 + 200;
+      while (taken < n && guard < guardMax) {
+        guard++;
+        var c = candidates[idx % candidates.length];
+        idx++;
+        used[c.name] = used[c.name] || 0;
+        if (used[c.name] < 3) {
+          deck.push(c);
+          used[c.name]++;
+          taken++;
+        }
+      }
+      return taken;
+    }
+
+    var numSr = Math.min(srCount, srs.length * 3);
+    var numR = rs.length ? rng.randint(3, 4) : 0;
+    var numUc = ucs.length ? rng.randint(5, 7) : 0;
+    while (numSr + numR + numUc > deckSize && numUc > 0) numUc--;
+    while (numSr + numR + numUc > deckSize && numR > 0) numR--;
+
+    take(srs, numSr);
+    take(rs, numR);
+    take(ucs, numUc);
+    var remaining = deckSize - deck.length;
+    if (remaining > 0) remaining -= take(cs, remaining);
+    remaining = deckSize - deck.length;
+    if (remaining > 0) remaining -= take(ucs, remaining);
+    remaining = deckSize - deck.length;
+    if (remaining > 0) remaining -= take(rs, remaining);
+    remaining = deckSize - deck.length;
+    if (remaining > 0) take(srs, remaining);
+
+    rng.shuffle(deck);
+    return deck;
+  }
+
+  // ---------------------------------------------------------------------
+  // 固定設定（企画書v0.2）
+  // ---------------------------------------------------------------------
+  var CONFIG = {
+    playerHp: 10,
+    deckSize: 20,
+    srCount: 2,
+    fieldCap: FIELD_CAP,
+    maxPlies: 60 // 安全弁。企画書上は引き分けなしだが、万一の無限ループ防止。
+  };
+
+  // ---------------------------------------------------------------------
+  // ゲーム状態
+  // ---------------------------------------------------------------------
+  function newPlayerState(idx, deck, controller) {
+    return {
+      idx: idx,
+      hp: CONFIG.playerHp,
+      deck: deck,
+      hand: [],
+      field: [],
+      costTotal: 0,
+      costUsed: 0,
+      turnNo: 0,
+      controller: controller, // 'human' | 'cpu'
+      aiName: 'greedy',
+      deckHasSR: deck.some(function (c) { return c.rarity === 'SR'; }),
+      srDrawn: false,
+      srLanded: false,
+      srLandedTurn: null,
+      srLandCount: 0,
+      srKillCount: 0
+    };
+  }
+
+  function newGame(deck0, deck1, firstPlayer, rng, controllers) {
+    controllers = controllers || ['human', 'cpu'];
+    var state = {
+      players: [
+        newPlayerState(0, deck0.slice(), controllers[0]),
+        newPlayerState(1, deck1.slice(), controllers[1])
+      ],
+      firstPlayer: firstPlayer,
+      acting: firstPlayer,
+      ply: 0,
+      phase: 'init', // init -> draw(自動) -> charge -> play -> battle -> (次のply) -> gameover
+      winner: null,
+      endReason: '',
+      log: [],
+      damageBySource: { death: 0, direct: 0, retreat: 0, deckout: 0 },
+      isSecondFirstTurn: false,
+      chargeLimit: 1,
+      chargePlaced: 0,
+      battleRemaining: [],
+      rng: rng
+    };
+    rng.shuffle(state.players[0].deck);
+    rng.shuffle(state.players[1].deck);
+    // 初期手札5枚ずつ（企画書v0.2: 両者5枚、後攻は「ためる」で2枚補正）
+    drawN(state, state.players[firstPlayer], 5, false);
+    drawN(state, state.players[1 - firstPlayer], 5, false);
+    pushLog(state, '初期手札: 先攻P' + state.players[firstPlayer].idx + '=5枚, 後攻P' + state.players[1 - firstPlayer].idx + '=5枚');
+    return state;
+  }
+
+  function pushLog(state, msg) {
+    state.log.push(msg);
+  }
+
+  function currentPlayer(state) { return state.players[state.acting]; }
+  function currentOpp(state) { return state.players[1 - state.acting]; }
+
+  function bodyDamage(state, p, amount, source) {
+    if (amount <= 0) return;
+    p.hp -= amount;
+    state.damageBySource[source] = (state.damageBySource[source] || 0) + amount;
+  }
+
+  function checkWin(state) {
+    var p0 = state.players[0], p1 = state.players[1];
+    if (p0.hp <= 0 && p1.hp <= 0) {
+      state.winner = null; state.endReason = '同時決着(引き分け)'; state.phase = 'gameover';
+      return true;
+    }
+    if (p0.hp <= 0) { state.winner = 1; state.endReason = 'HP0'; state.phase = 'gameover'; return true; }
+    if (p1.hp <= 0) { state.winner = 0; state.endReason = 'HP0'; state.phase = 'gameover'; return true; }
+    return false;
+  }
+
+  function drawN(state, p, n, countAsDeckout) {
+    if (countAsDeckout === undefined) countAsDeckout = true;
+    for (var i = 0; i < n; i++) {
+      if (p.deck.length === 0) {
+        if (countAsDeckout) {
+          bodyDamage(state, p, 1, 'deckout');
+          pushLog(state, 'P' + p.idx + ' 山札切れ→本体1ダメージ (HP=' + p.hp + ')');
+          if (checkWin(state)) return;
+        }
+        continue;
+      }
+      var c = p.deck.pop();
+      p.hand.push(c);
+      if (c.rarity === 'SR') p.srDrawn = true;
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // フェーズ1: ひく（自動実行。ターン開始時に1回だけ呼ぶ）
+  // ---------------------------------------------------------------------
+  function beginTurn(state) {
+    if (state.phase === 'gameover') return state;
+    state.ply += 1;
+    if (state.ply > CONFIG.maxPlies) {
+      state.endReason = '打ち切り(' + CONFIG.maxPlies + 'ply)';
+      state.winner = null;
+      state.phase = 'gameover';
+      return state;
+    }
+    var p = currentPlayer(state);
+    p.turnNo += 1;
+    p.costUsed = 0;
+
+    var isFirstOverallTurn = (p.turnNo === 1 && p.idx === state.firstPlayer);
+    var isSecondFirstTurn = (p.turnNo === 1 && p.idx !== state.firstPlayer);
+    state.isSecondFirstTurn = isSecondFirstTurn;
+
+    pushLog(state, '--- ' + p.turnNo + 'たんめ: P' + p.idx + ' (HP P0=' + state.players[0].hp + ' P1=' + state.players[1].hp + ') ---');
+
+    if (isFirstOverallTurn) {
+      pushLog(state, 'P' + p.idx + ': 先攻1ターン目のためドローなし');
+    } else {
+      drawN(state, p, 1);
+      if (state.phase === 'gameover') return state;
+      pushLog(state, 'P' + p.idx + ': 1枚ドロー (手札' + p.hand.length + '枚)');
+    }
+
+    state.chargeLimit = isSecondFirstTurn ? 2 : 1;
+    state.chargePlaced = 0;
+    state.phase = 'charge';
+    return state;
+  }
+
+  // ---------------------------------------------------------------------
+  // フェーズ2: ためる
+  // ---------------------------------------------------------------------
+  function canChargeMore(state) {
+    var p = currentPlayer(state);
+    return state.chargePlaced < state.chargeLimit && p.costTotal < FIELD_CAP && p.hand.length > 0;
+  }
+
+  function chargeCard(state, cardObj) {
+    var p = currentPlayer(state);
+    var idx = p.hand.indexOf(cardObj);
+    if (idx < 0) return false;
+    if (!canChargeMore(state)) return false;
+    p.hand.splice(idx, 1);
+    p.costTotal += 1;
+    state.chargePlaced += 1;
+    pushLog(state, 'P' + p.idx + ': 「' + cardObj.name + '」をコストに置く (コスト' + p.costTotal + '枚)');
+    return true;
+  }
+
+  // CPU: ためるフェーズの1手。置いたら true、もう置かない/置けないなら false。
+  function aiChargeStep(state) {
+    var p = currentPlayer(state);
+    if (!canChargeMore(state)) return false;
+    var c = AI.chooseChargeCard(p.aiName, p);
+    if (!c) return false;
+    return chargeCard(state, c);
+  }
+
+  function advanceToPlay(state) {
+    state.phase = 'play';
+  }
+
+  // ---------------------------------------------------------------------
+  // フェーズ3: だす（召喚・退却）
+  // ---------------------------------------------------------------------
+  function canSummon(state, cardObj) {
+    var p = currentPlayer(state);
+    if (p.hand.indexOf(cardObj) < 0) return { ok: false, reason: '手札にありません' };
+    var cost = cardObj.rarityNum;
+    if (AI.costAvailable(p) < cost) return { ok: false, reason: 'コストがたりない' };
+    if (AI.fieldOccupancy(p) + cost > FIELD_CAP) return { ok: false, reason: 'ばがいっぱい' };
+    return { ok: true, reason: '' };
+  }
+
+  function summon(state, cardObj) {
+    var p = currentPlayer(state);
+    var check = canSummon(state, cardObj);
+    if (!check.ok) return false;
+    var idx = p.hand.indexOf(cardObj);
+    p.hand.splice(idx, 1);
+    var cost = cardObj.rarityNum;
+    p.costUsed += cost;
+    p.field.push({ card: cardObj, damage: 0, enteredPly: state.ply });
+    pushLog(state, 'P' + p.idx + ': 「' + cardObj.name + '」を召喚 (コスト' + cost + '消費, 場占有' + AI.fieldOccupancy(p) + '/4)');
+    if (cardObj.rarity === 'SR') {
+      p.srLanded = true;
+      p.srLandCount += 1;
+      if (p.srLandedTurn === null) p.srLandedTurn = p.turnNo;
+    }
+    return true;
+  }
+
+  // 退却: 自分の場のモンスターを捨て、レアリティ分の本体ダメージ。
+  function retreat(state, monster) {
+    var p = currentPlayer(state);
+    var idx = p.field.indexOf(monster);
+    if (idx < 0) return false;
+    p.field.splice(idx, 1);
+    pushLog(state, 'P' + p.idx + ': 「' + monster.card.name + '」を退却');
+    bodyDamage(state, p, monster.card.rarityNum, 'retreat');
+    pushLog(state, '  →退却ダメージ P' + p.idx + ' に' + monster.card.rarityNum + ' (HP=' + p.hp + ')');
+    checkWin(state);
+    return true;
+  }
+
+  // CPU: だすフェーズを全部決定する（sim/ai.pyのdecide_playは1回の呼び出しで
+  // アクション列を全部返す。適用はUI側で1手ずつdelayを入れて呼び出す想定）。
+  function aiDecidePlayActions(state) {
+    var p = currentPlayer(state);
+    var opp = currentOpp(state);
+    return AI.decidePlay(p.aiName, p, opp, CONFIG, state.ply);
+  }
+
+  // 1個のアクション({type:'summon'|'retreat', ...}) を適用する。
+  function applyPlayAction(state, action) {
+    if (state.phase === 'gameover') return false;
+    if (action.type === 'retreat') {
+      return retreat(state, action.monster);
+    } else if (action.type === 'summon') {
+      return summon(state, action.card);
+    }
+    return false;
+  }
+
+  function advanceToBattle(state) {
+    var p = currentPlayer(state);
+    state.battleRemaining = p.field.filter(function (m) { return m.enteredPly !== state.ply; });
+    state.phase = 'battle';
+  }
+
+  // ---------------------------------------------------------------------
+  // フェーズ4: たたかう
+  // ---------------------------------------------------------------------
+  function attackDamagePreview(attackerCard, defenderCard) {
+    return Math.max(0, attackerCard.atk - defenderCard.df);
+  }
+
+  function canAttack(state, monster) {
+    return state.battleRemaining.indexOf(monster) >= 0;
+  }
+
+  // 直接攻撃 or 通常攻撃を実行する。targetMonster が null なら直接攻撃。
+  // 戻り値: { ok, dmg, killed, direct, winnerDecided }
+  function attack(state, attackerMonster, targetMonster) {
+    var p = currentPlayer(state);
+    var opp = currentOpp(state);
+    if (!canAttack(state, attackerMonster)) return { ok: false };
+    var ridx = state.battleRemaining.indexOf(attackerMonster);
+
+    if (opp.field.length === 0) {
+      // 直接攻撃
+      var dmg = attackerMonster.card.rarityNum;
+      bodyDamage(state, opp, dmg, 'direct');
+      pushLog(state, 'P' + p.idx + ': 「' + attackerMonster.card.name + '」がちょくせつこうげき → P' + opp.idx + 'に' + dmg + ' (HP=' + opp.hp + ')');
+      state.battleRemaining.splice(ridx, 1);
+      var won = checkWin(state);
+      return { ok: true, dmg: dmg, killed: false, direct: true, winnerDecided: won };
+    }
+
+    if (!targetMonster || opp.field.indexOf(targetMonster) < 0) return { ok: false };
+    var dmgToDef = attackDamagePreview(attackerMonster.card, targetMonster.card);
+    targetMonster.damage += dmgToDef;
+    pushLog(state, 'P' + p.idx + ': 「' + attackerMonster.card.name + '」が P' + opp.idx + 'の「' + targetMonster.card.name + '」を攻撃 (' +
+      attackerMonster.card.atk + '-' + targetMonster.card.df + '=' + dmgToDef + ', 蓄積' + targetMonster.damage + '/' + targetMonster.card.hp + ')');
+    state.battleRemaining.splice(ridx, 1);
+
+    var killed = (targetMonster.card.hp - targetMonster.damage) <= 0;
+    var winnerDecided = false;
+    if (killed) {
+      var oidx = opp.field.indexOf(targetMonster);
+      opp.field.splice(oidx, 1);
+      bodyDamage(state, opp, targetMonster.card.rarityNum, 'death');
+      pushLog(state, '  →「' + targetMonster.card.name + '」死亡。P' + opp.idx + 'に本体' + targetMonster.card.rarityNum + 'ダメージ (HP=' + opp.hp + ')');
+      if (targetMonster.card.rarity === 'SR') opp.srKillCount += 1;
+      winnerDecided = checkWin(state);
+    }
+    return { ok: true, dmg: dmgToDef, killed: killed, direct: false, winnerDecided: winnerDecided };
+  }
+
+  // CPU: たたかうフェーズの1手。処理したら {done:false, ...} / もう無ければ {done:true}
+  function aiBattleStep(state) {
+    if (state.battleRemaining.length === 0) return { done: true };
+    var attackerMonster = state.battleRemaining[0];
+    var opp = currentOpp(state);
+    if (opp.field.length === 0) {
+      var res = attack(state, attackerMonster, null);
+      return { done: false, acted: true, result: res, attacker: attackerMonster };
+    }
+    var targetIdx = AI.chooseTarget(attackerMonster.card, opp.field);
+    if (targetIdx === null) {
+      // 攻撃しない（与ダメ0のため）。この攻撃者はスキップ。
+      var ridx = state.battleRemaining.indexOf(attackerMonster);
+      state.battleRemaining.splice(ridx, 1);
+      return { done: false, acted: false, attacker: attackerMonster };
+    }
+    var target = opp.field[targetIdx];
+    var res2 = attack(state, attackerMonster, target);
+    return { done: false, acted: true, result: res2, attacker: attackerMonster, target: target };
+  }
+
+  function endTurn(state) {
+    if (state.phase === 'gameover') return state;
+    state.acting = 1 - state.acting;
+    return beginTurn(state);
+  }
+
+  // ---------------------------------------------------------------------
+  // 自動対戦（CPU vs CPU）をノーウェイトで最後まで回す。test.js / 統計用。
+  // ---------------------------------------------------------------------
+  function simulateGame(deck0, deck1, firstPlayer, rng) {
+    var state = newGame(deck0, deck1, firstPlayer, rng, ['cpu', 'cpu']);
+    beginTurn(state);
+    while (state.phase !== 'gameover') {
+      // charge
+      while (state.phase === 'charge' && aiChargeStep(state)) { /* keep going */ }
+      if (state.phase === 'gameover') break;
+      advanceToPlay(state);
+
+      // play
+      var actions = aiDecidePlayActions(state);
+      for (var i = 0; i < actions.length; i++) {
+        if (state.phase === 'gameover') break;
+        applyPlayAction(state, actions[i]);
+      }
+      if (state.phase === 'gameover') break;
+
+      // battle
+      advanceToBattle(state);
+      while (state.phase === 'battle') {
+        var step = aiBattleStep(state);
+        if (state.phase === 'gameover') break;
+        if (step.done) break;
+      }
+      if (state.phase === 'gameover') break;
+
+      endTurn(state);
+    }
+    return state;
+  }
+
+  return {
+    FIELD_CAP: FIELD_CAP,
+    RARITY_NUM: RARITY_NUM,
+    CARD_POOL_V3: CARD_POOL_V3,
+    RARITY_RULES_V3: RARITY_RULES_V3,
+    ATK_MIN_V3: ATK_MIN_V3,
+    validatePool: validatePool,
+    makeRng: makeRng,
+    buildDeck: buildDeck,
+    CONFIG: CONFIG,
+    newGame: newGame,
+    beginTurn: beginTurn,
+    canChargeMore: canChargeMore,
+    chargeCard: chargeCard,
+    aiChargeStep: aiChargeStep,
+    advanceToPlay: advanceToPlay,
+    canSummon: canSummon,
+    summon: summon,
+    retreat: retreat,
+    aiDecidePlayActions: aiDecidePlayActions,
+    applyPlayAction: applyPlayAction,
+    advanceToBattle: advanceToBattle,
+    attackDamagePreview: attackDamagePreview,
+    canAttack: canAttack,
+    attack: attack,
+    aiBattleStep: aiBattleStep,
+    endTurn: endTurn,
+    checkWin: checkWin,
+    simulateGame: simulateGame,
+    fieldOccupancy: AI.fieldOccupancy,
+    costAvailable: AI.costAvailable
+  };
+});
+
+</script>
+
+<script>
+// ==== app.js ====
+// app.js — ブラウザUIの制御。engine.js / ai.js が定義する window.Engine / window.AI を使う。
+(function () {
+  'use strict';
+
+  function $(id) { return document.getElementById(id); }
+  function sleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  // ---------------------------------------------------------------------
+  // 効果音（Web Audio APIで合成。音声ファイルは使わない＝外部参照ゼロを維持）
+  // AudioContextはブラウザの制約でユーザー操作後にしか鳴らせないため、
+  // 実際の生成はresume()が呼ばれるまで遅延する(タイトル画面のタップ等)。
+  // ---------------------------------------------------------------------
+  var Sound = (function () {
+    // family-gamesシリーズの作法(CLAUDE.md)によりlocalStorageは使わない。
+    // 音のオン/オフは「ページを開いている間だけ」メモリ上で保持する(保存しない=開き直すとオンに戻る)。
+    var ctx = null;
+    var enabled = true;
+
+    function ensureCtx() {
+      if (ctx) return ctx;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { ctx = new AC(); } catch (e) { ctx = null; }
+      return ctx;
+    }
+
+    function resume() {
+      var c = ensureCtx();
+      if (c && c.state === 'suspended') {
+        try { c.resume(); } catch (e) { /* ignore */ }
+      }
+    }
+
+    function setEnabled(v) {
+      enabled = !!v;
+    }
+    function isEnabled() { return enabled; }
+
+    // 1つの音: freq(Hz)をtype波形でdur秒鳴らす。
+    function tone(freq, dur, opts) {
+      if (!enabled) return;
+      var c = ensureCtx();
+      if (!c) return;
+      opts = opts || {};
+      var t0 = c.currentTime + (opts.delay || 0);
+      var osc = c.createOscillator();
+      var gain = c.createGain();
+      osc.type = opts.type || 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      if (opts.freqEnd) osc.frequency.linearRampToValueAtTime(opts.freqEnd, t0 + dur);
+      var vol = opts.vol !== undefined ? opts.vol : 0.15;
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.linearRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.03);
+    }
+
+    // ノイズ音(バシッ/風切り音など)。
+    function noise(dur, opts) {
+      if (!enabled) return;
+      var c = ensureCtx();
+      if (!c) return;
+      opts = opts || {};
+      var t0 = c.currentTime + (opts.delay || 0);
+      var bufferSize = Math.max(1, Math.floor(c.sampleRate * dur));
+      var buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      var src = c.createBufferSource();
+      src.buffer = buffer;
+      var gain = c.createGain();
+      var vol = opts.vol !== undefined ? opts.vol : 0.12;
+      gain.gain.setValueAtTime(vol, t0);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      if (opts.filterFreq) {
+        var filt = c.createBiquadFilter();
+        filt.type = opts.filterType || 'bandpass';
+        filt.frequency.value = opts.filterFreq;
+        src.connect(filt);
+        filt.connect(gain);
+      } else {
+        src.connect(gain);
+      }
+      gain.connect(c.destination);
+      src.start(t0);
+    }
+
+    return {
+      resume: resume,
+      setEnabled: setEnabled,
+      isEnabled: isEnabled,
+      charge: function () { tone(190, 0.09, { type: 'sine', vol: 0.11 }); },
+      summon: function () {
+        tone(440, 0.09, { type: 'triangle', vol: 0.13 });
+        tone(660, 0.12, { type: 'triangle', vol: 0.13, delay: 0.08 });
+      },
+      hit: function () { noise(0.12, { vol: 0.18, filterFreq: 1200, filterType: 'bandpass' }); },
+      hitZero: function () { tone(150, 0.1, { type: 'square', vol: 0.07, freqEnd: 120 }); },
+      death: function () { tone(420, 0.32, { type: 'sawtooth', vol: 0.12, freqEnd: 80 }); },
+      bodyDamage: function () { tone(90, 0.22, { type: 'sine', vol: 0.2, freqEnd: 55 }); },
+      directAttack: function () { noise(0.25, { vol: 0.14, filterFreq: 2500, filterType: 'highpass' }); },
+      retreat: function () { tone(320, 0.16, { type: 'sine', vol: 0.1, freqEnd: 140 }); },
+      win: function () {
+        tone(523, 0.12, { vol: 0.15 });
+        tone(659, 0.12, { vol: 0.15, delay: 0.12 });
+        tone(784, 0.22, { vol: 0.16, delay: 0.24 });
+      },
+      lose: function () {
+        tone(392, 0.16, { vol: 0.12, delay: 0 });
+        tone(294, 0.26, { vol: 0.12, delay: 0.16 });
+      }
+    };
+  })();
+
+  // 最初のタップ/クリックでAudioContextを起こす(以後はresumeが安全に何度呼ばれてもよい)。
+  document.addEventListener('pointerdown', function () { Sound.resume(); }, { passive: true });
+
+  // ---------------------------------------------------------------------
+  // カード名 → icon の逆引き(ログ表示用)。engine.jsのCARD_POOL_V3から作る。
+  // ---------------------------------------------------------------------
+  var ICON_BY_NAME = {};
+  Engine.CARD_POOL_V3.forEach(function (c) { ICON_BY_NAME[c.name] = c.icon; });
+  function iconFor(name) {
+    var i = ICON_BY_NAME[name];
+    return i ? i + ' ' : '';
+  }
+
+  // ---------------------------------------------------------------------
+  // 状態
+  // ---------------------------------------------------------------------
+  var mode = 'cpu'; // 'cpu' | 'hotseat'
+  var humanIdx = 0; // CPU戦での「じぶん」のプレイヤー番号(固定)
+  var gameState = null;
+  var ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game' };
+  var jankenFirstPlayer = null;
+
+  function selfIndex() { return mode === 'cpu' ? humanIdx : gameState.acting; }
+  function oppIndex() { return 1 - selfIndex(); }
+  function isMyInteractiveTurn() { return gameState && gameState.phase !== 'gameover' && gameState.acting === selfIndex(); }
+
+  function showScreen(id) {
+    var list = document.querySelectorAll('.screen');
+    for (var i = 0; i < list.length; i++) list[i].classList.add('hidden');
+    $(id).classList.remove('hidden');
+  }
+  function getCurrentScreenId() {
+    var el = document.querySelector('.screen:not(.hidden)');
+    return el ? el.id : 'screen-title';
+  }
+
+  // ---------------------------------------------------------------------
+  // 音のオン/オフボタン
+  // ---------------------------------------------------------------------
+  var soundBtn = $('btn-sound-toggle');
+  function refreshSoundBtn() {
+    if (!soundBtn) return;
+    soundBtn.textContent = Sound.isEnabled() ? '🔊' : '🔇';
+    soundBtn.setAttribute('aria-label', Sound.isEnabled() ? '音を オフにする' : '音を オンにする');
+  }
+  if (soundBtn) {
+    soundBtn.onclick = function () {
+      Sound.resume();
+      Sound.setEnabled(!Sound.isEnabled());
+      refreshSoundBtn();
+    };
+    refreshSoundBtn();
+  }
+
+  // ---------------------------------------------------------------------
+  // タイトル / ルール / じゃんけん
+  // ---------------------------------------------------------------------
+  function goToJanken() {
+    jankenFirstPlayer = null;
+    $('janken-result').textContent = '';
+    $('btn-janken-go').textContent = 'たたかいはじめる';
+    showScreen('screen-janken');
+  }
+
+  $('btn-vs-cpu').onclick = function () { Sound.resume(); mode = 'cpu'; humanIdx = 0; goToJanken(); };
+  $('btn-vs-human').onclick = function () { Sound.resume(); mode = 'hotseat'; goToJanken(); };
+  $('btn-rules').onclick = function () { showScreen('screen-rules'); };
+  $('btn-rules-back').onclick = function () { showScreen('screen-title'); };
+
+  $('btn-janken-go').onclick = function () {
+    if (jankenFirstPlayer === null) {
+      jankenFirstPlayer = Math.random() < 0.5 ? 0 : 1;
+      var label;
+      if (mode === 'cpu') {
+        label = (jankenFirstPlayer === humanIdx) ? 'あなたの せんこうです！' : 'あいての せんこうです！';
+      } else {
+        label = (jankenFirstPlayer === 0 ? 'プレイヤー1' : 'プレイヤー2') + ' の せんこうです！';
+      }
+      $('janken-result').textContent = label;
+      $('btn-janken-go').textContent = 'たいせんを はじめる';
+    } else {
+      startGame();
+    }
+  };
+
+  // ---------------------------------------------------------------------
+  // ゲーム開始
+  // ---------------------------------------------------------------------
+  var rng = Engine.makeRng();
+
+  function startGame() {
+    var deck0 = Engine.buildDeck(Engine.CARD_POOL_V3, 20, rng, 2);
+    var deck1 = Engine.buildDeck(Engine.CARD_POOL_V3, 20, rng, 2);
+    var controllers = mode === 'cpu'
+      ? (humanIdx === 0 ? ['human', 'cpu'] : ['cpu', 'human'])
+      : ['human', 'human'];
+    gameState = Engine.newGame(deck0, deck1, jankenFirstPlayer, rng, controllers);
+    ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game' };
+    Engine.beginTurn(gameState);
+    enterTurnFlow();
+  }
+
+  function enterTurnFlow() {
+    if (gameState.phase === 'gameover') { showVictory(); return; }
+    if (mode === 'hotseat') {
+      showPassScreen(function () {
+        showScreen('screen-game');
+        render();
+        maybeRunCpu();
+      });
+    } else {
+      showScreen('screen-game');
+      render();
+      maybeRunCpu();
+    }
+  }
+
+  function showPassScreen(onOk) {
+    var p = gameState.players[gameState.acting];
+    var name = p.idx === 0 ? 'プレイヤー1' : 'プレイヤー2';
+    $('pass-text').innerHTML = name + 'さんの番です<br>スマホをわたしてね';
+    showScreen('screen-pass');
+    $('btn-pass-ok').onclick = function () { onOk(); };
+  }
+
+  function maybeRunCpu() {
+    if (mode === 'cpu' && gameState.phase !== 'gameover' && gameState.acting !== humanIdx) {
+      runCpuTurn();
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // アニメーション用の補助
+  // ---------------------------------------------------------------------
+  function snapshotHp() { return [gameState.players[0].hp, gameState.players[1].hp]; }
+  function flashFromHp(before, after) { return [after[0] < before[0], after[1] < before[1]]; }
+  // 本体HPが減っていれば{idx, text:'−N'}を返す(直接攻撃/死亡/退却/山札切れ、どれでも共通)。
+  function computeBodyDmg(before, after) {
+    for (var i = 0; i < 2; i++) {
+      var d = before[i] - after[i];
+      if (d > 0) return { idx: i, text: '−' + d };
+    }
+    return null;
+  }
+  function buildAttackAnim(hpBefore, hpAfter, opts) {
+    opts = opts || {};
+    return {
+      flash: flashFromHp(hpBefore, hpAfter),
+      bodyDmg: computeBodyDmg(hpBefore, hpAfter),
+      hitCard: opts.hitCard || null,
+      dmgTargetMon: opts.dmgTargetMon || null,
+      dmgText: opts.dmgText !== undefined ? opts.dmgText : null,
+      attackerCard: opts.attackerCard || null,
+      summonedCard: null
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // CPUのターン(1手ずつ0.6秒間隔で反映)
+  // ---------------------------------------------------------------------
+  async function runCpuTurn() {
+    await sleep(400);
+
+    // ためる
+    while (gameState.phase === 'charge' && Engine.canChargeMore(gameState)) {
+      var acted = Engine.aiChargeStep(gameState);
+      if (!acted) break;
+      Sound.charge();
+      render();
+      await sleep(600);
+    }
+    if (gameState.phase === 'gameover') { showVictory(); return; }
+    Engine.advanceToPlay(gameState);
+    render();
+    await sleep(300);
+
+    // だす
+    var actions = Engine.aiDecidePlayActions(gameState);
+    for (var i = 0; i < actions.length; i++) {
+      if (gameState.phase === 'gameover') break;
+      var hpBefore = snapshotHp();
+      var actionType = actions[i].type;
+      Engine.applyPlayAction(gameState, actions[i]);
+      var hpAfter = snapshotHp();
+      var summonedCard = null;
+      if (actionType === 'summon') {
+        Sound.summon();
+        var pp = gameState.players[gameState.acting];
+        summonedCard = pp.field[pp.field.length - 1];
+      } else if (actionType === 'retreat') {
+        Sound.retreat();
+      }
+      ui.anim = buildAttackAnim(hpBefore, hpAfter, {});
+      ui.anim.summonedCard = summonedCard;
+      render();
+      ui.anim = null;
+      if (gameState.phase === 'gameover') { showVictory(); return; }
+      await sleep(600);
+    }
+    if (gameState.phase === 'gameover') { showVictory(); return; }
+    Engine.advanceToBattle(gameState);
+    render();
+    await sleep(300);
+
+    // たたかう
+    while (gameState.phase === 'battle') {
+      ui.deadGhost = null;
+      var hb = snapshotHp();
+      var step = Engine.aiBattleStep(gameState);
+      var ha = snapshotHp();
+      var animOpts = {};
+      if (step.acted) {
+        animOpts.attackerCard = step.attacker;
+        if (step.result.direct) {
+          Sound.directAttack();
+        } else if (step.target) {
+          if (step.result.dmg > 0) Sound.hit(); else Sound.hitZero();
+          animOpts.dmgTargetMon = step.target;
+          animOpts.dmgText = String(step.result.dmg);
+          if (step.result.killed) {
+            Sound.death();
+            ui.deadGhost = { ownerIdx: 1 - gameState.acting, mon: step.target };
+          } else {
+            animOpts.hitCard = step.target;
+          }
+        }
+      }
+      ui.anim = buildAttackAnim(hb, ha, animOpts);
+      render();
+      ui.anim = null;
+      if (gameState.phase === 'gameover') {
+        if (ui.deadGhost) { await sleep(550); ui.deadGhost = null; render(); }
+        showVictory();
+        return;
+      }
+      if (step.done) break;
+      await sleep(600);
+    }
+
+    if (ui.deadGhost) {
+      await sleep(550);
+      ui.deadGhost = null;
+      render();
+    } else {
+      await sleep(400);
+    }
+    doEndTurn();
+  }
+
+  function doEndTurn() {
+    var hpBefore = snapshotHp();
+    var deckoutBefore = gameState.damageBySource.deckout || 0;
+    Engine.endTurn(gameState);
+    var deckoutAfter = gameState.damageBySource.deckout || 0;
+    if (deckoutAfter > deckoutBefore) Sound.bodyDamage();
+    var hpAfter = snapshotHp();
+    ui.anim = { flash: flashFromHp(hpBefore, hpAfter), hitCard: null, bodyDmg: computeBodyDmg(hpBefore, hpAfter) };
+    if (gameState.phase === 'gameover') {
+      render();
+      ui.anim = null;
+      showVictory();
+      return;
+    }
+    enterTurnFlow();
+    ui.anim = null;
+  }
+
+  // ---------------------------------------------------------------------
+  // 人間の操作
+  // ---------------------------------------------------------------------
+  function withAnim(fn, candidateHitMonster) {
+    var hpBefore = snapshotHp();
+    var extra = fn() || {};
+    var hpAfter = snapshotHp();
+    var hitCard = null;
+    if (candidateHitMonster) {
+      var stillThere = gameState.players[0].field.indexOf(candidateHitMonster) >= 0 ||
+        gameState.players[1].field.indexOf(candidateHitMonster) >= 0;
+      if (stillThere) hitCard = candidateHitMonster;
+    }
+    var animObj = { flash: flashFromHp(hpBefore, hpAfter), hitCard: hitCard, bodyDmg: computeBodyDmg(hpBefore, hpAfter) };
+    for (var k in extra) { if (Object.prototype.hasOwnProperty.call(extra, k)) animObj[k] = extra[k]; }
+    ui.anim = animObj;
+    render();
+    ui.anim = null;
+    if (gameState.phase === 'gameover') showVictory();
+  }
+
+  // 攻撃(直接攻撃/通常攻撃)を実行し、音・アニメ(踏み込み・ダメージ数字・死亡フェード)をまとめて処理する。
+  function performAttack(attacker, target) {
+    ui.selectedAttacker = null;
+    var hpBefore = snapshotHp();
+    var res = Engine.attack(gameState, attacker, target);
+    var hpAfter = snapshotHp();
+
+    if (res.ok) {
+      if (res.direct) {
+        Sound.directAttack();
+      } else {
+        if (res.dmg > 0) Sound.hit(); else Sound.hitZero();
+      }
+      if (res.killed) Sound.death();
+    }
+
+    var animOpts = { attackerCard: attacker };
+    if (res.ok && !res.direct && target) {
+      animOpts.dmgTargetMon = target;
+      animOpts.dmgText = String(res.dmg);
+      if (!res.killed) animOpts.hitCard = target;
+    }
+    ui.anim = buildAttackAnim(hpBefore, hpAfter, animOpts);
+    if (res.killed && target) ui.deadGhost = { ownerIdx: oppIndex(), mon: target };
+    render();
+    ui.anim = null;
+
+    if (res.killed) {
+      setTimeout(function () {
+        ui.deadGhost = null;
+        render();
+        if (gameState.phase === 'gameover') showVictory();
+      }, 550);
+    } else if (gameState.phase === 'gameover') {
+      showVictory();
+    }
+  }
+
+  function onMainAction() {
+    if (!isMyInteractiveTurn()) return;
+    if (gameState.phase === 'charge') {
+      if (hasChargeRemaining()) {
+        openConfirmModal('まだ コストに おけるよ。つぎへ すすむ？', function () {
+          ui.selectedAttacker = null;
+          Engine.advanceToPlay(gameState);
+          render();
+        });
+      } else {
+        ui.selectedAttacker = null;
+        Engine.advanceToPlay(gameState);
+        render();
+      }
+    } else if (gameState.phase === 'play') {
+      if (hasPlayRemaining()) {
+        openConfirmModal('まだ モンスターを だせるよ。つぎへ すすむ？', function () {
+          ui.selectedAttacker = null;
+          Engine.advanceToBattle(gameState);
+          render();
+        });
+      } else {
+        ui.selectedAttacker = null;
+        Engine.advanceToBattle(gameState);
+        render();
+      }
+    } else if (gameState.phase === 'battle') {
+      if (hasBattleRemaining()) {
+        openConfirmModal('まだ こうげき できるよ。ターンを おわる？', function () {
+          ui.selectedAttacker = null;
+          doEndTurn();
+        });
+      } else {
+        ui.selectedAttacker = null;
+        doEndTurn();
+      }
+    }
+  }
+  $('btn-main-action').onclick = onMainAction;
+
+  // 「まだ行動が残っている」判定 ------------------------------------------------
+  function hasChargeRemaining() {
+    return Engine.canChargeMore(gameState);
+  }
+  function hasPlayRemaining() {
+    var self = gameState.players[selfIndex()];
+    return self.hand.some(function (c) { return Engine.canSummon(gameState, c).ok; });
+  }
+  function hasBattleRemaining() {
+    var self = gameState.players[selfIndex()];
+    var opp = gameState.players[oppIndex()];
+    var attackers = self.field.filter(function (m) { return Engine.canAttack(gameState, m); });
+    if (attackers.length === 0) return false;
+    if (opp.field.length === 0) return true; // 直接攻撃は常に1以上のダメージになる
+    return attackers.some(function (a) {
+      return opp.field.some(function (t) { return Engine.attackDamagePreview(a.card, t.card) > 0; });
+    });
+  }
+
+  // --- モーダル共通 ---
+  function mkModalButton(label, enabled, onClick) {
+    var b = document.createElement('button');
+    b.textContent = label;
+    b.className = enabled ? 'btn-primary' : 'btn-plain';
+    b.disabled = !enabled;
+    if (onClick) b.onclick = onClick;
+    return b;
+  }
+  function mkModalButtonClass(label, cls, onClick) {
+    var b = document.createElement('button');
+    b.textContent = label;
+    b.className = cls;
+    if (onClick) b.onclick = onClick;
+    return b;
+  }
+  function mkReason(text) {
+    var d = document.createElement('div');
+    d.className = 'reason';
+    d.textContent = text;
+    return d;
+  }
+  function closeModal() { $('modal-overlay').classList.add('hidden'); }
+
+  function setModalCard(cardLike, statsText) {
+    var box = $('modal-card-big');
+    box.style.display = '';
+    box.className = 'rarity-' + cardLike.rarity;
+    box.querySelector('.mcb-icon').textContent = cardLike.icon || '';
+    box.querySelector('.mcb-name').textContent = cardLike.name + ' [' + cardLike.rarity + ']';
+    box.querySelector('.mcb-stats').textContent = statsText;
+  }
+
+  // 「まだ行動が残っているよ」の確認ダイアログ。カード表示は使わずメッセージのみ。
+  function openConfirmModal(message, onProceed) {
+    $('modal-card-big').style.display = 'none';
+    $('modal-title').textContent = message;
+    var buttonsEl = $('modal-buttons');
+    buttonsEl.innerHTML = '';
+    buttonsEl.appendChild(mkModalButtonClass('すすむ', 'btn-primary', function () {
+      closeModal();
+      onProceed();
+    }));
+    buttonsEl.appendChild(mkModalButtonClass('まだ やる', 'btn-secondary', closeModal));
+    $('modal-overlay').classList.remove('hidden');
+  }
+
+  function openHandCardModal(card, sourceEl) {
+    setModalCard(card, 'ATK ' + card.atk + ' / DEF ' + card.df + ' / HP ' + card.hp);
+    var buttonsEl = $('modal-buttons');
+    buttonsEl.innerHTML = '';
+
+    if (gameState.phase === 'charge') {
+      $('modal-title').textContent = 'このカードを どうする？';
+      var canCharge = Engine.canChargeMore(gameState);
+      buttonsEl.appendChild(mkModalButton('コストにする（うら向き）', canCharge, function () {
+        flyToCost(sourceEl);
+        Sound.charge();
+        withAnim(function () { Engine.chargeCard(gameState, card); });
+        closeModal();
+      }));
+      if (!canCharge) buttonsEl.appendChild(mkReason('もうこれ以上は ためられません'));
+      buttonsEl.appendChild(mkModalButton('だす（このフェーズではできない）', false, null));
+    } else if (gameState.phase === 'play') {
+      $('modal-title').textContent = 'このカードを だしますか？';
+      var check = Engine.canSummon(gameState, card);
+      buttonsEl.appendChild(mkModalButton('だす', check.ok, function () {
+        Sound.summon();
+        withAnim(function () {
+          Engine.summon(gameState, card);
+          var p = gameState.players[selfIndex()];
+          return { summonedCard: p.field[p.field.length - 1] };
+        });
+        closeModal();
+      }));
+      if (!check.ok) buttonsEl.appendChild(mkReason(check.reason));
+    }
+    var cancel = mkModalButton('やめる', true, closeModal);
+    buttonsEl.appendChild(cancel);
+    $('modal-overlay').classList.remove('hidden');
+  }
+
+  // 手札のカードをコスト置き場の方向へ滑らせて消す簡易フライング演出。
+  // (画面全体を都度作り直す描画方式のため、実DOMのクローンを作って独立に動かす)
+  function flyToCost(sourceEl) {
+    if (!sourceEl || prefersReducedMotion()) return;
+    var rect = sourceEl.getBoundingClientRect();
+    var targetEl = $('my-bar');
+    if (!targetEl) return;
+    var trect = targetEl.getBoundingClientRect();
+    var clone = sourceEl.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.margin = '0';
+    clone.style.zIndex = '100';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'transform 0.4s ease-in, opacity 0.4s ease-in';
+    document.body.appendChild(clone);
+    var dx = (trect.left + trect.width / 2) - (rect.left + rect.width / 2);
+    var dy = (trect.top + trect.height / 2) - (rect.top + rect.height / 2);
+    requestAnimationFrame(function () {
+      clone.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.4)';
+      clone.style.opacity = '0';
+    });
+    setTimeout(function () { if (clone.parentNode) clone.parentNode.removeChild(clone); }, 450);
+  }
+
+  function openRetreatConfirm(m) {
+    setModalCard(m.card, 'たいきゃくすると ' + m.card.rarityNum + 'ダメージ うけます');
+    $('modal-title').textContent = 'このモンスターを たいきゃくさせますか？';
+    var buttonsEl = $('modal-buttons');
+    buttonsEl.innerHTML = '';
+    var yes = mkModalButton('たいきゃくする（' + m.card.rarityNum + 'ダメージ）', true, function () {
+      Sound.retreat();
+      withAnim(function () { Engine.retreat(gameState, m); });
+      closeModal();
+    });
+    yes.classList.add('btn-danger');
+    buttonsEl.appendChild(yes);
+    buttonsEl.appendChild(mkModalButton('やめる', true, closeModal));
+    $('modal-overlay').classList.remove('hidden');
+  }
+
+  function confirmDirectAttack() {
+    var attacker = ui.selectedAttacker;
+    if (!attacker) return;
+    setModalCard(attacker.card, 'ちょくせつこうげき: ' + attacker.card.rarityNum + 'ダメージ');
+    $('modal-title').textContent = 'ちょくせつこうげき しますか？';
+    var buttonsEl = $('modal-buttons');
+    buttonsEl.innerHTML = '';
+    buttonsEl.appendChild(mkModalButton('こうげきする', true, function () {
+      var a = attacker;
+      closeModal();
+      performAttack(a, null);
+    }));
+    buttonsEl.appendChild(mkModalButton('やめる', true, closeModal));
+    $('modal-overlay').classList.remove('hidden');
+  }
+
+  function executeAttack(target) {
+    var attacker = ui.selectedAttacker;
+    if (!attacker) return;
+    performAttack(attacker, target);
+  }
+
+  // 直接攻撃できる（=このバトルフェーズでまだ攻撃していない）自分のモンスター一覧。
+  function getAttackableMonsters() {
+    if (!(isMyInteractiveTurn() && gameState.phase === 'battle')) return [];
+    var self = gameState.players[selfIndex()];
+    return self.field.filter(function (m) { return Engine.canAttack(gameState, m); });
+  }
+
+  // ---------------------------------------------------------------------
+  // 描画
+  // ---------------------------------------------------------------------
+  function render() {
+    if (!gameState || gameState.phase === 'gameover') return;
+    var self = gameState.players[selfIndex()];
+    var opp = gameState.players[oppIndex()];
+    var oppName = mode === 'cpu' ? 'あいて' : (opp.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
+    var selfName = mode === 'cpu' ? 'じぶん' : (self.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
+
+    renderBar('opp-bar', opp, oppName, true);
+    renderBar('my-bar', self, selfName, false);
+    renderOppField(opp);
+    renderMyField(self);
+    renderPhaseStrip();
+    renderPhaseBanner();
+    renderLog();
+    renderHand(self);
+    renderMainButton();
+  }
+
+  // 指示書13 A-1: 「今どのフェーズか分かりにくい」への対応。
+  // 主ボタン(つぎへ/ターンおわり)のすぐ上に、今のフェーズを大きく表示する帯。
+  // 既存のフェーズ帯(phase-strip、4分割インジケーター)は残したまま、両方表示する。
+  var PHASE_BANNER_INFO = {
+    draw: { title: 'いまは【ひく】', desc: 'やまふだから 1まい ひくよ' },
+    charge: { title: 'いまは【ためる】', desc: 'てふだを 1まい コストに おけるよ' },
+    play: { title: 'いまは【だす】', desc: 'コストを つかって モンスターを だそう' },
+    battle: { title: 'いまは【たたかう】', desc: 'モンスターを えらんで こうげき！' }
+  };
+  function renderPhaseBanner() {
+    var titleEl = $('phase-banner-title'), descEl = $('phase-banner-desc');
+    if (!titleEl || !descEl) return;
+    if (!isMyInteractiveTurn()) {
+      titleEl.textContent = 'あいての ターン…';
+      descEl.textContent = '';
+      return;
+    }
+    var info = PHASE_BANNER_INFO[gameState.phase];
+    titleEl.textContent = info ? info.title : '';
+    descEl.textContent = info ? info.desc : '';
+  }
+
+  function renderBar(elId, p, name, isOpp) {
+    var el = $(elId);
+    var hpDots = '';
+    for (var i = 0; i < 10; i++) {
+      hpDots += '<span class="hp-dot ' + (i < p.hp ? '' : 'empty') + '"></span>';
+    }
+    var handInfo = p.hand.length + 'まい' + (isOpp ? '(うら)' : '');
+    var bodyDmg = (ui.anim && ui.anim.bodyDmg && ui.anim.bodyDmg.idx === p.idx) ? ui.anim.bodyDmg : null;
+    el.innerHTML =
+      '<span class="name">' + escapeHtml(name) + '</span>' +
+      '<span class="hp-dots">' + hpDots + '</span>' +
+      '<span class="pill hp-pill' + (bodyDmg ? ' hp-hit' : '') + '">HP <span class="hp-num">' + Math.max(0, p.hp) + '</span>' +
+      (bodyDmg ? '<span class="dmg-float body">' + escapeHtml(bodyDmg.text) + '</span>' : '') +
+      '</span>' +
+      '<span class="pill">つかえるコスト ' + (p.costTotal - p.costUsed) + '（おいた数 ' + p.costTotal + '）</span>' +
+      '<span class="pill">手ふだ ' + handInfo + '</span>' +
+      '<span class="pill">山ふだ ' + p.deck.length + '</span>';
+    el.classList.remove('anim-flash');
+    if (ui.anim && ui.anim.flash && ui.anim.flash[p.idx]) {
+      void el.offsetWidth; // reflow: アニメーションを確実にやり直す
+      el.classList.add('anim-flash');
+    }
+  }
+
+  function monCardHtml(m) {
+    var remain = Math.max(0, m.card.hp - m.damage);
+    return '<div class="mon-icon">' + (m.card.icon || '') + '</div>' +
+      '<div class="mon-name">' + escapeHtml(m.card.name) + '</div>' +
+      '<div class="mon-stats">ATK' + m.card.atk + ' / DEF' + m.card.df + '</div>' +
+      '<div class="mon-hp">HP ' + remain + '/' + m.card.hp + '</div>';
+  }
+
+  // 攻撃/死亡アニメ・浮かぶダメージ数字を1枚のmon-card divに反映する共通処理。
+  function decorateMonDiv(div, m) {
+    if (!(ui.anim)) return;
+    if (ui.anim.hitCard === m) div.classList.add('anim-hit');
+    if (ui.anim.attackerCard === m) div.classList.add('anim-lunge');
+    if (ui.anim.summonedCard === m) div.classList.add('anim-summon');
+    if (ui.anim.dmgTargetMon === m && ui.anim.dmgText !== null) {
+      var isZero = ui.anim.dmgText === '0';
+      var f = document.createElement('div');
+      f.className = 'dmg-float' + (isZero ? ' zero' : '');
+      f.textContent = ui.anim.dmgText;
+      div.appendChild(f);
+    }
+  }
+
+  function renderMyField(self) {
+    var el = $('my-field');
+    el.innerHTML = '';
+    var interactive = isMyInteractiveTurn();
+    var ghost = (ui.deadGhost && ui.deadGhost.ownerIdx === self.idx) ? ui.deadGhost.mon : null;
+    var shown = 0;
+    for (var i = 0; i < self.field.length && shown < 4; i++) {
+      var m = self.field[i];
+      var div = document.createElement('div');
+      div.className = 'mon-card rarity-' + m.card.rarity;
+      div.innerHTML = monCardHtml(m);
+      if (interactive && gameState.phase === 'play') {
+        div.onclick = (function (mon) { return function () { openRetreatConfirm(mon); }; })(m);
+      } else if (interactive && gameState.phase === 'battle') {
+        var attackable = Engine.canAttack(gameState, m);
+        if (!attackable) {
+          div.classList.add('dimmed');
+        } else {
+          if (ui.selectedAttacker === m) div.classList.add('selectable');
+          div.onclick = (function (mon) { return function () { ui.selectedAttacker = mon; render(); }; })(m);
+        }
+      }
+      decorateMonDiv(div, m);
+      el.appendChild(div);
+      shown++;
+    }
+    if (ghost && shown < 4) {
+      var gdiv = document.createElement('div');
+      gdiv.className = 'mon-card rarity-' + ghost.card.rarity + ' anim-dead';
+      gdiv.innerHTML = monCardHtml(ghost);
+      decorateMonDiv(gdiv, ghost);
+      el.appendChild(gdiv);
+      shown++;
+    }
+    for (; shown < 4; shown++) {
+      var slot = document.createElement('div');
+      slot.className = 'field-slot';
+      el.appendChild(slot);
+    }
+  }
+
+  function renderOppField(opp) {
+    var el = $('opp-field');
+    el.innerHTML = '';
+    var ghost = (ui.deadGhost && ui.deadGhost.ownerIdx === opp.idx) ? ui.deadGhost.mon : null;
+
+    if (opp.field.length === 0 && !ghost) {
+      var wrap = document.createElement('div');
+      wrap.style.flex = '1';
+      wrap.style.display = 'flex';
+      wrap.style.alignItems = 'center';
+      wrap.style.justifyContent = 'center';
+      // 攻撃できるモンスターが1体もいなければボタンは出さない。
+      // 選択中のモンスターが（既に攻撃済み等で）攻撃できない場合は無視し、
+      // 攻撃可能な先頭のモンスターをデフォルトの攻撃者として扱う。
+      var attackable = getAttackableMonsters();
+      if (attackable.length > 0) {
+        var chosen = (ui.selectedAttacker && attackable.indexOf(ui.selectedAttacker) >= 0)
+          ? ui.selectedAttacker
+          : attackable[0];
+        var btn = document.createElement('button');
+        btn.className = 'btn-danger';
+        btn.style.width = '100%';
+        btn.textContent = 'ちょくせつこうげき（' + chosen.card.rarityNum + 'ダメージ）';
+        btn.onclick = function () {
+          ui.selectedAttacker = chosen;
+          confirmDirectAttack();
+        };
+        wrap.appendChild(btn);
+      } else {
+        wrap.textContent = 'あいての ばは からっぽ';
+        wrap.style.color = '#bbb';
+        wrap.style.fontSize = '12px';
+      }
+      el.appendChild(wrap);
+      return;
+    }
+    var shown = 0;
+    for (var i = 0; i < opp.field.length && shown < 4; i++) {
+      var m = opp.field[i];
+      var div = document.createElement('div');
+      div.className = 'mon-card rarity-' + m.card.rarity;
+      div.innerHTML = monCardHtml(m);
+      if (isMyInteractiveTurn() && gameState.phase === 'battle' && ui.selectedAttacker) {
+        var dmg = Engine.attackDamagePreview(ui.selectedAttacker.card, m.card);
+        var badge = document.createElement('div');
+        badge.className = 'dmg-badge';
+        badge.textContent = String(dmg);
+        div.appendChild(badge);
+        div.onclick = (function (mon) { return function () { executeAttack(mon); }; })(m);
+      }
+      decorateMonDiv(div, m);
+      el.appendChild(div);
+      shown++;
+    }
+    if (ghost && shown < 4) {
+      var gdiv = document.createElement('div');
+      gdiv.className = 'mon-card rarity-' + ghost.card.rarity + ' anim-dead';
+      gdiv.innerHTML = monCardHtml(ghost);
+      decorateMonDiv(gdiv, ghost);
+      el.appendChild(gdiv);
+      shown++;
+    }
+    for (; shown < 4; shown++) {
+      var slot = document.createElement('div');
+      slot.className = 'field-slot';
+      el.appendChild(slot);
+    }
+  }
+
+  function renderPhaseStrip() {
+    var order = ['draw', 'charge', 'play', 'battle'];
+    var curIdx = order.indexOf(gameState.phase);
+    var steps = document.querySelectorAll('.phase-step');
+    for (var i = 0; i < steps.length; i++) {
+      var el = steps[i];
+      var idx = order.indexOf(el.dataset.phase);
+      el.classList.remove('active', 'done');
+      if (idx === 0 || idx < curIdx) el.classList.add('done');
+      if (idx === curIdx) el.classList.add('active');
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // ログの子ども向け表示変換
+  // engine.js の内部ログ（「P0: 「C-とっこう」を召喚 (コスト1消費, 場占有1/4)」等）は
+  // そのままにしておき、ここ(app.js)で表示用に日本語へ整形しなおす。
+  // カード名の前にはICON_BY_NAMEから引いたアイコンを付ける。
+  // ---------------------------------------------------------------------
+  function playerLabel(pIdx) {
+    if (mode === 'cpu') {
+      return pIdx === selfIndex() ? 'あなた' : 'あいて';
+    }
+    return pIdx === 0 ? 'プレイヤー1' : 'プレイヤー2';
+  }
+
+  // 1行の内部ログを表示用テキストに変換する。対応パターンが無ければ null。
+  function translateLogLine(raw) {
+    var m;
+
+    m = raw.match(/^--- (\d+)たんめ: P(\d) \(HP P0=-?\d+ P1=-?\d+\) ---$/);
+    if (m) return '── ' + playerLabel(Number(m[2])) + 'の ' + m[1] + 'ターンめ ──';
+
+    m = raw.match(/^初期手札: 先攻P\d=(\d+)枚, 後攻P\d=(\d+)枚$/);
+    if (m) return 'はじめの 手ふだ: せんこう' + m[1] + 'まい、こうこう' + m[2] + 'まい';
+
+    m = raw.match(/^P(\d): 先攻1ターン目のためドローなし$/);
+    if (m) return playerLabel(Number(m[1])) + 'は 1ターンめなので ひかない';
+
+    m = raw.match(/^P(\d): 1枚ドロー \(手札\d+枚\)$/);
+    if (m) return playerLabel(Number(m[1])) + 'が 1まい ひいた';
+
+    m = raw.match(/^P\d 山札切れ→本体1ダメージ \(HP=-?\d+\)$/);
+    if (m) return '山ふだが ない！ 1ダメージ';
+
+    m = raw.match(/^P(\d): 「(.+)」をコストに置く \(コスト\d+枚\)$/);
+    if (m) return playerLabel(Number(m[1])) + 'が ' + iconFor(m[2]) + m[2] + ' を コストにした';
+
+    m = raw.match(/^P(\d): 「(.+)」を召喚 \(コスト\d+消費, 場占有\d+\/4\)$/);
+    if (m) return playerLabel(Number(m[1])) + 'が ' + iconFor(m[2]) + m[2] + ' を だした';
+
+    m = raw.match(/^P(\d): 「(.+)」がちょくせつこうげき → P(\d)に(\d+) \(HP=-?\d+\)$/);
+    if (m) return playerLabel(Number(m[3])) + 'に ちょくせつこうげき！ ' + m[4] + 'ダメージ';
+
+    m = raw.match(/^P(\d): 「(.+)」が P(\d)の「(.+)」を攻撃 \((\d+)-(\d+)=(\d+), 蓄積\d+\/\d+\)$/);
+    if (m) {
+      return playerLabel(Number(m[1])) + 'の ' + iconFor(m[2]) + m[2] + ' が ' +
+        playerLabel(Number(m[3])) + 'の ' + iconFor(m[4]) + m[4] + ' を こうげき（' + m[5] + '−' + m[6] + '＝' + m[7] + '）';
+    }
+
+    m = raw.match(/^ {2}→「(.+)」死亡。P(\d)に本体(\d+)ダメージ \(HP=-?\d+\)$/);
+    if (m) {
+      var ownerLabel = playerLabel(Number(m[2]));
+      return ownerLabel + 'の ' + iconFor(m[1]) + m[1] + ' が やられた！ ' + ownerLabel + 'に ' + m[3] + 'ダメージ';
+    }
+
+    return null;
+  }
+
+  // ログ全体（gameState.log の生配列）を表示用の行配列に変換する。
+  // 「たいきゃく」だけは2行(名前/ダメージ)を1行にまとめて表示する。
+  function buildDisplayLog(rawLog) {
+    var out = [];
+    var i = 0;
+    while (i < rawLog.length) {
+      var line = rawLog[i];
+      var mRet = line.match(/^P(\d): 「(.+)」を退却$/);
+      if (mRet && i + 1 < rawLog.length) {
+        var mDmg = rawLog[i + 1].match(/^ {2}→退却ダメージ P\d に(\d+) \(HP=-?\d+\)$/);
+        if (mDmg) {
+          out.push(playerLabel(Number(mRet[1])) + 'の ' + iconFor(mRet[2]) + mRet[2] + ' が たいきゃく（' + mDmg[1] + 'ダメージ）');
+          i += 2;
+          continue;
+        }
+      }
+      var t = translateLogLine(line);
+      out.push(t !== null ? t : line);
+      i += 1;
+    }
+    return out;
+  }
+
+  function renderLog() {
+    var el = $('log-area');
+    var display = buildDisplayLog(gameState.log);
+    var lines = display.slice(-3).map(escapeHtml);
+    el.innerHTML = (lines.length ? lines.join('<br>') : 'まだ できごとはありません') +
+      '<div style="text-align:right;color:#aaa;font-size:10px;">（タップで ぜんぶ みる）</div>';
+    el.onclick = openFullLog;
+  }
+
+  function openFullLog() {
+    ui.fullLogReturn = getCurrentScreenId();
+    $('fulllog-content').textContent = gameState ? buildDisplayLog(gameState.log).join('\n') : '';
+    showScreen('screen-fulllog');
+  }
+  $('btn-fulllog-back').onclick = function () { showScreen(ui.fullLogReturn || 'screen-game'); };
+
+  function renderHand(self) {
+    var el = $('hand-scroll');
+    el.innerHTML = '';
+    var interactive = isMyInteractiveTurn();
+    self.hand.forEach(function (c) {
+      var div = document.createElement('div');
+      div.className = 'hand-card rarity-' + c.rarity;
+      var usable = false;
+      if (interactive) {
+        if (gameState.phase === 'charge') usable = Engine.canChargeMore(gameState);
+        else if (gameState.phase === 'play') usable = Engine.canSummon(gameState, c).ok;
+      }
+      if (!usable) div.classList.add('disabled');
+      div.innerHTML =
+        '<div class="hc-icon">' + (c.icon || '') + '</div>' +
+        '<div class="hc-name">' + escapeHtml(c.name) + '</div>' +
+        '<div class="hc-stats">A' + c.atk + '/D' + c.df + '/H' + c.hp + '</div>' +
+        '<div class="hc-rarity">' + c.rarity + '</div>';
+      div.onclick = function () {
+        if (!interactive) return;
+        if (gameState.phase === 'charge' || gameState.phase === 'play') openHandCardModal(c, div);
+      };
+      el.appendChild(div);
+    });
+    updateHandScrollHint();
+  }
+
+  // 手札が横スクロールできることに気づきやすいよう、まだ見えていないカードが
+  // あるあいだは右はしに「→」のヒントを出す。最後まで見えたら消す。
+  function updateHandScrollHint() {
+    var el = $('hand-scroll');
+    var hint = $('hand-scroll-hint');
+    if (!el || !hint) return;
+    var overflow = el.scrollWidth > el.clientWidth + 4;
+    var atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+    hint.classList.toggle('hidden', !overflow || atEnd);
+  }
+  var handScrollEl = $('hand-scroll');
+  if (handScrollEl) handScrollEl.addEventListener('scroll', updateHandScrollHint);
+
+  function renderMainButton() {
+    var btn = $('btn-main-action');
+    var interactive = isMyInteractiveTurn();
+    if (!interactive) {
+      btn.textContent = mode === 'cpu' ? 'あいての ターン…' : '';
+      btn.disabled = true;
+      return;
+    }
+    btn.disabled = false;
+    if (gameState.phase === 'charge') btn.textContent = 'つぎへ（だす）';
+    else if (gameState.phase === 'play') btn.textContent = 'つぎへ（たたかう）';
+    else if (gameState.phase === 'battle') btn.textContent = 'ターンおわり';
+  }
+
+  // ---------------------------------------------------------------------
+  // 勝敗画面
+  // ---------------------------------------------------------------------
+  function showVictory() {
+    var gs = gameState;
+    var p0 = gs.players[0], p1 = gs.players[1];
+    var title;
+    if (gs.winner === null) {
+      title = 'ひきわけ';
+    } else if (mode === 'cpu') {
+      title = (gs.winner === humanIdx) ? 'あなたの かち！' : 'あいての かち…';
+      if (gs.winner === humanIdx) Sound.win(); else Sound.lose();
+    } else {
+      title = (gs.winner === 0 ? 'プレイヤー1' : 'プレイヤー2') + ' の かち！';
+      Sound.win();
+    }
+    $('victory-title').textContent = title;
+    var d = gs.damageBySource;
+    var firstName = gs.firstPlayer === 0 ? 'プレイヤー1' : 'プレイヤー2';
+    var html =
+      '<div>せんこう: ' + (mode === 'cpu' ? (gs.firstPlayer === humanIdx ? 'あなた' : 'あいて') : firstName) + '</div>' +
+      '<div>ターン数: P0=' + p0.turnNo + ' / P1=' + p1.turnNo + '（ぜんぶで' + gs.ply + '）</div>' +
+      '<table>' +
+      '<tr><td>モンスターが しんで うけた本体ダメージ</td><td>' + (d.death || 0) + '</td></tr>' +
+      '<tr><td>ちょくせつこうげき</td><td>' + (d.direct || 0) + '</td></tr>' +
+      '<tr><td>たいきゃく</td><td>' + (d.retreat || 0) + '</td></tr>' +
+      '<tr><td>山ふだ切れ</td><td>' + (d.deckout || 0) + '</td></tr>' +
+      '</table>';
+    $('victory-detail').innerHTML = html;
+    showScreen('screen-victory');
+  }
+
+  $('btn-again').onclick = function () { goToJanken(); };
+  $('btn-title2').onclick = function () { showScreen('screen-title'); };
+
+  // 初期画面
+  showScreen('screen-title');
+})();
+
+</script>
+<!-- HOME_BUTTON -->
+<style>
+  #homeBtn{
+    position:fixed; top:env(safe-area-inset-top,8px); left:8px; z-index:99999;
+    display:flex; align-items:center; gap:6px;
+    padding:8px 14px; border-radius:999px;
+    background:rgba(20,10,35,.72); color:#ffd94d;
+    font-family:'DotGothic16','Hiragino Maru Gothic ProN',sans-serif;
+    font-size:15px; line-height:1; text-decoration:none;
+    border:2px solid rgba(255,217,77,.6);
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    opacity:.45; transition:opacity .15s;
+  }
+  #homeBtn:hover,#homeBtn:active{opacity:1;}
+</style>
+<a id="homeBtn" href="../../index.html">&#8962; ゲームセンター</a>
+
+</body>
+</html>
