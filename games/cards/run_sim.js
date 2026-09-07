@@ -286,6 +286,121 @@ let simOk = true;
 }
 
 // -----------------------------------------------------------------------
+// (6) チュートリアル(はじめてあそぶ)が筋書きどおりに進むか
+// app.js ブロックの TUTORIAL_DATA マーカーから配りものと あいての手順を取り出し、
+// 実際のルールエンジンで最後まで再現して確認する。カード名の打ちまちがいや
+// バランス調整で筋書きが崩れたら、ここで落ちる。
+// -----------------------------------------------------------------------
+section('(6) チュートリアルの筋書き');
+{
+  ['id="btn-tutorial"', 'id="screen-tutorial-end"', 'id="tutor-panel"', 'id="btn-tutor-next"', 'id="hand-wrap"']
+    .forEach(function (needle) {
+      ok(html.indexOf(needle) >= 0, 'index.html に ' + needle + ' がある(ビルド忘れ検出)');
+    });
+
+  const appSrc = extractScriptBlock('// ==== app.js ====');
+  const dataStart = appSrc.indexOf('// ==== TUTORIAL_DATA_BEGIN ====');
+  const dataEnd = appSrc.indexOf('// ==== TUTORIAL_DATA_END ====');
+  ok(dataStart >= 0 && dataEnd > dataStart, 'app.js に TUTORIAL_DATA ブロックがある');
+  const TUT = new Function(appSrc.slice(dataStart, dataEnd) + '; return TUT_DATA;')();
+
+  const WAITS = ['charge', 'summon', 'phase:play', 'phase:battle', 'select', 'attack', 'endTurn'];
+  const waits = (appSrc.match(/wait: '([^']+)'/g) || []).map(function (s) { return s.slice(7, -1); });
+  ok(waits.length > 0, 'チュートリアルの手順(wait)が定義されている');
+  ok(waits.every(function (w) { return WAITS.indexOf(w) >= 0; }), 'wait はすべて既知の種類: ' + waits.join(','));
+
+  const byName = {};
+  Engine.CARD_POOL_V3.forEach(function (c) { byName[c.name] = c; });
+  const allNames = [].concat(
+    TUT.hand0, TUT.deck0, TUT.hand1, TUT.deck1,
+    TUT.oppScript.reduce(function (acc, s) { return acc.concat(s.charge, s.summon ? [s.summon] : []); }, [])
+  );
+  const missing = allNames.filter(function (n) { return !byName[n]; });
+  ok(missing.length === 0, 'チュートリアルのカード名がすべて実在する: ' + missing.join(', '));
+
+  function names(list) { return list.map(function (n) { return byName[n]; }); }
+  function handCardByName(p, name) {
+    for (let i = 0; i < p.hand.length; i++) if (p.hand[i].name === name) return p.hand[i];
+    return null;
+  }
+
+  const rng = Engine.makeRng(7);
+  const state = Engine.newGame(names(TUT.deck0), names(TUT.deck1), 0, rng, ['human', 'cpu']);
+  const p0 = state.players[0], p1 = state.players[1];
+  p0.hand = names(TUT.hand0);
+  p0.deck = names(TUT.deck0).reverse();
+  p1.hand = names(TUT.hand1);
+  p1.deck = names(TUT.deck1).reverse();
+
+  // あいての1ターン(app.jsのrunTutorialOppTurnと同じ手順)。
+  function runOppTurn(turnIdx) {
+    const sc = TUT.oppScript[turnIdx] || { charge: [], summon: null };
+    for (let i = 0; i < sc.charge.length; i++) {
+      if (!Engine.canChargeMore(state)) break;
+      const c = handCardByName(p1, sc.charge[i]) || p1.hand[0];
+      if (!c) break;
+      Engine.chargeCard(state, c);
+    }
+    Engine.advanceToPlay(state);
+    const summonable = p1.hand.filter(function (c) { return Engine.canSummon(state, c).ok; });
+    if (sc.summon) {
+      const s = handCardByName(p1, sc.summon);
+      ok(!!s && Engine.canSummon(state, s).ok, 'あいての' + (turnIdx + 1) + 'ターンめ: 「' + sc.summon + '」を だせる');
+      Engine.summon(state, s);
+    } else {
+      eq(summonable.length, 0, 'あいての' + (turnIdx + 1) + 'ターンめ: だせるカードが1枚もない(コスト不足の説明どおり)');
+    }
+    Engine.advanceToBattle(state);
+    Engine.endTurn(state);
+  }
+
+  // --- じぶんの1ターンめ: ためる1 → ★1を だす → 召喚酔いで こうげきできない ---
+  Engine.beginTurn(state);
+  eq(state.chargeLimit, 1, 'チュートリアル1ターンめ: コストは1枚だけ おける');
+  Engine.chargeCard(state, p0.hand[0]);
+  Engine.advanceToPlay(state);
+  const firstSummon = p0.hand.filter(function (c) { return c.rarityNum === 1 && Engine.canSummon(state, c).ok; })[0];
+  ok(!!firstSummon, '1ターンめの手札に コスト1で だせる★1のカードがある');
+  const tooExpensive = p0.hand.filter(function (c) { return !Engine.canSummon(state, c).ok; });
+  ok(tooExpensive.length > 0, '1ターンめの手札に まだ だせない(★が大きい)カードもある(★の説明用)');
+  Engine.summon(state, firstSummon);
+  Engine.advanceToBattle(state);
+  eq(state.battleRemaining.length, 0, '1ターンめ: だしたばかりなので こうげきできない(召喚酔い)');
+  Engine.endTurn(state);
+
+  runOppTurn(0);
+  eq(p1.field.length, 1, 'あいての1ターンめのあと、あいての ばに モンスターが1体いる');
+
+  // --- じぶんの2ターンめ: ためる1 → だすは とばす → こうげきして やっつける ---
+  const myMon = p0.field[0];
+  Engine.chargeCard(state, p0.hand[0]);
+  Engine.advanceToPlay(state);
+  Engine.advanceToBattle(state);
+  ok(Engine.canAttack(state, myMon), '2ターンめ: 1ターンめに だした モンスターは こうげきできる');
+  const target = p1.field[0];
+  ok(Engine.attackDamagePreview(myMon.card, target.card) > 0, '2ターンめ: あいてに 1いじょうの ダメージを あたえられる');
+  const oppHpBefore = p1.hp;
+  const res = Engine.attack(state, myMon, target);
+  eq(res.killed, true, '2ターンめ: 1かいの こうげきで あいての モンスターを たおせる');
+  eq(p1.hp, oppHpBefore - target.card.rarityNum, 'たおした とき、もちぬしに ★のかず だけ 本体ダメージ');
+  eq(p1.field.length, 0, 'あいての ばが からっぽに なる');
+  Engine.endTurn(state);
+
+  runOppTurn(1);
+  eq(p1.field.length, 0, 'あいての2ターンめのあとも あいての ばは からっぽ(ちょくせつこうげきの説明ができる)');
+
+  // --- じぶんの3ターンめ: ちょくせつこうげき ---
+  Engine.advanceToPlay(state);
+  Engine.advanceToBattle(state);
+  ok(Engine.canAttack(state, myMon), '3ターンめ: じぶんの モンスターは まだ ばにいて こうげきできる');
+  const hpBeforeDirect = p1.hp;
+  const res2 = Engine.attack(state, myMon, null);
+  ok(res2.ok && res2.direct, '3ターンめ: あいての ばが からっぽなので ちょくせつこうげきになる');
+  eq(p1.hp, hpBeforeDirect - myMon.card.rarityNum, 'ちょくせつこうげきの ダメージは ★のかず');
+  eq(state.phase !== 'gameover', true, 'チュートリアルの とちゅうで しょうぶが ついてしまわない');
+}
+
+// -----------------------------------------------------------------------
 console.log('\n=== 結果: PASS=' + passCount + ' FAIL=' + failCount + ' ===');
 const all = failCount === 0 && simOk;
 console.log(all ? 'GATE: ALL PASS' : 'GATE: FAIL');

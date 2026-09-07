@@ -54,8 +54,10 @@
   .btn-secondary { background: var(--accent2); color: #fff; }
   .btn-plain { background: #eee; color: #333; }
   .btn-danger { background: var(--danger); color: #fff; }
+  .btn-tutorial { background: var(--c-uc); color: #fff; }
   .btn-block { width: 100%; margin: 8px 0; }
   button:disabled { opacity: 0.4; cursor: default; }
+  .btn-sub { display: block; font-size: 12px; font-weight: normal; margin-top: 3px; opacity: 0.9; }
 
   /* ---------- タイトル ---------- */
   #screen-title { justify-content: center; align-items: center; gap: 12px; }
@@ -248,6 +250,35 @@
   .phase-banner #phase-banner-title { font-size: 18px; font-weight: bold; line-height: 1.3; }
   .phase-banner #phase-banner-desc { font-size: 12px; margin-top: 2px; color: #8a5236; }
 
+  /* ---------- チュートリアル（せんせいパネル・光るヒント） ---------- */
+  .tutor-panel {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff3d6; border: 2px solid var(--c-sr); border-radius: 12px;
+    padding: 8px 10px; margin: 2px 2px 0;
+  }
+  .tutor-face { font-size: 26px; line-height: 1; flex: 0 0 auto; }
+  /* 文の長さでパネルの高さが変わると、下の主ボタンの位置がずれて押しまちがえる。
+     4行ぶんの高さを確保して、ステップが進んでもボタンが動かないようにする。 */
+  #tutor-text {
+    flex: 1; font-size: 13px; line-height: 1.5; white-space: pre-line;
+    min-height: 78px; display: flex; flex-direction: column; justify-content: center;
+  }
+  #btn-tutor-next { flex: 0 0 auto; min-height: 42px; padding: 8px 14px; font-size: 14px; }
+  .tutor-target {
+    border-radius: 10px;
+    animation: tutorpulse 1.1s ease-in-out infinite;
+  }
+  @keyframes tutorpulse {
+    0%, 100% { box-shadow: 0 0 0 3px var(--accent); }
+    50% { box-shadow: 0 0 0 7px rgba(255,112,67,0.35); }
+  }
+  #screen-tutorial-end { justify-content: center; align-items: center; text-align: center; gap: 12px; }
+  #screen-tutorial-end .title-emoji { font-size: 52px; }
+  #tutorial-end-note {
+    background: var(--panel); border-radius: 10px; padding: 14px; font-size: 14px;
+    line-height: 1.9; width: 100%; max-width: 320px; text-align: left;
+  }
+
   /* ---------- モーダル ---------- */
   #modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -296,11 +327,12 @@
     <div class="title-emoji">🐲⚔️🛡️</div>
     <h1>アニマル<br>カードバトル(仮)</h1>
     <div class="title-buttons">
+      <button id="btn-tutorial" class="btn-tutorial btn-block">はじめてあそぶ<span class="btn-sub">せんせいと ルールを おぼえよう</span></button>
       <button id="btn-vs-cpu" class="btn-primary btn-block">CPUとたたかう</button>
       <button id="btn-vs-human" class="btn-secondary btn-block">ふたりでたたかう</button>
       <button id="btn-rules" class="btn-plain btn-block">ルールをみる</button>
     </div>
-    <div class="version-tag">v0.1.0 ベータ</div>
+    <div class="version-tag">v0.2.0 ベータ</div>
   </div>
 
   <!-- ルール画面 -->
@@ -350,13 +382,18 @@
 
     <div class="field-row" id="my-field"></div>
     <div class="bar" id="my-bar"></div>
-    <div class="hand-wrap">
+    <div class="hand-wrap" id="hand-wrap">
       <div class="hand-scroll" id="hand-scroll"></div>
       <div class="scroll-hint hidden" id="hand-scroll-hint">→</div>
     </div>
     <div class="phase-banner" id="phase-banner">
       <div id="phase-banner-title"></div>
       <div id="phase-banner-desc"></div>
+    </div>
+    <div class="tutor-panel hidden" id="tutor-panel">
+      <span class="tutor-face">🦉</span>
+      <div id="tutor-text"></div>
+      <button id="btn-tutor-next" class="btn-primary">つぎへ</button>
     </div>
     <div class="main-action" id="main-action">
       <button id="btn-main-action" class="btn-primary"></button>
@@ -369,6 +406,22 @@
     <div id="victory-detail"></div>
     <button id="btn-again" class="btn-primary btn-block" style="max-width:280px;">もういちど</button>
     <button id="btn-title2" class="btn-plain btn-block" style="max-width:280px;">タイトルへ</button>
+  </div>
+
+  <!-- チュートリアル おわり画面 -->
+  <div id="screen-tutorial-end" class="screen hidden">
+    <div class="title-emoji">🦉🎉</div>
+    <h2>これで ルールは バッチリ！</h2>
+    <div id="tutorial-end-note">
+      ・じぶんの ばんは「ひく→ためる→だす→たたかう」<br>
+      ・カードの ★＝ ひつような コストの かず<br>
+      ・ダメージ ＝ こうげき力 − ぼうぎょ力<br>
+      ・やられた モンスターの もちぬしは ★のかず だけ たいりょくが へる<br>
+      ・あいての ばが からっぽなら ちょくせつこうげき
+    </div>
+    <button id="btn-tutorial-cpu" class="btn-primary btn-block" style="max-width:280px;">CPUと たたかう</button>
+    <button id="btn-tutorial-again" class="btn-secondary btn-block" style="max-width:280px;">もういちど おしえてもらう</button>
+    <button id="btn-tutorial-title" class="btn-plain btn-block" style="max-width:280px;">タイトルへ</button>
   </div>
 
   <!-- 全ログ画面 -->
@@ -1327,13 +1380,15 @@
   // ---------------------------------------------------------------------
   // 状態
   // ---------------------------------------------------------------------
-  var mode = 'cpu'; // 'cpu' | 'hotseat'
-  var humanIdx = 0; // CPU戦での「じぶん」のプレイヤー番号(固定)
+  var mode = 'cpu'; // 'cpu' | 'hotseat' | 'tutorial'
+  var humanIdx = 0; // CPU戦・チュートリアルでの「じぶん」のプレイヤー番号(固定)
   var gameState = null;
   var ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
   var jankenFirstPlayer = null;
 
-  function selfIndex() { return mode === 'cpu' ? humanIdx : gameState.acting; }
+  // ホットシート(ふたり対戦)以外は「じぶん/あいて」表記・自分視点固定で描く。
+  function isSolo() { return mode !== 'hotseat'; }
+  function selfIndex() { return isSolo() ? humanIdx : gameState.acting; }
   function oppIndex() { return 1 - selfIndex(); }
   function isMyInteractiveTurn() { return gameState && gameState.phase !== 'gameover' && gameState.acting === selfIndex(); }
 
@@ -1375,6 +1430,7 @@
     showScreen('screen-janken');
   }
 
+  $('btn-tutorial').onclick = function () { Sound.resume(); startTutorial(); };
   $('btn-vs-cpu').onclick = function () { Sound.resume(); mode = 'cpu'; humanIdx = 0; goToJanken(); };
   $('btn-vs-human').onclick = function () { Sound.resume(); mode = 'hotseat'; goToJanken(); };
   $('btn-rules').onclick = function () { showScreen('screen-rules'); };
@@ -1409,6 +1465,7 @@
       : ['human', 'human'];
     gameState = Engine.newGame(deck0, deck1, jankenFirstPlayer, rng, controllers);
     ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
+    tut = null;
     Engine.beginTurn(gameState);
     enterTurnFlow();
   }
@@ -1424,6 +1481,7 @@
     } else {
       showScreen('screen-game');
       render();
+      if (mode === 'tutorial' && gameState.acting === humanIdx) tutNotify('myTurn');
       maybeRunCpu();
     }
   }
@@ -1437,10 +1495,212 @@
   }
 
   function maybeRunCpu() {
-    if (mode === 'cpu' && gameState.phase !== 'gameover' && gameState.acting !== humanIdx) {
-      runCpuTurn();
+    if (!gameState || gameState.phase === 'gameover') return;
+    if (gameState.acting === humanIdx) return;
+    if (mode === 'cpu') runCpuTurn();
+    else if (mode === 'tutorial') runTutorialOppTurn();
+  }
+
+  // ---------------------------------------------------------------------
+  // チュートリアル（はじめてあそぶ）
+  // 実際のルールエンジンをそのまま使い、配るカードと あいての手を固定して
+  // 「せんせい」の指示どおりに1手ずつ進めてもらう。ルールの数値には手を加えない。
+  // ---------------------------------------------------------------------
+
+  // ==== TUTORIAL_DATA_BEGIN ====
+  // 配るカードと あいての手順。ここだけは検証ゲート(run_sim.js)が抜き出して
+  // 「カード名が実在するか」「筋書きどおりに進むか」を毎回たしかめる。
+  // deck0/deck1 は「ひく順」に並べる(実際に配るときは逆順にしてpopで引く)。
+  var TUT_DATA = {
+    hand0: ['C-とっこう', 'C-かたい', 'C-体力型', 'UC-バランス', 'R-バランス'],
+    deck0: ['C-バランス', 'C-攻撃型', 'UC-かたい', 'R-かたい', 'UC-攻守型', 'C-よわい'],
+    // あいては1体だけ弱いモンスターを出し、以後はコストが足りずに何も出せない。
+    hand1: ['C-よわい', 'SR-体力型', 'SR-かたい', 'SR-バランス', 'SR-攻撃型'],
+    deck1: ['SR-攻撃寄り', 'SR-攻守型', 'SR-体力型', 'SR-かたい', 'SR-バランス'],
+    oppScript: [
+      { charge: ['SR-体力型', 'SR-かたい'], summon: 'C-よわい' },
+      { charge: ['SR-バランス'], summon: null },
+      { charge: [], summon: null }
+    ]
+  };
+  // ==== TUTORIAL_DATA_END ====
+
+  // t: 'info' = よんで「つぎへ」/ 'do' = 指定の操作をするまで待つ / 'oppturn' = あいての番 / 'end' = おわり
+  // wait: 'charge' | 'summon' | 'phase:play' | 'phase:battle' | 'select' | 'attack' | 'endTurn'
+  var TUT_STEPS = [
+    // --- じぶんの 1ターンめ ---
+    { t: 'info', target: 'opp-bar', msg: 'ようこそ！ ルールを おぼえよう。\nうえが あいて、したが じぶん。\nおたがい たいりょく(HP)は 10。さきに 0に したら かち！' },
+    { t: 'info', target: 'phase-strip', msg: 'じぶんの ばんは この 4つの じゅんばんで すすむよ。\n「ひく」→「ためる」→「だす」→「たたかう」' },
+    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'いまは【ためる】。\nしたの てふだを 1まい タップして「コストにする」を えらんでね。' },
+    { t: 'info', target: 'my-bar', msg: 'てふだを うら向きに おくと「コスト」に なるよ。\nコストは モンスターを だすための ちから。まいターン 1まいずつ ふやせるんだ。' },
+    { t: 'do', wait: 'phase:play', target: 'main-action', msg: 'つぎに すすもう。「つぎへ（だす）」を おしてね。' },
+    { t: 'do', wait: 'summon', target: 'hand-wrap', msg: 'いまは【だす】。\nあかるく なっている ★1の カードを タップして「だす」を えらぼう！' },
+    { t: 'info', target: 'hand-wrap', msg: 'カードの ★＝ ひつような コストの かず。\nくらい カードは まだ コストが たりないんだ。' },
+    { t: 'do', wait: 'phase:battle', target: 'main-action', msg: '「つぎへ（たたかう）」を おしてね。' },
+    { t: 'info', target: 'my-field', msg: 'いまは【たたかう】。\nでも だしたばかりの モンスターは まだ ねむっていて、この ターンは たたかえないんだ。' },
+    { t: 'do', wait: 'endTurn', target: 'main-action', msg: 'きょうは ここまで。「ターンおわり」を おしてね。' },
+    { t: 'oppturn', msg: 'あいての ばん…\nなにを するか みてみよう。' },
+    // --- じぶんの 2ターンめ ---
+    { t: 'info', target: 'opp-field', msg: 'あいてが モンスターを だしたよ。\nそして じぶんの ばん。さいしょに やまふだから 1まい ひいたよ。' },
+    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'また てふだを 1まい「コストにする」を えらんで、コストを ふやそう。' },
+    { t: 'do', wait: 'phase:play', target: 'main-action', msg: '「つぎへ（だす）」を おしてね。' },
+    { t: 'do', wait: 'phase:battle', target: 'main-action', msg: 'こんかいは だすのは おやすみ。「つぎへ（たたかう）」を おしてね。' },
+    { t: 'do', wait: 'select', target: 'my-field', msg: 'いまは【たたかう】。\nじぶんの モンスターを タップして えらぼう！' },
+    { t: 'info', target: 'opp-field', msg: 'あいての カードの みぎうえの すうじが ダメージ。\nダメージ ＝ こうげき力 − ぼうぎょ力 だよ。' },
+    { t: 'do', wait: 'attack', target: 'opp-field', msg: 'あいての モンスターを タップして こうげき！' },
+    { t: 'info', target: 'opp-bar', msg: 'やっつけた！\nやられた モンスターの もちぬしは、その カードの ★の かずだけ たいりょくが へるんだ。' },
+    { t: 'do', wait: 'endTurn', target: 'main-action', msg: '「ターンおわり」を おしてね。' },
+    { t: 'oppturn', msg: 'あいての ばん…' },
+    // --- じぶんの 3ターンめ ---
+    { t: 'info', target: 'opp-field', msg: 'あいての ばが からっぽに なったよ。\nこういう ときは あいての 本体を「ちょくせつこうげき」できる！' },
+    { t: 'do', wait: 'phase:play', target: 'main-action', msg: '「つぎへ（だす）」を おしてね。' },
+    { t: 'do', wait: 'phase:battle', target: 'main-action', msg: '「つぎへ（たたかう）」を おしてね。' },
+    { t: 'do', wait: 'attack', target: 'opp-field', msg: 'あかい「ちょくせつこうげき」の ボタンを おそう！' },
+    { t: 'info', target: 'opp-bar', msg: 'ちょくせつこうげきの ダメージは ★の かず。\nこうやって あいての HPを 0に したら かちだよ！' },
+    { t: 'end' }
+  ];
+
+  var TUTOR_TARGET_IDS = ['opp-bar', 'opp-field', 'phase-strip', 'my-field', 'my-bar', 'hand-wrap', 'main-action'];
+  var tut = null; // { i: 進行中のステップ, oppTurn: あいての手順の番号, busy: 演出まちで操作を止める }
+
+  function cardByName(name) {
+    for (var i = 0; i < Engine.CARD_POOL_V3.length; i++) {
+      if (Engine.CARD_POOL_V3[i].name === name) return Engine.CARD_POOL_V3[i];
+    }
+    return null;
+  }
+  function cardsByName(names) { return names.map(cardByName); }
+  function handCardByName(p, name) {
+    for (var i = 0; i < p.hand.length; i++) if (p.hand[i].name === name) return p.hand[i];
+    return null;
+  }
+
+  function startTutorial() {
+    mode = 'tutorial';
+    humanIdx = 0;
+    jankenFirstPlayer = 0;
+    gameState = Engine.newGame(cardsByName(TUT_DATA.deck0), cardsByName(TUT_DATA.deck1), 0, rng, ['human', 'cpu']);
+    var p0 = gameState.players[0], p1 = gameState.players[1];
+    p0.hand = cardsByName(TUT_DATA.hand0);
+    p0.deck = cardsByName(TUT_DATA.deck0).reverse();
+    p1.hand = cardsByName(TUT_DATA.hand1);
+    p1.deck = cardsByName(TUT_DATA.deck1).reverse();
+    ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
+    tut = { i: 0, oppTurn: 0, busy: false };
+    Engine.beginTurn(gameState);
+    enterTurnFlow();
+  }
+
+  function tutStep() { return tut ? TUT_STEPS[tut.i] : null; }
+
+  // いまのステップで ゆるされている操作だけを うけつける(まちがったタップで迷子にならないように)。
+  function tutAllows(kind) {
+    if (mode !== 'tutorial') return true;
+    if (!tut || tut.busy) return false;
+    var st = tutStep();
+    if (!st || st.t !== 'do') return false;
+    if (kind === 'hand') return st.wait === 'charge' || st.wait === 'summon';
+    if (kind === 'main') return st.wait === 'phase:play' || st.wait === 'phase:battle' || st.wait === 'endTurn';
+    if (kind === 'select') return st.wait === 'select' || st.wait === 'attack';
+    if (kind === 'attack') return st.wait === 'attack';
+    return false; // 退却はチュートリアルでは使わない
+  }
+
+  function tutAdvance() {
+    if (!tut) return;
+    tut.busy = false;
+    tut.i += 1;
+    var st = tutStep();
+    if (st && st.t === 'end') { showScreen('screen-tutorial-end'); return; }
+    render();
+  }
+
+  // 操作が完了したことを伝える。delayMs を渡すと、その間は操作を止めて演出を見せてから進む。
+  function tutNotify(kind, delayMs) {
+    if (mode !== 'tutorial' || !tut) return;
+    var st = tutStep();
+    if (!st) return;
+    if (st.t === 'oppturn') {
+      if (kind === 'myTurn') tutAdvance();
+      return;
+    }
+    if (st.t !== 'do' || st.wait !== kind) return;
+    if (delayMs) {
+      tut.busy = true;
+      setTimeout(tutAdvance, delayMs);
+    } else {
+      tutAdvance();
     }
   }
+
+  // 「せんせい」パネルと 光るヒントを画面に反映する。render() の最後から毎回呼ぶ。
+  function updateTutorUI() {
+    var panel = $('tutor-panel');
+    if (!panel) return;
+    for (var i = 0; i < TUTOR_TARGET_IDS.length; i++) {
+      var t = $(TUTOR_TARGET_IDS[i]);
+      if (t) t.classList.remove('tutor-target');
+    }
+    var st = tutStep();
+    if (mode !== 'tutorial' || !st) {
+      panel.classList.add('hidden');
+      $('phase-banner').classList.remove('hidden');
+      $('log-area').classList.remove('hidden');
+      return;
+    }
+    // チュートリアル中は画面をすっきりさせるため、フェーズ帯とログの代わりにパネルを出す。
+    $('phase-banner').classList.add('hidden');
+    $('log-area').classList.add('hidden');
+    panel.classList.remove('hidden');
+    $('tutor-text').textContent = st.msg || '';
+    $('btn-tutor-next').classList.toggle('hidden', st.t !== 'info');
+    if (st.target && !tut.busy && st.t !== 'oppturn') {
+      var el = $(st.target);
+      if (el) el.classList.add('tutor-target');
+    }
+  }
+
+  // チュートリアルの あいて。CPUの思考は使わず TUT_DATA.oppScript のとおりに動く。
+  async function runTutorialOppTurn() {
+    var sc = TUT_DATA.oppScript[tut.oppTurn] || { charge: [], summon: null };
+    tut.oppTurn += 1;
+    var p = gameState.players[gameState.acting];
+    await sleep(500);
+    for (var i = 0; i < sc.charge.length; i++) {
+      if (!Engine.canChargeMore(gameState)) break;
+      var c = handCardByName(p, sc.charge[i]) || p.hand[0];
+      if (!c || !Engine.chargeCard(gameState, c)) break;
+      Sound.charge();
+      render();
+      await sleep(650);
+    }
+    Engine.advanceToPlay(gameState);
+    render();
+    await sleep(300);
+    if (sc.summon) {
+      var s = handCardByName(p, sc.summon);
+      if (s && Engine.canSummon(gameState, s).ok) {
+        Engine.summon(gameState, s);
+        Sound.summon();
+        ui.anim = { flash: [false, false], bodyDmg: null, summonedCard: p.field[p.field.length - 1] };
+        render();
+        ui.anim = null;
+        await sleep(750);
+      }
+    }
+    Engine.advanceToBattle(gameState);
+    render();
+    await sleep(400);
+    doEndTurn();
+  }
+
+  $('btn-tutor-next').onclick = function () {
+    var st = tutStep();
+    if (st && st.t === 'info') tutAdvance();
+  };
+  $('btn-tutorial-cpu').onclick = function () { tut = null; mode = 'cpu'; humanIdx = 0; goToJanken(); };
+  $('btn-tutorial-again').onclick = function () { startTutorial(); };
+  $('btn-tutorial-title').onclick = function () { tut = null; mode = 'cpu'; showScreen('screen-title'); };
 
   // ---------------------------------------------------------------------
   // アニメーション用の補助
@@ -1635,45 +1895,46 @@
     } else if (gameState.phase === 'gameover') {
       showVictory();
     }
+    if (res.ok) tutNotify('attack', res.killed ? 1100 : 900);
   }
 
   function onMainAction() {
     if (!isMyInteractiveTurn()) return;
+    if (!tutAllows('main')) return;
+    // チュートリアル中は「せんせい」が次にすることを指示しているので、確認ダイアログは出さない。
+    var skipConfirm = (mode === 'tutorial');
+    var message, remaining, proceed;
     if (gameState.phase === 'charge') {
-      if (hasChargeRemaining()) {
-        openConfirmModal('まだ コストに おけるよ。つぎへ すすむ？', function () {
-          ui.selectedAttacker = null;
-          Engine.advanceToPlay(gameState);
-          render();
-        });
-      } else {
+      message = 'まだ コストに おけるよ。つぎへ すすむ？';
+      remaining = hasChargeRemaining();
+      proceed = function () {
         ui.selectedAttacker = null;
         Engine.advanceToPlay(gameState);
         render();
-      }
+        tutNotify('phase:play');
+      };
     } else if (gameState.phase === 'play') {
-      if (hasPlayRemaining()) {
-        openConfirmModal('まだ モンスターを だせるよ。つぎへ すすむ？', function () {
-          ui.selectedAttacker = null;
-          Engine.advanceToBattle(gameState);
-          render();
-        });
-      } else {
+      message = 'まだ モンスターを だせるよ。つぎへ すすむ？';
+      remaining = hasPlayRemaining();
+      proceed = function () {
         ui.selectedAttacker = null;
         Engine.advanceToBattle(gameState);
         render();
-      }
+        tutNotify('phase:battle');
+      };
     } else if (gameState.phase === 'battle') {
-      if (hasBattleRemaining()) {
-        openConfirmModal('まだ こうげき できるよ。ターンを おわる？', function () {
-          ui.selectedAttacker = null;
-          doEndTurn();
-        });
-      } else {
+      message = 'まだ こうげき できるよ。ターンを おわる？';
+      remaining = hasBattleRemaining();
+      proceed = function () {
         ui.selectedAttacker = null;
+        tutNotify('endTurn');
         doEndTurn();
-      }
+      };
+    } else {
+      return;
     }
+    if (remaining && !skipConfirm) openConfirmModal(message, proceed);
+    else proceed();
   }
   $('btn-main-action').onclick = onMainAction;
 
@@ -1756,6 +2017,7 @@
         Sound.charge();
         withAnim(function () { Engine.chargeCard(gameState, card); });
         closeModal();
+        tutNotify('charge', 500);
       }));
       if (!canCharge) buttonsEl.appendChild(mkReason('もうこれ以上は ためられません'));
       buttonsEl.appendChild(mkModalButton('だす（このフェーズではできない）', false, null));
@@ -1770,6 +2032,7 @@
           return { summonedCard: p.field[p.field.length - 1] };
         });
         closeModal();
+        tutNotify('summon', 600);
       }));
       if (!check.ok) buttonsEl.appendChild(mkReason(check.reason));
     }
@@ -1857,8 +2120,8 @@
     if (!gameState || gameState.phase === 'gameover') return;
     var self = gameState.players[selfIndex()];
     var opp = gameState.players[oppIndex()];
-    var oppName = mode === 'cpu' ? 'あいて' : (opp.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
-    var selfName = mode === 'cpu' ? 'じぶん' : (self.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
+    var oppName = isSolo() ? 'あいて' : (opp.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
+    var selfName = isSolo() ? 'じぶん' : (self.idx === 0 ? 'プレイヤー1' : 'プレイヤー2');
 
     renderBar('opp-bar', opp, oppName, true);
     renderBar('my-bar', self, selfName, false);
@@ -1869,6 +2132,7 @@
     renderLog();
     renderHand(self);
     renderMainButton();
+    updateTutorUI();
   }
 
   // 指示書13 A-1: 「今どのフェーズか分かりにくい」への対応。
@@ -1982,7 +2246,7 @@
       var div = document.createElement('div');
       div.className = 'mon-card rarity-' + m.card.rarity + (m === ghost ? ' anim-dead' : '');
       div.innerHTML = monCardHtml(m);
-      if (m !== ghost && interactive && gameState.phase === 'play') {
+      if (m !== ghost && interactive && gameState.phase === 'play' && mode !== 'tutorial') {
         div.onclick = (function (mon) { return function () { openRetreatConfirm(mon); }; })(m);
       } else if (m !== ghost && interactive && gameState.phase === 'battle') {
         var attackable = Engine.canAttack(gameState, m);
@@ -1990,7 +2254,11 @@
           div.classList.add('dimmed');
         } else {
           if (ui.selectedAttacker === m) div.classList.add('selectable');
-          div.onclick = (function (mon) { return function () { ui.selectedAttacker = mon; render(); }; })(m);
+          if (tutAllows('select')) {
+            div.onclick = (function (mon) {
+              return function () { ui.selectedAttacker = mon; render(); tutNotify('select'); };
+            })(m);
+          }
         }
       }
       decorateMonDiv(div, m);
@@ -2021,6 +2289,7 @@
         btn.className = 'btn-danger';
         btn.style.width = '100%';
         btn.textContent = 'ちょくせつこうげき（' + chosen.card.rarityNum + 'ダメージ）';
+        btn.disabled = !tutAllows('attack');
         btn.onclick = function () {
           ui.selectedAttacker = chosen;
           confirmDirectAttack();
@@ -2052,7 +2321,9 @@
         badge.className = 'dmg-badge';
         badge.textContent = String(dmg);
         div.appendChild(badge);
-        div.onclick = (function (mon) { return function () { executeAttack(mon); }; })(m);
+        if (tutAllows('attack')) {
+          div.onclick = (function (mon) { return function () { executeAttack(mon); }; })(m);
+        }
       }
       decorateMonDiv(div, m);
       el.appendChild(div);
@@ -2079,7 +2350,7 @@
   // カード名の前にはICON_BY_NAMEから引いたアイコンを付ける。
   // ---------------------------------------------------------------------
   function playerLabel(pIdx) {
-    if (mode === 'cpu') {
+    if (isSolo()) {
       return pIdx === selfIndex() ? 'あなた' : 'あいて';
     }
     return pIdx === 0 ? 'プレイヤー1' : 'プレイヤー2';
@@ -2175,7 +2446,7 @@
       var div = document.createElement('div');
       div.className = 'hand-card rarity-' + c.rarity;
       var usable = false;
-      if (interactive) {
+      if (interactive && tutAllows('hand')) {
         if (gameState.phase === 'charge') usable = Engine.canChargeMore(gameState);
         else if (gameState.phase === 'play') usable = Engine.canSummon(gameState, c).ok;
       }
@@ -2186,7 +2457,7 @@
         '<div class="hc-stats">A' + c.atk + '/D' + c.df + '/H' + c.hp + '</div>' +
         '<div class="hc-rarity">' + c.rarity + '</div>';
       div.onclick = function () {
-        if (!interactive) return;
+        if (!interactive || !tutAllows('hand')) return;
         if (gameState.phase === 'charge' || gameState.phase === 'play') openHandCardModal(c, div);
       };
       el.appendChild(div);
@@ -2211,11 +2482,11 @@
     var btn = $('btn-main-action');
     var interactive = isMyInteractiveTurn();
     if (!interactive) {
-      btn.textContent = mode === 'cpu' ? 'あいての ターン…' : '';
+      btn.textContent = isSolo() ? 'あいての ターン…' : '';
       btn.disabled = true;
       return;
     }
-    btn.disabled = false;
+    btn.disabled = !tutAllows('main');
     if (gameState.phase === 'charge') btn.textContent = 'つぎへ（だす）';
     else if (gameState.phase === 'play') btn.textContent = 'つぎへ（たたかう）';
     else if (gameState.phase === 'battle') btn.textContent = 'ターンおわり';
@@ -2230,7 +2501,7 @@
     var title;
     if (gs.winner === null) {
       title = 'ひきわけ';
-    } else if (mode === 'cpu') {
+    } else if (isSolo()) {
       title = (gs.winner === humanIdx) ? 'あなたの かち！' : 'あいての かち…';
       if (gs.winner === humanIdx) Sound.win(); else Sound.lose();
     } else {
@@ -2241,7 +2512,7 @@
     var d = gs.damageBySource;
     var firstName = gs.firstPlayer === 0 ? 'プレイヤー1' : 'プレイヤー2';
     var html =
-      '<div>せんこう: ' + (mode === 'cpu' ? (gs.firstPlayer === humanIdx ? 'あなた' : 'あいて') : firstName) + '</div>' +
+      '<div>せんこう: ' + (isSolo() ? (gs.firstPlayer === humanIdx ? 'あなた' : 'あいて') : firstName) + '</div>' +
       '<div>ターン数: P0=' + p0.turnNo + ' / P1=' + p1.turnNo + '（ぜんぶで' + gs.ply + '）</div>' +
       '<table>' +
       '<tr><td>モンスターが しんで うけた本体ダメージ</td><td>' + (d.death || 0) + '</td></tr>' +
