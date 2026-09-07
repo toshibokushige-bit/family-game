@@ -1330,7 +1330,7 @@
   var mode = 'cpu'; // 'cpu' | 'hotseat'
   var humanIdx = 0; // CPU戦での「じぶん」のプレイヤー番号(固定)
   var gameState = null;
-  var ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game' };
+  var ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
   var jankenFirstPlayer = null;
 
   function selfIndex() { return mode === 'cpu' ? humanIdx : gameState.acting; }
@@ -1408,7 +1408,7 @@
       ? (humanIdx === 0 ? ['human', 'cpu'] : ['cpu', 'human'])
       : ['human', 'human'];
     gameState = Engine.newGame(deck0, deck1, jankenFirstPlayer, rng, controllers);
-    ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game' };
+    ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
     Engine.beginTurn(gameState);
     enterTurnFlow();
   }
@@ -1940,20 +1940,51 @@
     }
   }
 
+  // 場のスロット(4枠)を固定する。モンスターが死んでも残りが左に詰めないようにする。
+  // 空いた枠はそのまま空きとして残り、新しく出したモンスターが一番左の空き枠に入る。
+  function syncSlots(player, ghost) {
+    var slots = ui.slots[player.idx];
+    var i, k;
+    // 場から消えたモンスターの枠を空ける（死亡演出中のゴーストはその場に残す）
+    for (i = 0; i < 4; i++) {
+      if (slots[i] && player.field.indexOf(slots[i]) < 0 && slots[i] !== ghost) slots[i] = null;
+    }
+    // まだ枠を持っていないモンスターを一番左の空き枠に入れる
+    for (i = 0; i < player.field.length; i++) {
+      if (slots.indexOf(player.field[i]) >= 0) continue;
+      for (k = 0; k < 4; k++) {
+        if (slots[k] === null) { slots[k] = player.field[i]; break; }
+      }
+    }
+    // ゴーストが枠を持っていない場合の保険
+    if (ghost && slots.indexOf(ghost) < 0) {
+      for (k = 0; k < 4; k++) {
+        if (slots[k] === null) { slots[k] = ghost; break; }
+      }
+    }
+    return slots;
+  }
+
   function renderMyField(self) {
     var el = $('my-field');
     el.innerHTML = '';
     var interactive = isMyInteractiveTurn();
     var ghost = (ui.deadGhost && ui.deadGhost.ownerIdx === self.idx) ? ui.deadGhost.mon : null;
-    var shown = 0;
-    for (var i = 0; i < self.field.length && shown < 4; i++) {
-      var m = self.field[i];
+    var slots = syncSlots(self, ghost);
+    for (var i = 0; i < 4; i++) {
+      var m = slots[i];
+      if (!m) {
+        var empty = document.createElement('div');
+        empty.className = 'field-slot';
+        el.appendChild(empty);
+        continue;
+      }
       var div = document.createElement('div');
-      div.className = 'mon-card rarity-' + m.card.rarity;
+      div.className = 'mon-card rarity-' + m.card.rarity + (m === ghost ? ' anim-dead' : '');
       div.innerHTML = monCardHtml(m);
-      if (interactive && gameState.phase === 'play') {
+      if (m !== ghost && interactive && gameState.phase === 'play') {
         div.onclick = (function (mon) { return function () { openRetreatConfirm(mon); }; })(m);
-      } else if (interactive && gameState.phase === 'battle') {
+      } else if (m !== ghost && interactive && gameState.phase === 'battle') {
         var attackable = Engine.canAttack(gameState, m);
         if (!attackable) {
           div.classList.add('dimmed');
@@ -1964,20 +1995,6 @@
       }
       decorateMonDiv(div, m);
       el.appendChild(div);
-      shown++;
-    }
-    if (ghost && shown < 4) {
-      var gdiv = document.createElement('div');
-      gdiv.className = 'mon-card rarity-' + ghost.card.rarity + ' anim-dead';
-      gdiv.innerHTML = monCardHtml(ghost);
-      decorateMonDiv(gdiv, ghost);
-      el.appendChild(gdiv);
-      shown++;
-    }
-    for (; shown < 4; shown++) {
-      var slot = document.createElement('div');
-      slot.className = 'field-slot';
-      el.appendChild(slot);
     }
   }
 
@@ -2017,13 +2034,19 @@
       el.appendChild(wrap);
       return;
     }
-    var shown = 0;
-    for (var i = 0; i < opp.field.length && shown < 4; i++) {
-      var m = opp.field[i];
+    var slots = syncSlots(opp, ghost);
+    for (var i = 0; i < 4; i++) {
+      var m = slots[i];
+      if (!m) {
+        var empty = document.createElement('div');
+        empty.className = 'field-slot';
+        el.appendChild(empty);
+        continue;
+      }
       var div = document.createElement('div');
-      div.className = 'mon-card rarity-' + m.card.rarity;
+      div.className = 'mon-card rarity-' + m.card.rarity + (m === ghost ? ' anim-dead' : '');
       div.innerHTML = monCardHtml(m);
-      if (isMyInteractiveTurn() && gameState.phase === 'battle' && ui.selectedAttacker) {
+      if (m !== ghost && isMyInteractiveTurn() && gameState.phase === 'battle' && ui.selectedAttacker) {
         var dmg = Engine.attackDamagePreview(ui.selectedAttacker.card, m.card);
         var badge = document.createElement('div');
         badge.className = 'dmg-badge';
@@ -2033,20 +2056,6 @@
       }
       decorateMonDiv(div, m);
       el.appendChild(div);
-      shown++;
-    }
-    if (ghost && shown < 4) {
-      var gdiv = document.createElement('div');
-      gdiv.className = 'mon-card rarity-' + ghost.card.rarity + ' anim-dead';
-      gdiv.innerHTML = monCardHtml(ghost);
-      decorateMonDiv(gdiv, ghost);
-      el.appendChild(gdiv);
-      shown++;
-    }
-    for (; shown < 4; shown++) {
-      var slot = document.createElement('div');
-      slot.className = 'field-slot';
-      el.appendChild(slot);
     }
   }
 
