@@ -89,6 +89,12 @@
   .hp-dots { display: flex; gap: 1px; }
   .hp-dot { width: 9px; height: 9px; border-radius: 50%; background: #4caf50; }
   .hp-dot.empty { background: #ddd; }
+  /* おうえん(内部名: コスト)。まだ おうえんできる人=色つき、この ターン つかった人=グレー。 */
+  .cheer-dots { display: inline-flex; gap: 2px; vertical-align: middle; }
+  .cheer-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  /* この ターン つかった ぶんは 中ぬきの わ。「いなくなった」のではなく「いま おうえんちゅう」を
+     あらわしたいので、うすい グレーで ぬりつぶさず わっかで のこす。 */
+  .cheer-dot.used { background: transparent; box-shadow: inset 0 0 0 2px #b9b9b9; }
   .bar .pill { background: #f0f0f0; border-radius: 8px; padding: 2px 6px; }
 
   .field-row { display: flex; gap: 6px; min-height: 78px; padding: 2px 0; }
@@ -332,7 +338,7 @@
       <button id="btn-vs-human" class="btn-secondary btn-block">ふたりでたたかう</button>
       <button id="btn-rules" class="btn-plain btn-block">ルールをみる</button>
     </div>
-    <div class="version-tag">v0.2.0 ベータ</div>
+    <div class="version-tag">v0.2.1 ベータ</div>
   </div>
 
   <!-- ルール画面 -->
@@ -340,10 +346,10 @@
     <h2>ルール</h2>
     <ol>
       <li>おたがい たいりょく（HP）は10。デッキは20まい。</li>
-      <li>じぶんの ばんは「ひく→ためる→だす→たたかう」のじゅん。</li>
+      <li>じぶんの ばんは「ひく→おうえん→だす→たたかう」のじゅん。</li>
       <li>ひく: 山ふだから1まいひく（せんこうの1かいめだけ ひかない）。</li>
-      <li>ためる: 手ふだを1まい、うら向きでコストにできる（にんい）。</li>
-      <li>だす: コストの まいすうぶん、モンスターをだせる（ばには合計4てんまで）。</li>
+      <li>おうえん: 手ふだを1まい うら向きに おいて「おうえん」に まわせる（にんい）。手ふだには もどらないが、つかっても つぎの ターンに また おうえんしてくれる。4にんまで。</li>
+      <li>だす: おうえんの かずぶん、モンスターをだせる（★の かず＝ひつような おうえんの かず。ばには合計4てんまで）。</li>
       <li>たたかう: だしたばかりのモンスターは たたかえない。</li>
       <li>ダメージ = こうげき力 − ぼうぎょ力（0いかは0）。ダメージは のこる。</li>
       <li>たいりょくが0になったモンスターは しんで、もちぬしに本体ダメージ。</li>
@@ -374,7 +380,7 @@
 
     <div class="phase-strip" id="phase-strip">
       <div class="phase-step" data-phase="draw">ひく</div>
-      <div class="phase-step" data-phase="charge">ためる</div>
+      <div class="phase-step" data-phase="charge">おうえん</div>
       <div class="phase-step" data-phase="play">だす</div>
       <div class="phase-step" data-phase="battle">たたかう</div>
     </div>
@@ -413,8 +419,9 @@
     <div class="title-emoji">🦉🎉</div>
     <h2>これで ルールは バッチリ！</h2>
     <div id="tutorial-end-note">
-      ・じぶんの ばんは「ひく→ためる→だす→たたかう」<br>
-      ・カードの ★＝ ひつような コストの かず<br>
+      ・じぶんの ばんは「ひく→おうえん→だす→たたかう」<br>
+      ・おうえんは 手ふだに もどらないが、まいターン また おうえんしてくれる<br>
+      ・カードの ★＝ ひつような おうえんの かず<br>
       ・ダメージ ＝ こうげき力 − ぼうぎょ力<br>
       ・やられた モンスターの もちぬしは ★のかず だけ たいりょくが へる<br>
       ・あいての ばが からっぽなら ちょくせつこうげき
@@ -1032,7 +1039,7 @@
     var p = currentPlayer(state);
     if (p.hand.indexOf(cardObj) < 0) return { ok: false, reason: '手札にありません' };
     var cost = cardObj.rarityNum;
-    if (AI.costAvailable(p) < cost) return { ok: false, reason: 'コストがたりない' };
+    if (AI.costAvailable(p) < cost) return { ok: false, reason: 'おうえんが たりない' };
     if (AI.fieldOccupancy(p) + cost > FIELD_CAP) return { ok: false, reason: 'ばがいっぱい' };
     return { ok: true, reason: '' };
   }
@@ -1514,7 +1521,7 @@
   var TUT_DATA = {
     hand0: ['C-とっこう', 'C-かたい', 'C-体力型', 'UC-バランス', 'R-バランス'],
     deck0: ['C-バランス', 'C-攻撃型', 'UC-かたい', 'R-かたい', 'UC-攻守型', 'C-よわい'],
-    // あいては1体だけ弱いモンスターを出し、以後はコストが足りずに何も出せない。
+    // あいては1体だけ弱いモンスターを出し、以後はおうえん(コスト)が足りずに何も出せない。
     hand1: ['C-よわい', 'SR-体力型', 'SR-かたい', 'SR-バランス', 'SR-攻撃型'],
     deck1: ['SR-攻撃寄り', 'SR-攻守型', 'SR-体力型', 'SR-かたい', 'SR-バランス'],
     oppScript: [
@@ -1530,19 +1537,20 @@
   var TUT_STEPS = [
     // --- じぶんの 1ターンめ ---
     { t: 'info', target: 'opp-bar', msg: 'ようこそ！ ルールを おぼえよう。\nうえが あいて、したが じぶん。\nおたがい たいりょく(HP)は 10。さきに 0に したら かち！' },
-    { t: 'info', target: 'phase-strip', msg: 'じぶんの ばんは この 4つの じゅんばんで すすむよ。\n「ひく」→「ためる」→「だす」→「たたかう」' },
-    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'いまは【ためる】。\nしたの てふだを 1まい タップして「コストにする」を えらんでね。' },
-    { t: 'info', target: 'my-bar', msg: 'てふだを うら向きに おくと「コスト」に なるよ。\nコストは モンスターを だすための ちから。まいターン 1まいずつ ふやせるんだ。' },
+    { t: 'info', target: 'phase-strip', msg: 'じぶんの ばんは この 4つの じゅんばんで すすむよ。\n「ひく」→「おうえん」→「だす」→「たたかう」' },
+    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'いまは【おうえん】。\nてふだを 1まい タップして「おうえんに まわす」を えらんでね。' },
+    { t: 'info', target: 'my-bar', msg: 'おうえんに まわした なかまは、たたかわないで みんなを おうえんしてくれるよ。\n手ふだには もどらないから、いらない カードを えらぼう。' },
+    { t: 'info', target: 'my-bar', msg: 'おうえんは つかっても いなく ならない。\nつぎの ターンには また おうえんしてくれるよ。\nまいターン 1にんずつ ふえて、4にんまで！' },
     { t: 'do', wait: 'phase:play', target: 'main-action', msg: 'つぎに すすもう。「つぎへ（だす）」を おしてね。' },
-    { t: 'do', wait: 'summon', target: 'hand-wrap', msg: 'いまは【だす】。\nあかるく なっている ★1の カードを タップして「だす」を えらぼう！' },
-    { t: 'info', target: 'hand-wrap', msg: 'カードの ★＝ ひつような コストの かず。\nくらい カードは まだ コストが たりないんだ。' },
+    { t: 'do', wait: 'summon', target: 'hand-wrap', msg: 'いまは【だす】。\nおうえんが 1にん いるね。あかるく なっている ★1の カードを タップして「だす」を えらぼう！' },
+    { t: 'info', target: 'hand-wrap', msg: 'カードの ★＝ よぶのに ひつような おうえんの かず。\n★3の なかまは おうえんが 3にん いないと でてこないんだ。' },
     { t: 'do', wait: 'phase:battle', target: 'main-action', msg: '「つぎへ（たたかう）」を おしてね。' },
     { t: 'info', target: 'my-field', msg: 'いまは【たたかう】。\nでも だしたばかりの モンスターは まだ ねむっていて、この ターンは たたかえないんだ。' },
     { t: 'do', wait: 'endTurn', target: 'main-action', msg: 'きょうは ここまで。「ターンおわり」を おしてね。' },
     { t: 'oppturn', msg: 'あいての ばん…\nなにを するか みてみよう。' },
     // --- じぶんの 2ターンめ ---
     { t: 'info', target: 'opp-field', msg: 'あいてが モンスターを だしたよ。\nそして じぶんの ばん。さいしょに やまふだから 1まい ひいたよ。' },
-    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'また てふだを 1まい「コストにする」を えらんで、コストを ふやそう。' },
+    { t: 'do', wait: 'charge', target: 'hand-wrap', msg: 'また てふだを 1まい「おうえんに まわす」を えらんで、\nおうえんを ふやそう。' },
     { t: 'do', wait: 'phase:play', target: 'main-action', msg: '「つぎへ（だす）」を おしてね。' },
     { t: 'do', wait: 'phase:battle', target: 'main-action', msg: 'こんかいは だすのは おやすみ。「つぎへ（たたかう）」を おしてね。' },
     { t: 'do', wait: 'select', target: 'my-field', msg: 'いまは【たたかう】。\nじぶんの モンスターを タップして えらぼう！' },
@@ -1905,7 +1913,7 @@
     var skipConfirm = (mode === 'tutorial');
     var message, remaining, proceed;
     if (gameState.phase === 'charge') {
-      message = 'まだ コストに おけるよ。つぎへ すすむ？';
+      message = 'まだ おうえんに まわせるよ。つぎへ すすむ？';
       remaining = hasChargeRemaining();
       proceed = function () {
         ui.selectedAttacker = null;
@@ -2012,14 +2020,14 @@
     if (gameState.phase === 'charge') {
       $('modal-title').textContent = 'このカードを どうする？';
       var canCharge = Engine.canChargeMore(gameState);
-      buttonsEl.appendChild(mkModalButton('コストにする（うら向き）', canCharge, function () {
+      buttonsEl.appendChild(mkModalButton('おうえんに まわす（うら向き）', canCharge, function () {
         flyToCost(sourceEl);
         Sound.charge();
         withAnim(function () { Engine.chargeCard(gameState, card); });
         closeModal();
         tutNotify('charge', 500);
       }));
-      if (!canCharge) buttonsEl.appendChild(mkReason('もうこれ以上は ためられません'));
+      if (!canCharge) buttonsEl.appendChild(mkReason('この ターンは もう おうえんに まわせません'));
       buttonsEl.appendChild(mkModalButton('だす（このフェーズではできない）', false, null));
     } else if (gameState.phase === 'play') {
       $('modal-title').textContent = 'このカードを だしますか？';
@@ -2041,7 +2049,7 @@
     $('modal-overlay').classList.remove('hidden');
   }
 
-  // 手札のカードをコスト置き場の方向へ滑らせて消す簡易フライング演出。
+  // 手札のカードをおうえん(コスト)置き場の方向へ滑らせて消す簡易フライング演出。
   // (画面全体を都度作り直す描画方式のため、実DOMのクローンを作って独立に動かす)
   function flyToCost(sourceEl) {
     if (!sourceEl || prefersReducedMotion()) return;
@@ -2140,8 +2148,8 @@
   // 既存のフェーズ帯(phase-strip、4分割インジケーター)は残したまま、両方表示する。
   var PHASE_BANNER_INFO = {
     draw: { title: 'いまは【ひく】', desc: 'やまふだから 1まい ひくよ' },
-    charge: { title: 'いまは【ためる】', desc: 'てふだを 1まい コストに おけるよ' },
-    play: { title: 'いまは【だす】', desc: 'コストを つかって モンスターを だそう' },
+    charge: { title: 'いまは【おうえん】', desc: 'てふだを 1まい おうえんに まわせるよ' },
+    play: { title: 'いまは【だす】', desc: 'おうえんの かずで モンスターを だそう' },
     battle: { title: 'いまは【たたかう】', desc: 'モンスターを えらんで こうげき！' }
   };
   function renderPhaseBanner() {
@@ -2155,6 +2163,20 @@
     var info = PHASE_BANNER_INFO[gameState.phase];
     titleEl.textContent = info ? info.title : '';
     descEl.textContent = info ? info.desc : '';
+  }
+
+  // 内部の「コスト」は、画面では ぜんぶ「おうえん」と よぶ(企画・ルールは変えていない)。
+  // おいた枚数(costTotal)ぶんの丸を出し、この ターン まだ つかっていない ぶんだけ色をつける。
+  // 「つかっても いなく ならない/つぎの ターンには また おうえんできる」を目で分かるようにするため、
+  // 数字ではなく丸(HPと同じ見た目)で出している。
+  function cheerDotsHtml(p) {
+    if (p.costTotal <= 0) return 'まだ いない';
+    var available = p.costTotal - p.costUsed;
+    var dots = '';
+    for (var i = 0; i < p.costTotal; i++) {
+      dots += '<span class="cheer-dot' + (i < available ? '' : ' used') + '"></span>';
+    }
+    return '<span class="cheer-dots">' + dots + '</span>';
   }
 
   function renderBar(elId, p, name, isOpp) {
@@ -2171,7 +2193,7 @@
       '<span class="pill hp-pill' + (bodyDmg ? ' hp-hit' : '') + '">HP <span class="hp-num">' + Math.max(0, p.hp) + '</span>' +
       (bodyDmg ? '<span class="dmg-float body">' + escapeHtml(bodyDmg.text) + '</span>' : '') +
       '</span>' +
-      '<span class="pill">つかえるコスト ' + (p.costTotal - p.costUsed) + '（おいた数 ' + p.costTotal + '）</span>' +
+      '<span class="pill">おうえん ' + cheerDotsHtml(p) + '</span>' +
       '<span class="pill">手ふだ ' + handInfo + '</span>' +
       '<span class="pill">山ふだ ' + p.deck.length + '</span>';
     el.classList.remove('anim-flash');
@@ -2376,7 +2398,7 @@
     if (m) return '山ふだが ない！ 1ダメージ';
 
     m = raw.match(/^P(\d): 「(.+)」をコストに置く \(コスト\d+枚\)$/);
-    if (m) return playerLabel(Number(m[1])) + 'が ' + iconFor(m[2]) + m[2] + ' を コストにした';
+    if (m) return playerLabel(Number(m[1])) + 'が ' + iconFor(m[2]) + m[2] + ' を おうえんに まわした';
 
     m = raw.match(/^P(\d): 「(.+)」を召喚 \(コスト\d+消費, 場占有\d+\/4\)$/);
     if (m) return playerLabel(Number(m[1])) + 'が ' + iconFor(m[2]) + m[2] + ' を だした';

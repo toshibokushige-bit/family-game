@@ -298,6 +298,15 @@ section('(6) チュートリアルの筋書き');
       ok(html.indexOf(needle) >= 0, 'index.html に ' + needle + ' がある(ビルド忘れ検出)');
     });
 
+  // 内部名「コスト」は画面ではすべて「おうえん」と呼ぶ。片方だけ直した状態を検出する。
+  ['おうえんに まわす', 'いまは【おうえん】', '>おうえん<', 'おうえんが たりない']
+    .forEach(function (needle) {
+      ok(html.indexOf(needle) >= 0, '画面の言い方が「おうえん」に そろっている: ' + needle);
+    });
+  ['つかえるコスト', 'コストにする', 'いまは【ためる】'].forEach(function (needle) {
+    ok(html.indexOf(needle) === -1, '古い「コスト」表記が のこっていない: ' + needle);
+  });
+
   const appSrc = extractScriptBlock('// ==== app.js ====');
   const dataStart = appSrc.indexOf('// ==== TUTORIAL_DATA_BEGIN ====');
   const dataEnd = appSrc.indexOf('// ==== TUTORIAL_DATA_END ====');
