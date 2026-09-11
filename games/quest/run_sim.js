@@ -81,6 +81,15 @@ const SUITE = `
     ok("cards_per_char", bad.length===0, JSON.stringify(per));
   }
   ok("cards_art_complete", ma.length===0, ma.join());
+  /* イラスト(QUEST_CARD_ART)の 網羅 — 1まいでも かけると cardEl が れいがいで おちる */
+  {
+    const qm = Object.keys(CARDS).filter(id=>!QUEST_CARD_ART[id]);
+    ok("cards_quest_art_complete", qm.length===0, qm.join());
+    const badTier = Object.keys(QUEST_CARD_ART).filter(id=>["common","uncommon","rare"].indexOf(QUEST_CARD_ART[id].tier)<0);
+    ok("cards_quest_art_tier_ok", badTier.length===0, badTier.join());
+    const noEl = Object.keys(CARDS).filter(id=>{ try{ return cardEl(mkCard(id)).innerHTML.indexOf("q-art")<0; }catch(e){ return true; } });
+    ok("cards_all_render", noEl.length===0, noEl.slice(0,8).join());
+  }
   ok("cards_desc_ok", df.length===0, df.join());
   const newIds=["nusumi_ashi","kaiten_geri","step_renshu","shippu_mode","final_rush","bakuhatsu_nut","kaizo_kyoka","jido_barrier","drone","megaton_bomb","rinsho","vibrato","maho_step","audience","grand_finale","ai_no_hakushu","megane_kirari","cyalume_rain","kanko_chikara","unmei_stage","nomikurabe","yoizamashi","inazuma_tsue","dai_rancho","yusha_sakazuki"];
   ok("cards_new25_present", newIds.filter(id=>!CARDS[id]).length===0, newIds.filter(id=>!CARDS[id]).join());
