@@ -12,13 +12,14 @@
    けんしょう項目:
      - <script> の構文チェック（Function 構築時に SyntaxError なら失敗）
      - あいことば v2: 1024パターン(10bit)往復一致 / 改ざん拒否 / 旧3文字互換
-     - カード92枚: desc()整合・CARD_ART網羅
+     - カード209枚: desc()整合・え(イラスト/絵文字)の網羅・ぜんまい描画できること
      - ステージ2の敵・やみのまおう(HP220)の定義
      - 新パワー/新カード効果を最小戦闘で単体検証
        (megaton/grand_finale/jido_barrier/kaiten_geri/vibrato/nomikurabe/
         inazuma/kanko_chikara/shippu_mode/drone/yusha_sakazuki/audience)
      - やみのまおう いかりギミック / むずかしいボスの筋力ギミック
-     - god-mode 通し(normal/hard/easy)で 28階まで例外なく到達
+     - おんぷコスト(fc)・どく・すばやさ・ファンサ還元 など 各キャラの 新ギミック
+     - god-mode 通し(5にん×normal/hard/easy)で 28階まで例外なく到達
    ===================================================================== */
 "use strict";
 const fs = require("fs");
@@ -72,23 +73,26 @@ const SUITE = `
   /* --- カード / CARD_ART --- */
   const ma=[],df=[]; Object.keys(CARDS).forEach(id=>{ if(CARD_ART[id]===undefined)ma.push(id);
     try{CARDS[id].desc(Object.assign({},CARDS[id].v));CARDS[id].desc(Object.assign({},CARDS[id].v,CARDS[id].vu||{}));}catch(e){df.push(id);} });
-  ok("cards_total_159", Object.keys(CARDS).length===159, Object.keys(CARDS).length+"枚");
+  ok("cards_total_209", Object.keys(CARDS).length===209, Object.keys(CARDS).length+"枚");
   /* キャラごとの まいすう（v2.7で 1にん +10まい）*/
   {
     const per = {}; Object.keys(CARDS).forEach(id=>{ const c=CARDS[id].ch; per[c]=(per[c]||0)+1; });
-    const want = {kento:30, taichi:30, nozomi:32, erika:32, yushi:30, none:5};
+    const want = {kento:40, taichi:40, nozomi:42, erika:42, yushi:40, none:5};
     const bad = Object.keys(want).filter(c=>per[c]!==want[c]);
     ok("cards_per_char", bad.length===0, JSON.stringify(per));
   }
   ok("cards_art_complete", ma.length===0, ma.join());
-  /* イラスト(QUEST_CARD_ART)の 網羅 — 1まいでも かけると cardEl が れいがいで おちる */
+  /* えの 網羅 — イラスト(QUEST_CARD_ART)が なければ 絵文字(CARD_ART)に フォールバックする */
   {
     const qm = Object.keys(CARDS).filter(id=>!QUEST_CARD_ART[id]);
-    ok("cards_quest_art_complete", qm.length===0, qm.join());
+    ok("cards_art_or_emoji", qm.filter(id=>!CARD_ART[id]).length===0, qm.filter(id=>!CARD_ART[id]).join());
+    globalThis.__NOART = qm.length;
     const badTier = Object.keys(QUEST_CARD_ART).filter(id=>["common","uncommon","rare"].indexOf(QUEST_CARD_ART[id].tier)<0);
     ok("cards_quest_art_tier_ok", badTier.length===0, badTier.join());
-    const noEl = Object.keys(CARDS).filter(id=>{ try{ return cardEl(mkCard(id)).innerHTML.indexOf("q-art")<0; }catch(e){ return true; } });
+    const noEl = Object.keys(CARDS).filter(id=>{ try{ const h=cardEl(mkCard(id)).innerHTML; return h.indexOf("q-art")<0 && h.indexOf("cemo")<0; }catch(e){ return true; } });
     ok("cards_all_render", noEl.length===0, noEl.slice(0,8).join());
+    const noEl2 = Object.keys(CARDS).filter(id=>{ try{ cardEl(mkCard(id,true)); return false; }catch(e){ return true; } });
+    ok("cards_all_render_upgraded", noEl2.length===0, noEl2.slice(0,8).join());
   }
   ok("cards_desc_ok", df.length===0, df.join());
   const newIds=["nusumi_ashi","kaiten_geri","step_renshu","shippu_mode","final_rush","bakuhatsu_nut","kaizo_kyoka","jido_barrier","drone","megaton_bomb","rinsho","vibrato","maho_step","audience","grand_finale","ai_no_hakushu","megane_kirari","cyalume_rain","kanko_chikara","unmei_stage","nomikurabe","yoizamashi","inazuma_tsue","dai_rancho","yusha_sakazuki"];
@@ -308,10 +312,10 @@ const SUITE = `
   BS3();RE3(999);W.wisdom=6;x0=W.enemies[0].hp;PL3("plasma_ho");
   ok("plasma_ho_wm3", (x0-W.enemies[0].hp)===24);
   BS3();RE3(999);W.faith=4;x0=W.enemies[0].hp;PL3("crescendo");
-  ok("crescendo_fm_hits", (x0-W.enemies[0].hp)===24 && W.faith===0, "d="+(x0-W.enemies[0].hp));  // (4+4×2)×2かい
+  ok("crescendo_fc_hits", (x0-W.enemies[0].hp)===18 && W.faith===2, "d="+(x0-W.enemies[0].hp)+" f="+W.faith);  // 9×2かい / おんぷ2しょうひ
 
   /* おんぷ かいふく・ドローけい */
-  BS3();S.hp=10;S.maxHp=100;W.faith=5;PL3("yasashii_shirabe"); ok("yasashii_shirabe_fhm", S.hp===20, "hp="+S.hp);
+  BS3();S.hp=10;S.maxHp=100;W.faith=5;PL3("yasashii_shirabe"); ok("yasashii_shirabe_fc_heal", S.hp===20 && W.faith===3, "hp="+S.hp+" f="+W.faith);
   BS3();W.hand.push(mkCard("renda"),mkCard("renda"));W.draw=[mkCard("renda"),mkCard("renda"),mkCard("renda"),mkCard("renda")];
   PL3("kirikae_step"); ok("kirikae_step_redraw", W.hand.length===3 && W.discard.filter(c=>c.id==="renda").length===2, "hand="+W.hand.length);
   BS3();PL3("chokasoku"); ok("chokasoku_power", W.powers.drawgain===1);
@@ -335,6 +339,104 @@ const SUITE = `
   BS3();RE3(999);S.hp=50;S.maxHp=100;W.energy=1;
   { const cd=mkCard("ikki_nomi"); W.hand.push(cd); playCard(W.hand.length-1,null); }
   ok("ikki_nomi_cost", S.hp===46 && W.energy===3, "hp="+S.hp+" e="+W.energy);
+
+  /* --- v3.1 ついかカード(50まい)＋おんぷコストの たんたいけんしょう --- */
+  {
+    const v31 = {
+      kento:["oyatsu_taimu","kaze_migawari","kaihi_step","makibishi","shukuchi","kabe_nobori","hayawaza_ren","kamaitachi","zettai_kaihi","tenchu_rush"],
+      taichi:["dokubari","baikin_baramaki","doku_kenkyu","kagaku_hannou","mouduku_dan","sokushinzai","dokugaku_hakase","kaiho_ki","dai_dokugiri","saishu_heiki"],
+      nozomi:["serenade","takaraka_voice","kokyu_seigyo","wa_no_uta","kassai","yume_no_stage","harmony_chain","kyoumei","zettai_onkan","hoshi_no_uta"],
+      erika:["oshi_power","uchiwa_bariki","kansei_ouen","tokimeki","kanzen_nensho","ai_no_tate","fansa_bakuhatsu","mama_no_yuuki","kazoku_wo_mamoru","subete_wo_kakete"],
+      yushi:["raimei_ichigeki","minna_kanpai","kaminari_ame","ippai_dake","kaminari_ranbu","raijin_kourin","oo_sakazuki","yoi_no_hate","tenku_ikazuchi","daikenja_kaigen"]
+    };
+    const miss=[], wrongCh=[];
+    Object.keys(v31).forEach(ch=>v31[ch].forEach(id=>{ if(!CARDS[id]) miss.push(id); else if(CARDS[id].ch!==ch) wrongCh.push(id); }));
+    ok("v31_50cards_present", miss.length===0, miss.join());
+    ok("v31_50cards_owner_ok", wrongCh.length===0, wrongCh.join());
+    ok("v31_10_per_char", Object.keys(v31).every(ch=>v31[ch].length===10));
+    DIFF=DIFFS.normal; newRun("yushi");
+    const rp = Object.keys(CARDS).filter(id=>CARDS[id].ch==="yushi" && CARDS[id].rar!=="S");
+    ok("v31_in_reward_pool", v31.yushi.every(id=>rp.indexOf(id)>=0));
+  }
+
+  DIFF=DIFFS.normal; newRun("nozomi"); startCombat(["dsoldier"],"battle");
+  let N=S.combat;
+  const REN=(h,n)=>{ N.enemies=[]; for(let i=0;i<(n||1);i++) N.enemies.push({id:"d",uid:i,name:"m",spr:"slime",sprScale:4,hp:h,maxHp:h,blk:0,st:{},turn:0,move:{t:"blk",b:0,txt:"x"},enraged:false}); };
+  const BSN=()=>{N.wisdom=0;N.faith=0;N.played=0;N.blk=0;N.crit=0;N.critMul=2;N.stance=null;N.st={};N.powers={};N.busy=false;N.energy=99;N.hand=[];N.discard=[];N.draw=[];N.exhaust=[];N.negate=0;};
+  const PLN=id=>{N.energy=99;const cd=mkCard(id);N.hand.push(cd);playCard(N.hand.length-1,aliveEnemies()[0]);};
+  let y0;
+
+  /* ---- のぞみ：おんぷコスト(fc) ---- */
+  BSN();REN(999);N.faith=0;
+  ok("fc_blocks_play_without_faith", canPlay(mkCard("takaraka_voice"))===false && faithCost(mkCard("takaraka_voice"))===1);
+  N.faith=1; ok("fc_playable_with_faith", canPlay(mkCard("takaraka_voice"))===true);
+  BSN();REN(999);N.faith=3;y0=N.enemies[0].hp;PLN("takaraka_voice");
+  ok("fc_consumes_faith", (y0-N.enemies[0].hp)===10 && N.faith===2, "d="+(y0-N.enemies[0].hp)+" f="+N.faith);
+  BSN();REN(999);N.faith=5;N.blk=0;PLN("serenade"); ok("serenade_block_fc", N.blk===10 && N.faith===4, "blk="+N.blk);   // b9+1(底上げ)
+  BSN();REN(999);N.faith=4;y0=N.enemies[0].hp;PLN("harmony_chain");
+  ok("harmony_chain_fc", (y0-N.enemies[0].hp)===18 && N.faith===2, "d="+(y0-N.enemies[0].hp));
+  BSN();REN(999,2);N.faith=3;y0=N.enemies[0].hp;PLN("hoshi_no_uta");
+  ok("hoshi_no_uta_all_fc", (y0-N.enemies[0].hp)===14 && (y0-N.enemies[1].hp)===14 && N.faith===0);
+  BSN();PLN("kyoumei"); ok("kyoumei_power", N.powers.fc_block===2);
+  BSN();REN(999);N.powers={fc_block:2};N.faith=5;N.blk=0;PLN("harmony_chain");
+  ok("kyoumei_block_on_spend", N.blk===4, "blk="+N.blk);   // おんぷ2しょうひ × 2
+  BSN();REN(999);N.faith=4;y0=N.enemies[0].hp;PLN("miracle_voice");
+  ok("miracle_voice_rebalanced", (y0-N.enemies[0].hp)===24 && N.faith===0, "d="+(y0-N.enemies[0].hp));   // d12+おんぷ4×3
+
+  /* ---- けんと：すばやさ→火力 / むこうか ---- */
+  DIFF=DIFFS.normal; newRun("kento"); startCombat(["dsoldier"],"battle"); N=S.combat;
+  BSN();REN(999);N.st={dex:4};y0=N.enemies[0].hp;PLN("kamaitachi");
+  ok("kamaitachi_dxm", (y0-N.enemies[0].hp)===8, "d="+(y0-N.enemies[0].hp));   // 4+すばやさ4×1
+  BSN();REN(999);N.blk=0;PLN("kaze_migawari"); ok("kaze_migawari_dx", N.st.dex===1 && N.blk===8, "blk="+N.blk);  // b6+1+dex1
+  BSN();REN(999);PLN("zettai_kaihi");
+  { const set=N.negate===2; S.hp=100; N.blk=0; damagePlayer(9); damagePlayer(9);
+    ok("zettai_kaihi_negate", set && S.hp===100 && N.negate===0, "hp="+S.hp); }
+  BSN();REN(999);N.played=3;y0=N.enemies[0].hp;PLN("tenchu_rush");
+  ok("tenchu_rush_combo", (y0-N.enemies[0].hp)===28, "d="+(y0-N.enemies[0].hp));   // (4+3)×4かい
+
+  /* ---- たいち：どく軸 / はつめいの出口 ---- */
+  DIFF=DIFFS.normal; newRun("taichi"); startCombat(["dsoldier"],"battle"); N=S.combat;
+  BSN();REN(999);N.enemies[0].st.poison=5;y0=N.enemies[0].hp;PLN("kagaku_hannou");
+  ok("kagaku_hannou_psnm", (y0-N.enemies[0].hp)===15, "d="+(y0-N.enemies[0].hp));   // 5+どく5×2
+  BSN();REN(999);N.wisdom=4;N.enemies[0].st.poison=3;y0=N.enemies[0].hp;PLN("saishu_heiki");
+  ok("saishu_heiki_double", (y0-N.enemies[0].hp)===21 && N.wisdom===4, "d="+(y0-N.enemies[0].hp));   // 4+はつめい4×2+どく3×3
+  BSN();REN(999);N.wisdom=6;N.blk=0;PLN("kaiho_ki");
+  ok("kaiho_ki_wallb", N.blk===18 && N.wisdom===0, "blk="+N.blk);
+  BSN();PLN("dokugaku_hakase"); ok("dokugaku_hakase_power", N.powers.poison_plus===1);
+  BSN();REN(999);N.powers={poison_plus:2};PLN("dokubari");
+  ok("poison_plus_applies", N.enemies[0].st.poison===5, "psn="+N.enemies[0].st.poison);   // psn3 + 2
+  BSN();REN(999,2);N.enemies.forEach(e=>{e.hp=100;e.st.poison=4;});y0=100;PLN("sokushinzai");
+  ok("sokushinzai_ptick", N.enemies[0].hp===96 && N.enemies[0].st.poison===3 && N.enemies[1].hp===96, "hp="+N.enemies[0].hp);
+  BSN();REN(999,2);N.powers={poison_start:2,poison_plus:1};startPlayerTurn();
+  ok("poison_start_plus", S.combat.enemies[0].st.poison===3);
+
+  /* ---- えりか：ファンサ→こうげき・ぼうぎょ ---- */
+  S.combat.busy=false; DIFF=DIFFS.normal; newRun("erika"); startCombat(["dsoldier"],"battle"); N=S.combat;
+  /* こうげきは crit=0 で けいさんする（ファンサの ランダム2ばいを のぞくため）*/
+  BSN();REN(999);N.crit=0;y0=N.enemies[0].hp;PLN("oshi_power");
+  ok("oshi_power_crd_zero", (y0-N.enemies[0].hp)===4, "d="+(y0-N.enemies[0].hp));
+  BSN();REN(999);N.blk=0;N.crit=60;PLN("uchiwa_bariki");
+  ok("uchiwa_bariki_crb", N.blk===11, "blk="+N.blk);   // b4+1(底上げ)+6×1
+  BSN();REN(999);N.blk=0;N.crit=50;PLN("ai_no_tate");
+  ok("ai_no_tate_crb", N.blk===20, "blk="+N.blk);      // b8+2(底上げ)+5×2
+  BSN();REN(999);N.crit=70;y0=N.enemies[0].hp;PLN("subete_wo_kakete");
+  ok("subete_wo_kakete_crall", (y0-N.enemies[0].hp)>=35 && N.crit===0, "d="+(y0-N.enemies[0].hp));   // 7×5=35（ファンサ発生で 2ばいの ことも）
+  BSN();PLN("mama_no_yuuki"); ok("mama_no_yuuki_power", N.powers.crit_blk===3);
+  BSN();REN(999);N.powers={crit_blk:3};N.crit=100;N.blk=0;PLN("bunmawashi");
+  ok("crit_blk_on_crit", N.blk===3, "blk="+N.blk);
+
+  /* ---- ゆうし：はでな カミナリ ---- */
+  DIFF=DIFFS.normal; newRun("yushi"); startCombat(["dsoldier"],"battle"); N=S.combat;
+  BSN();REN(999,3);y0=N.enemies[0].hp;PLN("kaminari_ranbu");
+  ok("kaminari_ranbu_all", N.enemies.every(e=>(y0-e.hp)===12), "d="+(y0-N.enemies[0].hp));
+  BSN();PLN("raijin_kourin"); ok("raijin_kourin_power", N.powers.thunder_start===6);
+  BSN();REN(999);N.powers={thunder_start:6};y0=N.enemies[0].hp;startPlayerTurn();
+  ok("thunder_start_per_turn", (y0-S.combat.enemies[0].hp)>=6, "d="+(y0-S.combat.enemies[0].hp));
+  S.combat.busy=false; N=S.combat; BSN();PLN("daikenja_kaigen"); ok("daikenja_kaigen_power", N.powers.stance_dmg===5);
+  BSN();REN(999,2);N.powers={stance_dmg:5};N.stance=null;y0=N.enemies[0].hp;setStance("wrath");
+  ok("stance_dmg_on_change", N.enemies.every(e=>(y0-e.hp)>=5), "d="+(y0-N.enemies[0].hp));
+  BSN();REN(999);y0=N.enemies[0].hp;PLN("yoi_no_hate");
+  ok("yoi_no_hate_wrath", (y0-N.enemies[0].hp)===18 && N.stance==="wrath", "d="+(y0-N.enemies[0].hp));   // d9 ×2(ほろよい)
 
   /* --- ボスギミック --- */
   newRun("taichi");
@@ -369,7 +471,7 @@ const SUITE = `
         let pg=0;
         while(S.combat && aliveEnemies().length>0 && pg++<40){
           const hand=S.combat.hand; let did=false;
-          for(let i=0;i<hand.length;i++){ if(cardCost(hand[i])<=S.combat.energy){ const def=CARDS[hand[i].id]; playCard(i, def.type==='atk'?aliveEnemies()[0]:null); did=true; break; } }
+          for(let i=0;i<hand.length;i++){ if(canPlay(hand[i])){ const def=CARDS[hand[i].id]; playCard(i, def.type==='atk'?aliveEnemies()[0]:null); did=true; break; } }
           if(!did) break;
         }
         if(!S.combat) break;
@@ -390,7 +492,7 @@ const SUITE = `
     return {ch:chId, diff:diffKey, floor:S?S.floor:-1, v};
   }
   CLEARED1=[false,false,false,false,false]; CLEARED2=[false,false,false,false,false];
-  [["kento","normal"],["yushi","hard"],["erika","easy"]].forEach(([c,dk])=>{
+  [["kento","normal"],["yushi","hard"],["erika","easy"],["nozomi","hard"],["taichi","normal"]].forEach(([c,dk])=>{
     let r; try{ r=godRun(c,dk); }catch(e){ ok("godrun_"+c+"_"+dk, false, "例外:"+e.message); return; }
     ok("godrun_"+c+"_"+dk+"_reach28", r.floor===28 && r.v.f28boss && r.v.stage2 && r.v.f14boss && r.v.mid1, JSON.stringify(r.v)+" floor="+r.floor);
   });
