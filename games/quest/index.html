@@ -926,6 +926,120 @@ const CARDS = {
   sakazuki_kamae:{ch:"yushi",type:"skl",rar:"C",cost:2,name:"さかずきのかまえ",v:{vn:1,dr:1},vu:{vn:2,dr:1},all:1,
     desc:c=>`てき ぜんたいに <b>ぜいじゃく</b>${c.vn}。カードを ${c.dr}まい ひく。`},
 
+  /* ============================================================
+     v2.7 ついかカード（1にん 10まいずつ・キャラの こせいを のばす）
+     ============================================================ */
+
+  /* --- けんと ついか：てふだ／すばやさ／とうぞくらしさ --- */
+  nagenaifu:{ch:"kento",type:"atk",rar:"C",cost:1,name:"なげナイフ",v:{d:2,hm:2},vu:{d:3,hm:3},
+    desc:c=>`${c.d}ダメージ。のこりの てふだ 1まいにつき さらに ${c.hm}ダメージ。`},
+  suri_no_te:{ch:"kento",type:"skl",rar:"C",cost:0,name:"スリのてぎわ",v:{e:1,dr:1},vu:{e:1,dr:2},ex:1,
+    desc:c=>`気を ${c.e} えて、カードを ${c.dr}まい ひく。<b>しょうめつ</b>。`},
+  hayate_dash:{ch:"kento",type:"skl",rar:"C",cost:1,name:"はやてダッシュ",v:{dx:2,b:2},vu:{dx:3,b:3},
+    desc:c=>`<b>すばやさ</b>を ${c.dx} えて、${c.b}ブロック。`},
+  kagefumi:{ch:"kento",type:"atk",rar:"C",cost:1,name:"かげふみ",v:{d:5,vn:1},vu:{d:7,vn:2},
+    desc:c=>`${c.d}ダメージ。<b>ぜいじゃく</b>${c.vn}を あたえる。`},
+  kirikae_step:{ch:"kento",type:"skl",rar:"U",cost:1,name:"きりかえステップ",v:{n:1},vu:{n:2},special:"redraw",
+    desc:c=>`てふだを ぜんぶ すてて、すてた まいすう＋${c.n}まい ひく。`},
+  renkei_kick:{ch:"kento",type:"atk",rar:"U",cost:1,name:"れんけいキック",v:{d:4,hits:2,pl:1},vu:{d:5,hits:2,pl:2},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。<b>コンボ</b>を ${c.pl} ふやす。`},
+  zenryoku_shonen:{ch:"kento",type:"pow",rar:"U",cost:1,name:"ぜんりょくボーイ",v:{n:2},vu:{n:3},
+    desc:c=>`ターンかいしじ、<b>すばやさ</b>を ${c.n} える。`},
+  otakara_dorobo:{ch:"kento",type:"atk",rar:"U",cost:2,name:"おたからどろぼう",v:{d:11,gld:15},vu:{d:15,gld:25},
+    desc:c=>`${c.d}ダメージ。おかねを ${c.gld} てにいれる。`},
+  shinsoku_ranbu:{ch:"kento",type:"atk",rar:"R",cost:2,name:"しんそくらんぶ",v:{d:5,hits:3,combo3:2},vu:{d:6,hits:3,combo3:3},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。このターン つかった カード3まいいじょうで +${c.combo3}(1ヒットごと)。`},
+  chokasoku:{ch:"kento",type:"pow",rar:"R",cost:2,name:"ちょうかそくモード",v:{n:1},vu:{n:2},
+    desc:c=>`ターンかいしじ、カードを ${c.n}まい おおく ひく。`},
+
+  /* --- たいち ついか：どく(しかけ)／はつめいスケール --- */
+  dokugas_dan:{ch:"taichi",type:"atk",rar:"C",cost:1,name:"どくガスだん",v:{d:4,psn:3},vu:{d:6,psn:4},
+    desc:c=>`${c.d}ダメージ。<b>どく</b>${c.psn}を あたえる。`},
+  jirai_settchi:{ch:"taichi",type:"skl",rar:"C",cost:1,name:"じらいせっち",v:{psn:2,w:1},vu:{psn:3,w:1},all:1,
+    desc:c=>`てき ぜんたいに <b>どく</b>${c.psn}。<b>はつめい</b>を ${c.w} える。`},
+  haguruma:{ch:"taichi",type:"skl",rar:"C",cost:0,name:"はぐるまじかけ",v:{w:2},vu:{w:3},ex:1,
+    desc:c=>`<b>はつめい</b>を ${c.w} える。<b>しょうめつ</b>。`},
+  seimitsu_shageki:{ch:"taichi",type:"atk",rar:"C",cost:1,name:"せいみつしゃげき",v:{d:5,wge:6},vu:{d:7,wge:8},
+    desc:c=>`${c.d}ダメージ。<b>はつめい</b>が 5いじょうなら +${c.wge}。`},
+  jetpack:{ch:"taichi",type:"skl",rar:"U",cost:1,name:"ジェットパック",v:{b:4,dx:2,w:1},vu:{b:6,dx:3,w:1},
+    desc:c=>`${c.b}ブロック。<b>すばやさ</b>${c.dx}と <b>はつめい</b>${c.w}を える。`},
+  kaiten_nokogiri:{ch:"taichi",type:"atk",rar:"U",cost:2,name:"かいてんノコギリ",v:{d:3,hits:3,wm:1},vu:{d:4,hits:3,wm:1},
+    desc:c=>`${c.d}+<b>はつめい</b>×${c.wm}の ダメージを ${c.hits}かい。`},
+  kikai_gundan:{ch:"taichi",type:"pow",rar:"U",cost:2,name:"きかいぐんだん",v:{psn:2},vu:{psn:3},all:1,
+    desc:c=>`ターンかいしじ、てき ぜんたいに <b>どく</b>${c.psn}を あたえる。`},
+  kinkyu_shuri:{ch:"taichi",type:"skl",rar:"U",cost:1,name:"きんきゅうしゅうり",v:{h:4,b:6,w:1},vu:{h:6,b:9,w:1},ex:1,
+    desc:c=>`HPを ${c.h} かいふく。${c.b}ブロック。<b>はつめい</b>を ${c.w} える。<b>しょうめつ</b>。`},
+  plasma_ho:{ch:"taichi",type:"atk",rar:"R",cost:2,name:"プラズマほう",v:{d:6,wm:3},vu:{d:9,wm:4},
+    desc:c=>`${c.d}+<b>はつめい</b>×${c.wm}の ダメージ。`},
+  hakase_mode:{ch:"taichi",type:"pow",rar:"R",cost:3,name:"はかせモード",v:{w:2,n:1},vu:{w:3,n:1},
+    desc:c=>`ターンかいしじ、<b>はつめい</b>を ${c.w} えて、カードを ${c.n}まい おおく ひく。`},
+
+  /* --- のぞみ ついか：おんぷを ためる／いやす／ぜんたいうた --- */
+  harmony:{ch:"nozomi",type:"skl",rar:"C",cost:1,name:"ハーモニー",v:{f:2,b:5},vu:{f:3,b:8},
+    desc:c=>`${c.b}ブロック。<b>おんぷ</b>を ${c.f} える。`},
+  yasashii_shirabe:{ch:"nozomi",type:"skl",rar:"C",cost:1,name:"やさしいしらべ",v:{fhm:2},vu:{fhm:3},
+    desc:c=>`<b>おんぷ</b>×${c.fhm}の HPを かいふくする。`},
+  tap_dance:{ch:"nozomi",type:"atk",rar:"C",cost:1,name:"タップダンス",v:{d:3,hits:2,f:1},vu:{d:4,hits:2,f:2},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。<b>おんぷ</b>を ${c.f} える。`},
+  sasayaki:{ch:"nozomi",type:"skl",rar:"C",cost:0,name:"ささやき",v:{f:1,wk:1},vu:{f:2,wk:1},
+    desc:c=>`てきに <b>すいじゃく</b>${c.wk}。<b>おんぷ</b>を ${c.f} える。`},
+  duet:{ch:"nozomi",type:"atk",rar:"U",cost:1,name:"デュエット",v:{d:5,fge:4,f:1},vu:{d:7,fge:5,f:1},
+    desc:c=>`${c.d}ダメージ。<b>おんぷ</b>が 3いじょうなら +${c.fge}。そのあと おんぷを ${c.f} える。`},
+  idol_smile:{ch:"nozomi",type:"skl",rar:"U",cost:1,name:"アイドルスマイル",v:{h:4,dx:2,f:1},vu:{h:6,dx:3,f:1},
+    desc:c=>`HPを ${c.h} かいふく。<b>すばやさ</b>${c.dx}と <b>おんぷ</b>${c.f}を える。`},
+  koe_no_mahou:{ch:"nozomi",type:"pow",rar:"U",cost:1,name:"こえのまほう",v:{n:2},vu:{n:3},
+    desc:c=>`ターンかいしじ、HPを ${c.n} かいふくする。`},
+  crescendo:{ch:"nozomi",type:"atk",rar:"U",cost:2,name:"クレッシェンド",v:{d:4,hits:2,fm:2},vu:{d:5,hits:2,fm:3},
+    desc:c=>`${c.d}+<b>おんぷ</b>×${c.fm}の ダメージを ${c.hits}かい。おんぷを ぜんぶ つかう。`},
+  dai_gassho:{ch:"nozomi",type:"atk",rar:"R",cost:2,name:"だいがっしょう",v:{d:12,f:2},vu:{d:16,f:3},all:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージ。<b>おんぷ</b>を ${c.f} える。`},
+  densetsu_live:{ch:"nozomi",type:"pow",rar:"R",cost:3,name:"でんせつのライブ",v:{n:2},vu:{n:3},
+    desc:c=>`ターンかいしじ、<b>おんぷ</b>を ${c.n} えて、カードを 1まい おおく ひく。`},
+
+  /* --- えりか ついか：ファンサ／きんりょく／ママのまもり --- */
+  gachikoi_beam:{ch:"erika",type:"atk",rar:"C",cost:1,name:"ガチこいビーム",v:{d:6,cr:4,vn:1},vu:{d:8,cr:5,vn:1},
+    desc:c=>`${c.d}ダメージ。<b>ぜいじゃく</b>${c.vn}。<b>ファンサ</b>りつ+${c.cr}%。`},
+  hachimaki:{ch:"erika",type:"skl",rar:"C",cost:1,name:"はちまきキュッ",v:{s:2,cr:3},vu:{s:3,cr:4},
+    desc:c=>`きんりょくを ${c.s} える。<b>ファンサ</b>りつ+${c.cr}%。`},
+  obento_power:{ch:"erika",type:"skl",rar:"C",cost:1,name:"おべんとうパワー",v:{h:6,s:1},vu:{h:9,s:2},ex:1,
+    desc:c=>`HPを ${c.h} かいふくし、きんりょくを ${c.s} える。<b>しょうめつ</b>。`},
+  zenryoku_jump:{ch:"erika",type:"atk",rar:"C",cost:1,name:"ぜんりょくジャンプ",v:{d:6,crge:5},vu:{d:8,crge:7},
+    desc:c=>`${c.d}ダメージ。<b>ファンサ</b>りつが 50%いじょうなら +${c.crge}。`},
+  hi_touch:{ch:"erika",type:"skl",rar:"U",cost:1,name:"ハイタッチ",v:{cr:8,dr:1},vu:{cr:10,dr:2},
+    desc:c=>`<b>ファンサ</b>りつ+${c.cr}%。カードを ${c.dr}まい ひく。`},
+  mamoru_chikara:{ch:"erika",type:"skl",rar:"U",cost:2,name:"まもるちから",v:{b:10,dx:2},vu:{b:14,dx:3},
+    desc:c=>`${c.b}ブロック。<b>すばやさ</b>を ${c.dx} える。`},
+  mama_no_ikari:{ch:"erika",type:"pow",rar:"U",cost:2,name:"ママのいかり",v:{n:1},vu:{n:2},
+    desc:c=>`<b>ファンサ</b>が でるたび、きんりょくを ${c.n} える。`},
+  oshi_no_tame:{ch:"erika",type:"atk",rar:"U",cost:2,name:"おしのために",v:{d:8,hits:2,cr:5},vu:{d:11,hits:2,cr:6},
+    desc:c=>`${c.d}ダメージを ${c.hits}かい。<b>ファンサ</b>りつ+${c.cr}%。`},
+  kazoku_no_kizuna:{ch:"erika",type:"skl",rar:"R",cost:2,name:"かぞくのきずな",v:{s:2,dx:2,h:5},vu:{s:3,dx:3,h:8},ex:1,
+    desc:c=>`きんりょく${c.s}と <b>すばやさ</b>${c.dx}を えて、HPを ${c.h} かいふく。<b>しょうめつ</b>。`},
+  kami_taio:{ch:"erika",type:"atk",rar:"R",cost:3,name:"かみたいおう",v:{d:8,hits:2,cr:10},vu:{d:11,hits:2,cr:12},all:1,ex:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージを ${c.hits}かい。<b>ファンサ</b>りつ+${c.cr}%。<b>しょうめつ</b>。`},
+
+  /* --- ゆうし ついか：かまえ／カミナリ／すてふだ(もったいない) --- */
+  oyaji_gag:{ch:"yushi",type:"skl",rar:"C",cost:0,name:"おやじギャグ",v:{wk:1,dr:1},vu:{wk:2,dr:1},
+    desc:c=>`てきに <b>すいじゃく</b>${c.wk}。カードを ${c.dr}まい ひく。`},
+  ikki_nomi:{ch:"yushi",type:"skl",rar:"C",cost:0,name:"いっきのみ",v:{e:2,sd:4},vu:{e:2,sd:2},
+    desc:c=>`HPを ${c.sd} うしなって、気を ${c.e} える。`},
+  ochazuke:{ch:"yushi",type:"skl",rar:"C",cost:1,name:"おちゃづけ",v:{h:5,b:5},vu:{h:8,b:8},stance:"calm",
+    desc:c=>`HPを ${c.h} かいふくし、${c.b}ブロック。<b>めいそう</b>に はいる。`},
+  kaminari_yobi:{ch:"yushi",type:"atk",rar:"C",cost:1,name:"かみなりよび",v:{d:5,vn:1},vu:{d:7,vn:2},thunder:1,
+    desc:c=>`${c.d}ダメージ。<b>ぜいじゃく</b>${c.vn}を あたえる。`},
+  sake_no_chikara:{ch:"yushi",type:"skl",rar:"U",cost:1,name:"さけのちから",v:{s:2,b:4},vu:{s:3,b:6},stance:"wrath",
+    desc:c=>`きんりょくを ${c.s} えて ${c.b}ブロック。<b>ほろよい</b>に はいる。`},
+  zen_no_kokoro:{ch:"yushi",type:"skl",rar:"U",cost:1,name:"ぜんのこころ",v:{b:5,cb:5,dr:1},vu:{b:7,cb:7,dr:2},stance:"calm",
+    desc:c=>`<b>めいそう</b>に はいり、${c.b+c.cb}ブロック。カードを ${c.dr}まい ひく。`},
+  raimei_ranbu:{ch:"yushi",type:"atk",rar:"U",cost:2,name:"らいめいらんぶ",v:{d:7,vn:1},vu:{d:10,vn:2},all:1,thunder:1,
+    desc:c=>`てき ぜんたいに ${c.d}ダメージ。<b>ぜいじゃく</b>${c.vn}を あたえる。`},
+  mottainai_seishin:{ch:"yushi",type:"atk",rar:"U",cost:1,name:"もったいない!",v:{dcm:1},vu:{dcm:2},
+    desc:c=>`すてふだ 1まいにつき ${c.dcm}ダメージ。`},
+  daikenja_satori:{ch:"yushi",type:"pow",rar:"R",cost:3,name:"けんじゃのさとり",v:{n:1},vu:{n:1,bp:4},
+    desc:c=>`ターンかいしじ、気を ${c.n} える。${c.bp?`さらに ${c.bp}ブロックを える。`:""}`},
+  banzai_kanpai:{ch:"yushi",type:"atk",rar:"R",cost:2,name:"ばんざいかんぱい",v:{d:8,dcm:1},vu:{d:12,dcm:1},stance:"wrath",
+    desc:c=>`${c.d}＋すてふだ 1まいにつき ${c.dcm}ダメージ。<b>ほろよい</b>に なる。`},
+
   /* --- エンシェントカード（レリックで デッキに 追加される・報酬には でない）--- */
   anc_barrier:{ch:"none",type:"skl",rar:"S",cost:2,name:"エンシェントバリア",v:{},vu:{},ex:1,special:"negate2",
     desc:c=>`つぎの 2かいの ダメージを むこうかする。<b>しょうめつ</b>。`},
@@ -1126,7 +1240,18 @@ const CARD_ART = {
   hitamuki_lesson:"📖", jido_kenkyusho:"🔬", kuchizusamu:"🎵", mainichi_lesson:"📅", keiko_no_hibi:"🧘",
   miyaburi:"👁️", kakuran_kamae:"🌀", misukashi_wink:"😉", gekisho_spot:"💫", kona_kemuri:"🌫️",
   dai_kemuridama:"💨", komoriuta:"🌙", minna_komoriuta:"🎶", horoyoi_iki:"😮‍💨", sakazuki_kamae:"🍶",
-  anc_barrier:"🔰", anc_wall:"🧱"
+  anc_barrier:"🔰", anc_wall:"🧱",
+  /* v2.7 ついかカード */
+  nagenaifu:"🔪", suri_no_te:"🤏", hayate_dash:"💨", kagefumi:"👣", kirikae_step:"🔄",
+  renkei_kick:"🦵", zenryoku_shonen:"🏅", otakara_dorobo:"💰", shinsoku_ranbu:"🥋", chokasoku:"⏩",
+  dokugas_dan:"☠️", jirai_settchi:"🪤", haguruma:"⚙️", seimitsu_shageki:"🎯", jetpack:"🛩️",
+  kaiten_nokogiri:"🪚", kikai_gundan:"🤖", kinkyu_shuri:"🩹", plasma_ho:"⚛️", hakase_mode:"🥼",
+  harmony:"🎹", yasashii_shirabe:"🫧", tap_dance:"👠", sasayaki:"🤫", duet:"👯",
+  idol_smile:"😊", koe_no_mahou:"💗", crescendo:"📈", dai_gassho:"🎻", densetsu_live:"🎪",
+  gachikoi_beam:"💘", hachimaki:"🎽", obento_power:"🍱", zenryoku_jump:"🤸", hi_touch:"🙌",
+  mamoru_chikara:"🤱", mama_no_ikari:"💢", oshi_no_tame:"🫶", kazoku_no_kizuna:"👪", kami_taio:"🎊",
+  oyaji_gag:"😑", ikki_nomi:"🍻", ochazuke:"🍚", kaminari_yobi:"⛈️", sake_no_chikara:"🍾",
+  zen_no_kokoro:"☯️", raimei_ranbu:"🔱", mottainai_seishin:"🗑️", daikenja_satori:"🔮", banzai_kanpai:"🎉"
 };
 const ART_BG = {
   kento:["#8a3324","#2a0d08"], taichi:["#1e6b34","#0a2010"],
@@ -1136,12 +1261,12 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "2.61";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "2.70";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
   normal: { key:"normal", eHp:1.0,  eDmg:1.0,  pHpBonus:0,  goldMul:1.0 },
-  hard:   { key:"hard",   eHp:1.2,  eDmg:1.2,  pHpBonus:0,  goldMul:1.2 }
+  hard:   { key:"hard",   eHp:1.32, eDmg:1.2,  pHpBonus:0,  goldMul:1.2 }   // むずかしい：てきHPを 1.2→1.32(+10%)
 };
 let DIFF = DIFFS.normal;
 const MAX_FLOOR = 28;
@@ -1495,6 +1620,12 @@ function startPlayerTurn(){
   if(C.powers.densetsu_senshi) C.st.str=(C.st.str||0)+C.powers.densetsu_senshi;
   if(C.powers.shippu_mode) C.played += C.powers.shippu_mode;
   if(C.powers.crit_gain) C.crit += C.powers.crit_gain;    // ファンサりつ 毎ターン(まいにちレッスン)
+  /* v2.7 ついかパワー */
+  if(C.powers.dexgain) C.st.dex=(C.st.dex||0)+C.powers.dexgain;                       // すばやさ 毎ターン
+  if(C.powers.regen) S.hp=Math.min(S.maxHp, S.hp+C.powers.regen);                     // HP 毎ターン
+  if(C.powers.faithgain) C.faith += C.powers.faithgain;                               // おんぷ 毎ターン
+  if(C.powers.energygain) C.energy += C.powers.energygain;                            // 気 毎ターン
+  if(C.powers.poison_start) aliveEnemies().forEach(e=>{ e.st.poison=(e.st.poison||0)+C.powers.poison_start; });   // どく 毎ターン
   /* むずかしいモード：ボスは 3ターンごとに きんりょく+1 */
   if(DIFF.key==="hard" && C.kind==="boss" && C.turn%3===0){
     C.enemies.forEach(e=>{ if(e.hp>0 && e.boss) e.st.str=(e.st.str||0)+1; });
@@ -1510,7 +1641,7 @@ function startPlayerTurn(){
       if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory,500); return; }
     }
   }
-  const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0);
+  const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0) + (C.powers.drawgain||0);
   drawCards(n);
   C.dealAnim = true;
   renderCombat();
@@ -1536,7 +1667,10 @@ function calcPlayerDmg(base, perHitBonus=0){
 function dealToEnemy(e, dmg){
   const C=S.combat;
   let isCrit=false;
-  if(C.crit>0 && rnd(100) < C.crit){ dmg = Math.floor(dmg*(C.critMul||2)); isCrit=true; }
+  if(C.crit>0 && rnd(100) < C.crit){
+    dmg = Math.floor(dmg*(C.critMul||2)); isCrit=true;
+    if(C.powers && C.powers.crit_str) C.st.str=(C.st.str||0)+C.powers.crit_str;   // ママのいかり
+  }
   if(e.st.vuln) dmg = Math.floor(dmg*1.5);
   const absorbed = Math.min(e.blk, dmg);
   e.blk -= absorbed; dmg -= absorbed;
@@ -1706,6 +1840,10 @@ function playCard(idx, target){
     if(v.fge!==undefined && C.faith>=3) base += v.fge;              // おんぷ3いじょう
     if(v.wrb!==undefined && C.stance==="wrath") base += v.wrb;      // ほろよいボーナス
     if(v.cab!==undefined && C.stance==="calm") base += v.cab;       // めいそうボーナス
+    if(v.hm!==undefined)  base = (v.d||0) + C.hand.length*v.hm;     // てふだの まいすう(なげナイフ)
+    if(v.dcm!==undefined) base = (v.d||0) + C.discard.length*v.dcm; // すてふだの まいすう(もったいない)
+    if(v.wge!==undefined && C.wisdom>=5) base += v.wge;             // はつめい5いじょう
+    if(v.crge!==undefined && C.crit>=50) base += v.crge;            // ファンサりつ50%いじょう
     let perHit = 0;
     if(v.combo3!==undefined && C.played>=3) perHit += v.combo3;     // コンボ3まいいじょう
     const targets = def.all ? aliveEnemies() : [target||aliveEnemies()[0]];
@@ -1714,6 +1852,7 @@ function playCard(idx, target){
     }
     if(v.vn) targets.forEach(t=>{ if(t.hp>0) t.st.vuln=(t.st.vuln||0)+v.vn; });
   }
+  if(v.dx) C.st.dex=(C.st.dex||0)+v.dx;             // すばやさ(このカードの ブロックにも のる)
   let blk = 0;
   if(v.b) blk += v.b;
   if(v.bm) blk += v.bm * C.played;
@@ -1734,12 +1873,16 @@ function playCard(idx, target){
   if(v.s && def.type!=="pow") C.st.str=(C.st.str||0)+v.s;
   if(v.wk){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>{ if(t) t.st.weak=(t.st.weak||0)+v.wk; }); }
   if(v.vn && def.type!=="atk"){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>{ if(t&&t.hp>0) t.st.vuln=(t.st.vuln||0)+v.vn; }); }  // 攻撃いがいで ぜいじゃく(デバフカード)
+  if(v.psn){ (def.all?aliveEnemies():[target||aliveEnemies()[0]]).forEach(t=>{ if(t&&t.hp>0) t.st.poison=(t.st.poison||0)+v.psn; }); }   // どく
+  if(v.fhm){ const hh=C.faith*v.fhm; if(hh>0){ S.hp=Math.min(S.maxHp, S.hp+hh); pulse("healp"); floatText("p-portrait", `+${hh}`, "#8ce6a0"); } }  // おんぷ×n かいふく
+  if(v.gld){ S.gold += v.gld; floatText("p-portrait", `+${v.gld}G`, "#ffd94d"); }                              // とうぞく：おかね
   let dr = v.dr||0;
   if(v.cdr && C.stance==="calm") dr += v.cdr;
   if(def.special==="rinne" && C.discard.length){
     const i=rnd(C.discard.length);
     C.hand.push(C.discard.splice(i,1)[0]);
   }
+  if(def.special==="redraw"){ const n=C.hand.length; C.discard.push(...C.hand); C.hand=[]; dr += n + (v.n||0); }   // てふだを すてて ひきなおす
   if(def.special==="negate2"){ C.negate=(C.negate||0)+2; floatText("p-portrait","バリア×2","#8ad4f5"); }   // エンシェントバリア
   if(def.type==="pow"){
     C.powers = C.powers||{};
@@ -1760,6 +1903,15 @@ function playCard(idx, target){
     else if(card.id==="kuchizusamu") C.powers.star_utahime = v.n;
     else if(card.id==="mainichi_lesson") C.powers.crit_gain = (C.powers.crit_gain||0)+v.cr;
     else if(card.id==="keiko_no_hibi") C.powers.horoyoi_kenja = (C.powers.horoyoi_kenja||0)+v.bp;
+    /* v2.7 ついかパワー */
+    else if(card.id==="zenryoku_shonen") C.powers.dexgain = (C.powers.dexgain||0)+v.n;
+    else if(card.id==="chokasoku")       C.powers.drawgain = (C.powers.drawgain||0)+v.n;
+    else if(card.id==="kikai_gundan")    C.powers.poison_start = (C.powers.poison_start||0)+v.psn;
+    else if(card.id==="hakase_mode"){    C.powers.tensai_ou = (C.powers.tensai_ou||0)+v.w; C.powers.drawgain = (C.powers.drawgain||0)+v.n; }
+    else if(card.id==="koe_no_mahou")    C.powers.regen = (C.powers.regen||0)+v.n;
+    else if(card.id==="densetsu_live"){  C.powers.faithgain = (C.powers.faithgain||0)+v.n; C.powers.drawgain = (C.powers.drawgain||0)+1; }
+    else if(card.id==="mama_no_ikari")   C.powers.crit_str = (C.powers.crit_str||0)+v.n;
+    else if(card.id==="daikenja_satori"){ C.powers.energygain = (C.powers.energygain||0)+v.n; if(v.bp) C.powers.horoyoi_kenja = (C.powers.horoyoi_kenja||0)+v.bp; }
     C.exhaust.push(card);
   } else if(def.ex){
     C.exhaust.push(card);
@@ -1773,6 +1925,20 @@ function playCard(idx, target){
 }
 
 /* ---------- てきターン ---------- */
+/* どく：ターンの おわりに ブロックむしで ダメージ → 1ずつ へる。ぜんめつしたら true */
+function tickPoison(){
+  const C=S.combat; if(!C) return false;
+  let any=false;
+  C.enemies.forEach(e=>{
+    if(e.hp<=0 || !e.st.poison) return;
+    any=true;
+    e.hp = Math.max(0, e.hp - e.st.poison);
+    floatText(`e-${e.uid}`, `どく-${e.st.poison}`, "#9ae66e");
+    e.st.poison--;
+    if(e.hp<=0){ e.dying=true; setTimeout(()=>{ e.dying=false; if(S.combat) renderCombat(); }, 560); }
+  });
+  return any && aliveEnemies().length===0;
+}
 function endTurn(){
   const C=S.combat;
   if(!C || C.busy) return;
@@ -1787,6 +1953,7 @@ function endTurn(){
   (function step(){
     if(!S.combat || S.hp<=0) return;
     if(i>=acts.length){
+      if(tickPoison()){ C.busy=false; renderCombat(); setTimeout(victory, 500); return; }   // どくで ぜんめつ
       const dec=o=>{ if(o.weak)o.weak--; if(o.vuln)o.vuln--; };
       dec(C.st); C.enemies.forEach(e=>dec(e.st));
       C.enemies.forEach(e=>{ if(e.hp>0){ e.blk=0; chooseMove(e); } });
@@ -1851,9 +2018,9 @@ function cardEl(card, opts={}){
 }
 function stEl(list, host){
   host.innerHTML="";
-  const NAMES={str:["きんりょく","こうげきりょくが あがる","buff"],dex:["すばやさ","ブロックが ふえる","buff"],weak:["すいじゃく","あたえるダメージ-25%","debuff"],vuln:["ぜいじゃく","うけるダメージ+50%","debuff"]};
+  const NAMES={str:["きんりょく","こうげきりょくが あがる","buff"],dex:["すばやさ","ブロックが ふえる","buff"],weak:["すいじゃく","あたえるダメージ-25%","debuff"],vuln:["ぜいじゃく","うけるダメージ+50%","debuff"],poison:["どく","ターンの おわりに ダメージ","debuff"]};
   for(const k in list){
-    if(!list[k]) continue;
+    if(!list[k] || !NAMES[k]) continue;
     const [n,tip,cls]=NAMES[k];
     const s=document.createElement("span");
     s.className="st "+cls; s.textContent=`${n} ${list[k]}`; s.title=tip;
