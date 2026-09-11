@@ -190,7 +190,7 @@ const SUITE = `
   { const C3=S.combat; C3.busy=false; C3.energy=99; C3.negate=0; const cd=mkCard("anc_barrier"); C3.hand.push(cd); playCard(C3.hand.length-1,null); const set=C3.negate===2; S.hp=100; C3.blk=0; damagePlayer(10); damagePlayer(10); ok("anc_barrier_negate2", set && S.hp===100 && C3.negate===0); }
   newRun("kento"); ANCIENTS.anc_up6.onGain(); ok("anc_up6_upgrade", S.deck.filter(c=>c.up).length>=6);
   newRun("kento"); { const dl=S.deck.length; ANCIENTS.anc_wall_cards.onGain(); ok("anc_wall_cards_add2", S.deck.length===dl+2 && S.deck.slice(-2).every(c=>c.id==="anc_wall")); }
-  newRun("kento"); ANCIENTS.anc_potion5.onGain(); ok("anc_potion5_slots", S.potions.length===5 && S.potions.every(p=>!p.used));
+  newRun("kento"); ANCIENTS.anc_potion5.onGain(); ok("anc_potion5_slots", S.potions.length===5 && S.potionMax===5 && potionSpace()===0);
 
   /* --- v2.61 UI --- */
   ok("cardEl_rarity_badge", cardEl(mkCard("renda")).innerHTML.indexOf("crar")>=0);
@@ -206,16 +206,49 @@ const SUITE = `
   ok("blockbuff_cost0_unchanged", CARDS.shinkokyu.v.b===6 && CARDS.nusumi_ashi.v.b===2);                                    // 0マナは たいしょうがい
   ok("blockbuff_cost3_unchanged", CARDS.magnum_slash.v.b===undefined);                                                     // 3マナ(bなし)は むえいきょう
 
-  /* --- ポーション(きゅうさいアイテム) --- */
+  /* --- ポーション(v3.2: 未所持スタート・さいだい3・せんとうごに ドロップ) --- */
   DIFF=DIFFS.normal; newRun("kento");
-  ok("potions_3_at_start", S.potions.length===3 && S.potions.every(p=>!p.used) && S.potions.map(p=>p.id).join()==="mana,draw,block");
-  usePotion("block");   // せんとうそとでは つかえない
-  ok("potion_locked_out_of_combat", !S.potions.find(p=>p.id==="block").used);
+  ok("potions_empty_at_start", S.potions.length===0 && S.potionMax===3, "n="+S.potions.length);
+  ok("potions_13_kinds", POTION_ORDER.length===13, POTION_ORDER.length);
+  ok("potion_drop_rates", DIFFS.easy.potionDrop===0.70 && DIFFS.normal.potionDrop===0.50 && DIFFS.hard.potionDrop===0.40,
+     [DIFFS.easy.potionDrop,DIFFS.normal.potionDrop,DIFFS.hard.potionDrop].join("/"));
+  ok("potion_gain_upto_max", gainPotion("mana")&&gainPotion("draw")&&gainPotion("block") && S.potions.length===3);
+  ok("potion_gain_blocked_when_full", gainPotion("heal")===false && S.potions.length===3);
+  usePotion(2);   // せんとうそとでは つかえない
+  ok("potion_locked_out_of_combat", S.potions.length===3);
   startCombat(["dsoldier"],"battle"); S.combat.busy=false;
-  S.combat.energy=1; usePotion("mana");  ok("potion_mana_plus2", S.combat.energy===3 && S.potions.find(p=>p.id==="mana").used);
-  S.combat.energy=1; usePotion("mana");  ok("potion_mana_oneshot", S.combat.energy===1);   // つかいきり（補填なし）
-  S.combat.blk=0;    usePotion("block"); ok("potion_block_plus15", S.combat.blk===15);
-  { const hb=S.combat.hand.length; usePotion("draw"); ok("potion_draw_cards", S.combat.hand.length>hb); }
+  S.combat.energy=1; usePotion(0);
+  ok("potion_mana_plus2", S.combat.energy===3 && S.potions.length===2 && S.potions.map(p=>p.id).join()==="draw,block");
+  S.combat.blk=0; usePotion(1);  ok("potion_block_plus15", S.combat.blk===15 && S.potions.length===1);
+  { const hb=S.combat.hand.length; usePotion(0); ok("potion_draw_cards", S.combat.hand.length>hb && S.potions.length===0); }
+  ok("potion_use_empty_noop", (usePotion(0), S.potions.length===0));
+  /* あたらしい 10しゅが ぜんぶ うごく（れいがいが でない）*/
+  {
+    const nw=["heal","strp","dexp","critp","poisonp","weakp","firep","barrierp","handp","luckp"];
+    ok("potions_new10_defined", nw.filter(id=>!POTIONS[id]).length===0, nw.filter(id=>!POTIONS[id]).join());
+    const bad=[];
+    nw.forEach(id=>{
+      try{
+        newRun("kento"); S.floor=3; startCombat(["dsoldier","bat"],"battle"); S.combat.busy=false;
+        S.hp=Math.floor(S.maxHp/2); S.potions=[{id}]; usePotion(0);
+        if(S.potions.length!==0) bad.push(id+"(のこった)");
+      }catch(e){ bad.push(id+": "+e.message); }
+    });
+    ok("potions_new10_work", bad.length===0, bad.join());
+  }
+  /* せんとうごの ドロップ（かくりつ100%と 0%で はさみうち）*/
+  {
+    const roll=(rate,relic)=>{
+      DIFF=Object.assign({},DIFFS.normal,{potionDrop:rate}); newRun("kento"); S.floor=3;
+      if(relic) S.relics.push(relic);
+      startCombat(["bat"],"battle"); S.combat.enemies.forEach(e=>e.hp=0); victory();
+      return S.potions.length;
+    };
+    ok("potion_drop_always_at_100", roll(1)===1);
+    ok("potion_drop_never_at_0",    roll(0)===0);
+    ok("potion_drop_fukubukuro",    roll(0.8, "fukubukuro")===1);   // 0.8+0.25 で かならず ひろう
+    DIFF=DIFFS.normal;
+  }
 
   /* --- 新パワー/新カード 単体検証 --- */
   DIFF=DIFFS.normal; newRun("taichi"); startCombat(["dsoldier"],"battle"); const C=S.combat;
@@ -437,6 +470,114 @@ const SUITE = `
   ok("stance_dmg_on_change", N.enemies.every(e=>(y0-e.hp)>=5), "d="+(y0-N.enemies[0].hp));
   BSN();REN(999);y0=N.enemies[0].hp;PLN("yoi_no_hate");
   ok("yoi_no_hate_wrath", (y0-N.enemies[0].hp)===18 && N.stance==="wrath", "d="+(y0-N.enemies[0].hp));   // d9 ×2(ほろよい)
+
+  /* --- v3.2: てき10たい / イベント10しゅ / たからもの20しゅ --- */
+  {
+    const ne=["goblin2","slimeking","punkC","soldier2","kunoichi","knight2","dsoldier2","icewyvern","shadow2","cannon2"];
+    ok("enemies_new10_present", ne.filter(id=>!ENEMIES[id]).length===0, ne.filter(id=>!ENEMIES[id]).join());
+    ok("enemies_total_28", Object.keys(ENEMIES).length===28, Object.keys(ENEMIES).length);
+    /* すべての てきが ゆうこうな moves/ai/spr を もつ */
+    const badE = Object.keys(ENEMIES).filter(id=>{
+      const E=ENEMIES[id];
+      if(!E.moves||!E.moves.length||typeof E.ai!=="function"||!E.spr) return true;
+      for(let t=0;t<12;t++){ const i=E.ai({},t); if(!E.moves[i]) return true; }
+      return E.moves.some(m=>!m.txt || !["atk","multi","blk","buff","debuff","atk_debuff","blk_buff","blk_atk"].includes(m.t));
+    });
+    ok("enemies_all_valid", badE.length===0, badE.join());
+    /* え：すべての spr に イラストが ある */
+    const noArt = Object.keys(ENEMIES).filter(id=>!QUEST_ENEMY_ART[ENEMIES[id].spr]);
+    ok("enemies_all_have_art", noArt.length===0, noArt.join());
+    /* プールに でてくる てきが ぜんぶ ていぎ されている */
+    const pools = [].concat(POOL_EASY,POOL_HARD,POOL_ELITE,POOL_S2,POOL_S2_HARD,POOL_S2_ELITE);
+    const undef = [...new Set([].concat.apply([],pools))].filter(id=>!ENEMIES[id]);
+    ok("pools_all_defined", undef.length===0, undef.join());
+    ok("pools_include_new", ne.filter(id=>[].concat.apply([],pools).includes(id)).length===10);
+    /* あたらしい てきが じっさいに たたかえる（れいがいなし）*/
+    const bad2=[];
+    ne.forEach(id=>{
+      try{
+        DIFF=DIFFS.normal; newRun("erika"); S.floor=10; startCombat([id],"battle");
+        const C=S.combat; C.busy=false; S.hp=S.maxHp=9999;
+        for(let t=0;t<6;t++){ C.enemies.forEach(e=>{ if(e.hp>0) doEnemyMove(e); }); C.enemies.forEach(e=>{ if(e.hp>0){e.blk=0;chooseMove(e);} }); }
+      }catch(e){ bad2.push(id+": "+e.message); }
+    });
+    ok("enemies_new10_fight_ok", bad2.length===0, bad2.join());
+  }
+  {
+    ok("events_total_18", EVENTS.length===18, EVENTS.length);
+    /* すべての イベントが えらべる せんたくしを もつ（opts が とおる）*/
+    DIFF=DIFFS.normal; newRun("taichi"); S.floor=5;
+    const badEv=[];
+    EVENTS.forEach((ev,i)=>{
+      try{
+        if(!ev.glyph||!ev.title||!ev.flavor) { badEv.push(i+":かけ"); return; }
+        const o=ev.opts(S);
+        if(!o.length) { badEv.push(i+":せんたくし なし"); return; }
+        o.forEach(x=>{ if(!x.txt) badEv.push(i+":txt なし");
+          if(!x.fn && !x.forge && !x.forge2 && !x.remove) badEv.push(i+":しょり なし"); });
+      }catch(e){ badEv.push(i+": "+e.message); }
+    });
+    ok("events_all_valid", badEv.length===0, badEv.join());
+    /* fn を ぜんぶ じっこうして れいがいが でない（おかね・HPは たっぷり）*/
+    const badFn=[];
+    EVENTS.forEach((ev,i)=>ev.opts(S).forEach((o,j)=>{
+      if(!o.fn) return;
+      try{ newRun("taichi"); S.gold=999; S.hp=S.maxHp=200; o.fn(); }
+      catch(e){ badFn.push(i+"-"+j+": "+e.message); }
+    }));
+    ok("events_all_fn_ok", badFn.length===0, badFn.join());
+  }
+  {
+    const nr=["mamorifuda","kaiun","kinoko","hachimaki_r","megane_r","dokubin","kaminari_r","tebukuro","ehon","kagami",
+              "suisho","nabe","chizu","tanpopo","kusuri","saifu","fukubukuro","tate_r","hane","tsume"];
+    ok("relics_new20_present", nr.filter(id=>!RELICS[id]).length===0, nr.filter(id=>!RELICS[id]).join());
+    ok("relics_total_32", Object.keys(RELICS).length===32, Object.keys(RELICS).length);
+    ok("relic_pool_27", RELIC_POOL.length===27, RELIC_POOL.length);
+    ok("relic_pool_all_defined", RELIC_POOL.filter(id=>!RELICS[id]).length===0);
+    ok("relics_all_have_name_desc", Object.keys(RELICS).filter(id=>!RELICS[id].name||!RELICS[id].desc||!RELICS[id].glyph).length===0);
+
+    /* にゅうしゅじ こうか */
+    DIFF=DIFFS.normal;
+    newRun("kento"); { const m=S.maxHp; gainRelic("nabe"); ok("relic_nabe_maxhp", S.maxHp===m+15 && S.hp>m); }
+    newRun("kento"); { const g=S.gold; gainRelic("chizu"); ok("relic_chizu_gold", S.gold===g+120); }
+    newRun("kento"); gainRelic("tanpopo"); ok("relic_tanpopo_upgrade", S.deck.filter(c=>c.up).length===2);
+    /* せんとうかいしじ こうか */
+    newRun("kento"); S.relics.push("mamorifuda"); startCombat(["dsoldier"],"battle"); ok("relic_mamorifuda_blk", S.combat.blk>=10, "blk="+S.combat.blk);
+    newRun("kento"); S.relics.push("photo"); startCombat(["dsoldier"],"battle"); ok("relic_photo_blk_kept", S.combat.blk>=6, "blk="+S.combat.blk);   // 1ターンめに けされない
+    { const C=S.combat; C.busy=false; startPlayerTurn(); ok("blk_cleared_from_turn2", S.combat.blk===0, "blk="+S.combat.blk); }
+    newRun("kento"); S.relics.push("kaiun");      startCombat(["dsoldier"],"battle"); ok("relic_kaiun_dex", S.combat.st.dex===2);
+    newRun("kento"); S.hp=10; S.relics.push("kinoko"); startCombat(["dsoldier"],"battle"); ok("relic_kinoko_heal", S.hp===15);
+    newRun("kento"); S.relics.push("hachimaki_r"); startCombat(["dsoldier"],"battle"); ok("relic_hachimaki_str", S.combat.st.str===2);
+    newRun("kento"); S.relics.push("megane_r");   startCombat(["dsoldier","bat"],"battle"); ok("relic_megane_vuln", S.combat.enemies.every(e=>e.st.vuln===1));
+    newRun("kento"); S.relics.push("dokubin");    startCombat(["dsoldier","bat"],"battle"); ok("relic_dokubin_poison", S.combat.enemies.every(e=>e.st.poison===3));
+    newRun("kento"); S.relics.push("ehon");       startCombat(["dsoldier"],"battle"); ok("relic_ehon_debuff", S.combat.enemies[0].st.weak===1 && S.combat.enemies[0].st.vuln===1);
+    newRun("kento"); S.relics.push("kaminari_r"); startCombat(["golem"],"battle");
+    ok("relic_kaminari_dmg", S.combat && S.combat.enemies[0].hp < S.combat.enemies[0].maxHp, "hp="+(S.combat&&S.combat.enemies[0].hp));
+    newRun("kento"); S.relics.push("tebukuro");   startCombat(["dsoldier"],"battle");
+    ok("relic_tebukuro_draw", S.combat.hand.length===8, "hand="+S.combat.hand.length);   // 5+スニーカー1+2
+    /* ターンかいしじ */
+    newRun("kento"); S.relics.push("kagami"); startCombat(["dsoldier"],"battle"); ok("relic_kagami_blk", S.combat.blk>=3);
+    newRun("kento"); S.relics.push("suisho"); startCombat(["dsoldier"],"battle");
+    { const C=S.combat; C.busy=false; C.turn=2; const s0=C.st.str||0; startPlayerTurn(); ok("relic_suisho_turn3", (S.combat.st.str||0)-s0===3 && S.combat.turn===3); }
+    /* うける/あたえる ダメージ */
+    newRun("kento"); S.relics.push("tate_r"); startCombat(["dsoldier"],"battle");
+    { const C=S.combat; C.busy=false; C.blk=0; S.hp=100; damagePlayer(10); ok("relic_tate_reduce", S.hp===91, "hp="+S.hp); }
+    newRun("kento"); S.relics.push("tsume"); startCombat(["dsoldier"],"battle");
+    { const C=S.combat; C.busy=false; C.energy=99; C.st={}; C.enemies=[{id:"d",uid:0,name:"m",spr:"slime",sprScale:4,hp:999,maxHp:999,blk:0,st:{},turn:0,move:null,enraged:false}];
+      const h=C.enemies[0].hp; const cd=mkCard("shippu_kick"); C.hand.push(cd); playCard(C.hand.length-1, aliveEnemies()[0]);
+      ok("relic_tsume_plus2", (h-C.enemies[0].hp)===6, "d="+(h-C.enemies[0].hp)); }   // d4+2
+    /* てんしのはね */
+    newRun("kento"); S.relics.push("hane"); startCombat(["dsoldier"],"battle");
+    { const C=S.combat; C.busy=false; C.blk=0; S.hp=S.maxHp; damagePlayer(S.maxHp-5);
+      ok("relic_hane_save", S.haneUsed===true && S.hp===30, "hp="+S.hp);
+      const h1=S.hp; C.blk=0; damagePlayer(10);
+      ok("relic_hane_once", S.hp===h1-10, "hp="+S.hp); }
+    /* しょうりじ */
+    newRun("kento"); S.relics.push("kusuri"); S.floor=3; S.hp=10; startCombat(["bat"],"battle");
+    { S.combat.enemies.forEach(e=>e.hp=0); const h=S.hp; victory(); ok("relic_kusuri_heal", S.hp===h+6, "hp="+S.hp); }
+    newRun("kento"); S.relics.push("saifu"); S.floor=3; startCombat(["bat"],"battle");
+    { const g=S.gold; S.combat.enemies.forEach(e=>e.hp=0); victory(); ok("relic_saifu_gold", S.gold-g>=25+18, "gold+"+(S.gold-g)); }
+  }
 
   /* --- ボスギミック --- */
   newRun("taichi");

@@ -113,6 +113,7 @@ body.walk2 .spr canvas:nth-child(2){display:block;}
 }
 .potion:hover{transform:translateY(-2px); box-shadow:0 0 12px rgba(106,168,255,.5);}
 .potion.used{opacity:.32; border-color:var(--line); box-shadow:none; cursor:default; filter:grayscale(.7);}
+.potion.empty{opacity:.28; border-style:dashed; box-shadow:none; cursor:default; color:var(--ink-dim);}
 .potion.used:hover{transform:none;}
 #deck-btn,#mute-btn{margin-left:8px; padding:5px 12px; font-size:12px;}
 
@@ -1253,29 +1254,91 @@ const RELICS = {
   lamp:{glyph:"🏮",name:"よなきのランプ",desc:"気の さいだいちが +1。ターンかいしじに HPを 1 うしなう。"},
   doorbell:{glyph:"🔔",name:"げんかんのベル",desc:"せんとうかいしじ、てき ぜんたいに すいじゃく1を あたえる。"},
   photo:{glyph:"🖼️",name:"かぞくのしゃしん",desc:"せんとうかいしじ、6ブロックを える。"},
-  ojiichan:{glyph:"🪄",name:"おじいちゃんのつえ",desc:"せんとうかいしじ、きんりょくを 1 える。"}
+  ojiichan:{glyph:"🪄",name:"おじいちゃんのつえ",desc:"せんとうかいしじ、きんりょくを 1 える。"},
+  /* --- v3.2 ついか（20しゅ）--- */
+  mamorifuda:{glyph:"🧿",name:"まもりのおふだ",desc:"せんとうかいしじ、10ブロックを える。"},
+  kaiun:     {glyph:"🎐",name:"かいうんのふうりん",desc:"せんとうかいしじ、すばやさを 2 える。"},
+  kinoko:    {glyph:"🍄",name:"げんきキノコ",desc:"せんとうかいしじ、HPを 5 かいふくする。"},
+  hachimaki_r:{glyph:"🎽",name:"しょうりのはちまき",desc:"せんとうかいしじ、きんりょくを 2 える。"},
+  megane_r:  {glyph:"👓",name:"よくみえるメガネ",desc:"せんとうかいしじ、てき ぜんたいに ぜいじゃく1。"},
+  dokubin:   {glyph:"🧪",name:"どくのびん",desc:"せんとうかいしじ、てき ぜんたいに どく3を あたえる。"},
+  kaminari_r:{glyph:"⚡",name:"らいうんのおまもり",desc:"せんとうかいしじ、ランダムな てきに 12ダメージ。"},
+  tebukuro:  {glyph:"🧤",name:"ラッキーてぶくろ",desc:"かくせんとうの 1ターンめ、カードを 2まい おおく ひく。"},
+  ehon:      {glyph:"📖",name:"よるのえほん",desc:"せんとうかいしじ、てき ぜんたいに すいじゃく1と ぜいじゃく1。"},
+  kagami:    {glyph:"🪞",name:"まほうのかがみ",desc:"ターンかいしじ、3ブロックを える。"},
+  suisho:    {glyph:"💎",name:"ちからのすいしょう",desc:"かくせんとうの 3ターンめに、きんりょくを 3 える。"},
+  nabe:      {glyph:"🍲",name:"ふしぎのなべ",desc:"にゅうしゅじ、さいだいHPが 15 ふえる。"},
+  chizu:     {glyph:"🗺️",name:"たからのちず",desc:"にゅうしゅじ、おかねを 120 える。"},
+  tanpopo:   {glyph:"🌼",name:"たんぽぽのかんむり",desc:"にゅうしゅじ、デッキの カードを ランダムで 2まい きょうかする。"},
+  kusuri:    {glyph:"🩹",name:"きゅうきゅうばこ",desc:"せんとうに かつたび、HPを 6 かいふくする。"},
+  saifu:     {glyph:"👛",name:"おおきなさいふ",desc:"せんとうしょうりじの ゴールドが +25 される。"},
+  fukubukuro:{glyph:"🎁",name:"ふくぶくろ",desc:"ポーションが ドロップする かくりつが +25% される。"},
+  tate_r:    {glyph:"🛡️",name:"ちいさなたて",desc:"うける ダメージが 1 へる（さいてい1は のこる）。"},
+  hane:      {glyph:"🪶",name:"てんしのはね",desc:"HPが 30%いかに なったとき、1かいだけ HPを 25 かいふく。"},
+  tsume:     {glyph:"🐾",name:"けもののつめ",desc:"こうげきの ダメージが +2 される（1ヒットごと）。"}
 };
-const RELIC_POOL = ["photo","bento","clock","ojiichan","piggy","lamp","doorbell"];
+const RELIC_POOL = ["photo","bento","clock","ojiichan","piggy","lamp","doorbell",
+  "mamorifuda","kaiun","kinoko","hachimaki_r","megane_r","dokubin","kaminari_r","tebukuro","ehon","kagami",
+  "suisho","nabe","chizu","tanpopo","kusuri","saifu","fukubukuro","tate_r","hane","tsume"];
 
 /* ---------- ポーション(きゅうさいアイテム) ----------
-   スタート時に 3つ 保持。せんとうちゅうに つかえて、つかいきり（補填なし）。 */
-const POTION_ORDER = ["mana","draw","block"];
+   もっていない じょうたいで スタート。ふつうの せんとうに かつと かくりつで ドロップし、
+   さいだい3つまで もてる。つかうと なくなる（＝また ひろえる）。 */
+const POTION_MAX = 3;
 const POTIONS = {
-  mana:  {glyph:"⚡", name:"マナポーション",   desc:"このターン 気を +2 する。",     use:()=>{ S.combat.energy += 2; }},
-  draw:  {glyph:"🎴", name:"ドローポーション", desc:"カードを 3まい ひく。",         use:()=>{ drawCards(3); }},
-  block: {glyph:"🛡️", name:"ブロックポーション", desc:"このターン 15ブロックを える。", use:()=>{ S.combat.blk += 15; }}
+  mana:    {glyph:"⚡",  name:"マナポーション",     desc:"このターン 気を +2 する。",           use:()=>{ S.combat.energy += 2; }},
+  draw:    {glyph:"🎴",  name:"ドローポーション",   desc:"カードを 3まい ひく。",               use:()=>{ drawCards(3); }},
+  block:   {glyph:"🛡️",  name:"ブロックポーション", desc:"このターン 15ブロックを える。",      use:()=>{ S.combat.blk += 15; }},
+  /* --- v3.2 ついか --- */
+  heal:    {glyph:"💖",  name:"かいふくポーション", desc:"HPを 20 かいふくする。",
+    use:()=>{ S.hp=Math.min(S.maxHp, S.hp+20); pulse("healp"); floatText("p-portrait","+20","#8ce6a0"); }},
+  strp:    {glyph:"💪",  name:"ちからのポーション", desc:"きんりょくを 2 える。",
+    use:()=>{ S.combat.st.str=(S.combat.st.str||0)+2; }},
+  dexp:    {glyph:"🌬️",  name:"すばやさのポーション", desc:"すばやさを 2 える。",
+    use:()=>{ S.combat.st.dex=(S.combat.st.dex||0)+2; }},
+  critp:   {glyph:"🌟",  name:"ファンサポーション", desc:"ファンサりつを +30% する。",
+    use:()=>{ S.combat.crit += 30; }},
+  poisonp: {glyph:"☠️",  name:"どくのポーション",   desc:"てき ぜんたいに どく5を あたえる。",
+    use:()=>{ aliveEnemies().forEach(e=>e.st.poison=(e.st.poison||0)+5); }},
+  weakp:   {glyph:"🌀",  name:"よわらせポーション", desc:"てき ぜんたいに すいじゃく2と ぜいじゃく2。",
+    use:()=>{ aliveEnemies().forEach(e=>{ e.st.weak=(e.st.weak||0)+2; e.st.vuln=(e.st.vuln||0)+2; }); }},
+  firep:   {glyph:"🔥",  name:"かえんポーション",   desc:"てき ぜんたいに 20ダメージ。",
+    use:()=>{ aliveEnemies().forEach(e=>dealToEnemy(e, 20)); }},
+  barrierp:{glyph:"🔰",  name:"バリアポーション",   desc:"つぎの 3かいの ダメージを むこうかする。",
+    use:()=>{ S.combat.negate=(S.combat.negate||0)+3; floatText("p-portrait","バリア×3","#8ad4f5"); }},
+  handp:   {glyph:"🃏",  name:"てさばきポーション", desc:"てふだを すてて、5まい ひきなおす。",
+    use:()=>{ const C=S.combat; C.discard.push(...C.hand); C.hand=[]; drawCards(5); }},
+  luckp:   {glyph:"🍀",  name:"しあわせポーション", desc:"HPを 10 かいふくし、気+1、カードを 1まい ひく。",
+    use:()=>{ S.hp=Math.min(S.maxHp, S.hp+10); S.combat.energy+=1; drawCards(1); }}
 };
-function usePotion(id){
-  if(!S) return;
-  const p = (S.potions||[]).find(x=>x.id===id);
-  if(!p || p.used) return;
-  if(!S.combat || S.combat.busy){ toast("せんとうちゅうの じぶんの ターンに つかえるよ"); return; }
-  POTIONS[id].use();
-  p.used = true;
-  AudioEng.sfx("magic");
-  toast(`${POTIONS[id].name}を つかった!`);
+const POTION_ORDER = Object.keys(POTIONS);
+function potionMax(){ return (S && S.potionMax) || POTION_MAX; }
+function potionSpace(){ return potionMax() - (S.potions||[]).length; }
+/* ポーションを 1つ てにいれる（いっぱいなら ひろえない）*/
+function gainPotion(id){
+  if(!S) return false;
+  if(potionSpace() <= 0) return false;
+  S.potions.push({ id: id || pick(POTION_ORDER) });
   updateTopbar();
-  renderCombat();
+  return true;
+}
+function usePotion(idx){
+  if(!S) return;
+  const list = S.potions||[];
+  const i = typeof idx==="number" ? idx : list.findIndex(p=>p.id===idx);   // 番号でも idでも よべる
+  const p = list[i];
+  if(!p) return;
+  if(!S.combat || S.combat.busy){ toast("せんとうちゅうの じぶんの ターンに つかえるよ"); return; }
+  const P = POTIONS[p.id];
+  list.splice(i,1);                       // つかったら なくなる（＝また ひろえる）
+  P.use();
+  AudioEng.sfx("magic");
+  toast(`${P.name}を つかった!`);
+  updateTopbar();
+  if(S.combat){
+    if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory,500); return; }
+    renderCombat();
+  }
 }
 
 /* ---------- エンシェントレリック（中間まおう撃破で 1つ えらぶ・つよい）---------- */
@@ -1293,8 +1356,8 @@ const ANCIENTS = {
     onGain:()=>{ shuffle(S.deck.filter(c=>!c.up)).slice(0,6).forEach(c=>c.up=true); }},
   anc_up3:      {glyph:"🌟",name:"えらびの といし",desc:"デッキの カードを 3まい えらんで きょうか。",
     interactive:true, onGain:(cb)=>{ upgradeChoose(3, cb); }},
-  anc_potion5:  {glyph:"🎒",name:"ポーションポーチ",desc:"ポーションが 5こに。ぜんぶ ランダムで みたされる。",
-    onGain:()=>{ S.potions = Array.from({length:5},()=>({id:pick(POTION_ORDER),used:false})); }},
+  anc_potion5:  {glyph:"🎒",name:"ポーションポーチ",desc:"もてる ポーションが 5こに。いまも ぜんぶ みたされる。",
+    onGain:()=>{ S.potionMax = 5; S.potions = Array.from({length:5},()=>({id:pick(POTION_ORDER)})); }},
   anc_barrier_card:{glyph:"🔰",name:"バリアの まどうしょ",desc:"マナ2で 2かい ダメージ むこうか(ブロックなら消費しない)・しょうめつ の カードを 1まい デッキに。",
     onGain:()=>{ S.deck.push(mkCard("anc_barrier")); }},
   anc_wall_cards:{glyph:"🧱",name:"じょうへきの せっけいず",desc:"マナ2で 30ブロックの エンシェントウォールを 2まい デッキに。",
@@ -1379,6 +1442,42 @@ const ENEMIES = {
   golem:{name:"いしのゴーレム",spr:"golem",scale:4,hp:[120,128],elite:1,
     moves:[{t:"blk",b:14,txt:"みをかためる"},{t:"atk",d:19,txt:"がんせきパンチ"}],
     ai:(e,t)=>t%2},
+  /* ============ v3.2 ついかの てき（10たい）============
+     え は きそんの スプライト/イラストを つかいまわす（spr）*/
+  /* ステージ1 */
+  goblin2:{name:"ゴブリンじゅつし",spr:"goblin",scale:4,hp:[32,38],
+    moves:[{t:"debuff",wk:1,vn:1,txt:"のろいのことば"},{t:"atk",d:9,txt:"まほうのつえ"},{t:"blk_buff",b:6,s:1,txt:"まりょくをためる"}],
+    ai:(e,t)=>t%3},
+  slimeking:{name:"キングスライム",spr:"slime",scale:5,hp:[62,70],
+    moves:[{t:"multi",d:4,hits:3,txt:"ぷるぷるれんだ"},{t:"blk",b:12,txt:"ぷるんとかたまる"},{t:"atk",d:14,txt:"のしかかる"}],
+    ai:(e,t)=>t%3},
+  punkC:{name:"チンピラそうちょう",spr:"punkB",scale:5,hp:[64,72],
+    moves:[{t:"buff",s:3,txt:"きあいをいれる"},{t:"atk",d:12,txt:"てっこつスイング"},{t:"blk_atk",b:8,d:7,txt:"かまえてなぐる"}],
+    ai:(e,t)=>t%3},
+  soldier2:{name:"ていこくきへい",spr:"soldier",scale:4,hp:[46,52],
+    moves:[{t:"multi",d:6,hits:2,txt:"にどづき"},{t:"atk_debuff",d:7,vn:1,txt:"かぶとわり"}],
+    ai:(e,t)=>t%2},
+  kunoichi:{name:"くのいち",spr:"ninja",scale:4,hp:[30,35],
+    moves:[{t:"atk_debuff",d:6,wk:1,vn:1,txt:"どくのやいば"},{t:"multi",d:5,hits:2,txt:"ふたつのかげ"},{t:"blk",b:8,txt:"みをひるがえす"}],
+    ai:(e,t)=>t%3},
+  /* ステージ1 エリート */
+  knight2:{name:"こんごうナイト",spr:"knight",scale:4,hp:[86,94],elite:1,
+    moves:[{t:"blk_buff",b:14,s:2,txt:"てっぺきのかまえ"},{t:"atk",d:16,txt:"こんごうづき"},{t:"multi",d:7,hits:2,txt:"れんぞくつるぎ"}],
+    ai:(e,t)=>t%3},
+  /* ステージ2 */
+  dsoldier2:{name:"やみのしょうぐん",spr:"dsoldier",scale:5,hp:[72,80],
+    moves:[{t:"buff",s:3,txt:"ぐんぜいをふるいたたせる"},{t:"atk",d:15,txt:"あんこくのやり"},{t:"blk_atk",b:12,d:9,txt:"やみのかまえ"}],
+    ai:(e,t)=>t%3},
+  icewyvern:{name:"こおりのワイバーン",spr:"redwyvern",scale:4,hp:[64,72],
+    moves:[{t:"atk_debuff",d:9,wk:2,txt:"こごえるブレス"},{t:"multi",d:8,hits:2,txt:"ひょうがのつばさ"}],
+    ai:(e,t)=>t%2},
+  shadow2:{name:"やみのまじゅう",spr:"shadowdemon",scale:5,hp:[68,76],
+    moves:[{t:"multi",d:6,hits:3,txt:"やみのきば"},{t:"debuff",wk:2,vn:2,txt:"ぜつぼうのとおぼえ"},{t:"atk",d:16,txt:"かげのつきあげ"}],
+    ai:(e,t)=>t%3},
+  /* ステージ2 エリート */
+  cannon2:{name:"やみのほうだい",spr:"cannon",scale:5,hp:[100,110],elite:1,
+    moves:[{t:"multi",d:8,hits:2,txt:"あんこくれんしゃ"},{t:"buff",s:3,txt:"まりょくそうてん"},{t:"atk",d:20,txt:"やみのいちげき"}],
+    ai:(e,t)=>t%3},
   /* ラスボス */
   darkmaou:{name:"やみのまおう",spr:"darkmaou",scale:5,hp:[220,220],boss:1,
     moves:[
@@ -1390,13 +1489,17 @@ const ENEMIES = {
     ],
     ai:(e,t)=>t%5}
 };
-const POOL_EASY = [["punkA"],["slime"],["goblin"],["bat","bat"],["punkA","imp"]];
-const POOL_HARD = [["punkB"],["soldier"],["wyvern"],["imp","imp","imp"],["ninja","slime"],["punkB","bat"]];
-const POOL_ELITE = [["knight"],["cannon"]];
+const POOL_EASY = [["punkA"],["slime"],["goblin"],["bat","bat"],["punkA","imp"],
+  ["goblin2"],["soldier2"],["goblin","bat"]];
+const POOL_HARD = [["punkB"],["soldier"],["wyvern"],["imp","imp","imp"],["ninja","slime"],["punkB","bat"],
+  ["slimeking"],["punkC"],["kunoichi"],["soldier2","imp"],["goblin2","goblin"],["kunoichi","bat"]];
+const POOL_ELITE = [["knight"],["cannon"],["knight2"],["punkC","kunoichi"]];
 /* ステージ2の プール */
-const POOL_S2      = [["dsoldier"],["shadowdemon"],["redwyvern"],["ninja","imp"],["dsoldier","bat"]];   // 15-20階
-const POOL_S2_HARD = [["redwyvern","imp"],["dsoldier","dsoldier"],["shadowdemon","ninja"],["golem"]];    // 21-27階
-const POOL_S2_ELITE= [["dknight"],["golem"]];
+const POOL_S2      = [["dsoldier"],["shadowdemon"],["redwyvern"],["ninja","imp"],["dsoldier","bat"],
+  ["icewyvern"],["kunoichi","imp"],["dsoldier","goblin2"]];   // 15-20階
+const POOL_S2_HARD = [["redwyvern","imp"],["dsoldier","dsoldier"],["shadowdemon","ninja"],["golem"],
+  ["dsoldier2"],["shadow2"],["icewyvern","kunoichi"],["dsoldier2","bat"]];    // 21-27階
+const POOL_S2_ELITE= [["dknight"],["golem"],["cannon2"],["knight2","shadowdemon"]];
 
 /* ---------- カードアート ---------- */
 const CARD_ART = {
@@ -1456,12 +1559,12 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "3.11";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "3.2";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
-  easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0 },
-  normal: { key:"normal", eHp:1.0,  eDmg:1.0,  pHpBonus:0,  goldMul:1.0 },
-  hard:   { key:"hard",   eHp:1.32, eDmg:1.2,  pHpBonus:0,  goldMul:1.2 }   // むずかしい：てきHPを 1.2→1.32(+10%)
+  easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0, potionDrop:0.70 },
+  normal: { key:"normal", eHp:1.0,  eDmg:1.0,  pHpBonus:0,  goldMul:1.0, potionDrop:0.50 },
+  hard:   { key:"hard",   eHp:1.32, eDmg:1.2,  pHpBonus:0,  goldMul:1.2, potionDrop:0.40 }   // むずかしい：てきHPを 1.2→1.32(+10%)
 };
 let DIFF = DIFFS.normal;
 const MAX_FLOOR = 28;
@@ -1537,7 +1640,7 @@ function newRun(chId){
     ch, hp:ch.hp+bonus, maxHp:ch.hp+bonus, gold:90, floor:0,
     deck: ch.starter.map(id=>mkCard(id)),
     relics:[ch.relic],
-    potions: POTION_ORDER.map(id=>({id, used:false})),   // スタート時に 3つ 保持（つかいきり・補填なし）
+    potions: [], potionMax: POTION_MAX,                  // もっていない じょうたいで スタート（せんとうで ひろう）
     combat:null
   };
   AudioEng.sfx("deploy");
@@ -1584,23 +1687,33 @@ function updateTopbar(){
     rr.appendChild(el);
   });
   const pr=$("potion-row"); pr.innerHTML="";
-  (S.potions||[]).forEach(p=>{
+  (S.potions||[]).forEach((p,i)=>{
     const P=POTIONS[p.id], el=document.createElement("div");
-    el.className="potion"+(p.used?" used":"");
+    el.className="potion";
     el.textContent=P.glyph;
-    el.setAttribute("data-tip", `${P.name}：${P.desc}${p.used?"（つかいずみ）":"　←タップで せつめい"}`);
-    if(!p.used) el.onclick=()=>{
+    el.setAttribute("data-tip", `${P.name}：${P.desc}　←タップで せつめい`);
+    el.onclick=()=>{
       const inCombat = S.combat && !S.combat.busy;
       confirmDialog(`<b>${P.glyph} ${P.name}</b><br>${P.desc}${inCombat?"":"<br><span class='small'>せんとうちゅうの じぶんの ターンに つかえるよ</span>"}`,
-        "つかう", ()=>usePotion(p.id));
+        "つかう", ()=>usePotion(i));
     };
     pr.appendChild(el);
   });
+  for(let i=(S.potions||[]).length; i<potionMax(); i++){        // あきスロット
+    const el=document.createElement("div");
+    el.className="potion empty"; el.textContent="・";
+    el.setAttribute("data-tip", "ポーションの あきスロット（せんとうに かつと ひろえることがある）");
+    pr.appendChild(el);
+  }
 }
 function hasRelic(id){ return S.relics.includes(id); }
 function gainRelic(id){
   S.relics.push(id);
+  /* にゅうしゅした しゅんかんに はたらく たからもの */
   if(id==="bento"){ S.maxHp+=8; S.hp+=8; }
+  if(id==="nabe"){ S.maxHp+=15; S.hp+=15; }
+  if(id==="chizu"){ S.gold+=120; }
+  if(id==="tanpopo"){ shuffle(S.deck.filter(c=>!c.up)).slice(0,2).forEach(c=>c.up=true); }
   AudioEng.sfx("wallet");
   toast(`たからもの ゲット：${RELICS[id].name}`);
   updateTopbar();
@@ -1785,10 +1898,20 @@ function startCombat(enemyIds, kind){
   if(hasRelic("doorbell")) enemies.forEach(e=>e.st.weak=(e.st.weak||0)+1);
   if(hasRelic("anc_berserk")){ C.st.str=(C.st.str||0)+3; C.st.dex=(C.st.dex||0)+3; }   // エンシェント：狂戦士
   if(hasRelic("anc_heal8")) S.hp=Math.min(S.maxHp, S.hp+8);                              // エンシェント：命の聖杯
+  /* v3.2 たからもの：せんとうかいしじ */
+  if(hasRelic("mamorifuda")) C.blk += 10;
+  if(hasRelic("kaiun")) C.st.dex=(C.st.dex||0)+2;
+  if(hasRelic("kinoko")) S.hp=Math.min(S.maxHp, S.hp+5);
+  if(hasRelic("hachimaki_r")) C.st.str=(C.st.str||0)+2;
+  if(hasRelic("megane_r")) enemies.forEach(e=>e.st.vuln=(e.st.vuln||0)+1);
+  if(hasRelic("dokubin")) enemies.forEach(e=>e.st.poison=(e.st.poison||0)+3);
+  if(hasRelic("ehon")) enemies.forEach(e=>{ e.st.weak=(e.st.weak||0)+1; e.st.vuln=(e.st.vuln||0)+1; });
+  if(hasRelic("kaminari_r")){ const al=enemies.filter(e=>e.hp>0); if(al.length) dealToEnemy(pick(al), 12); }
   enemies.forEach(e=>chooseMove(e));
   if(kind==="boss"){ AudioEng.sfx("boss"); AudioEng.playBGM("boss"); }
   else AudioEng.playBGM("battle");
   show("combat-screen");
+  if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory, 500); return; }   // かいしじの ダメージで たおれた とき
   startPlayerTurn();
 }
 function chooseMove(e){
@@ -1807,12 +1930,14 @@ function startPlayerTurn(){
   const C=S.combat;
   C.turn++;
   showBanner(C.turn===1 ? `${S.ch.name}の ターン` : "きみの ターン");
-  C.blk = 0;
+  if(C.turn>1) C.blk = 0;   // 1ターンめは せんとうかいしじの ブロック(しゃしん/おふだ)を のこす
   C.energy = C.energyMax + (hasRelic("clock") && C.turn===1 ? 1 : 0);
   C.played = 0;
   C.fbUsed = false; C.dmgTaken = 0;                       // まいターン リセット(こだいの盾/だいちの鎧)
   if(hasRelic("lamp")) damagePlayer(1, true);
   if(hasRelic("anc_berserk")) damagePlayer(1, true);      // きょうせんし：まいターン HP-1
+  if(hasRelic("kagami")) C.blk += 3;                                                   // まほうのかがみ
+  if(hasRelic("suisho") && C.turn===3) C.st.str=(C.st.str||0)+3;                        // ちからのすいしょう
   C.powers = C.powers||{};
   if(C.powers.star_utahime){ C.faith+=1; S.hp=Math.min(S.maxHp,S.hp+(C.powers.star_utahime-1)); }
   if(C.powers.tensai_ou) C.wisdom += C.powers.tensai_ou;
@@ -1850,7 +1975,8 @@ function startPlayerTurn(){
       if(aliveEnemies().length===0){ renderCombat(); setTimeout(victory,500); return; }
     }
   }
-  const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0) + (C.powers.drawgain||0);
+  const n = 5 + (hasRelic("sneaker") && S.ch.id==="kento" ? 1 : 0) + (C.powers.drawgain||0)
+              + (hasRelic("tebukuro") && C.turn===1 ? 2 : 0);                            // ラッキーてぶくろ
   drawCards(n);
   C.dealAnim = true;
   renderCombat();
@@ -1868,7 +1994,8 @@ function drawCards(n){
 function pStr(){ return (S.combat.st.str||0); }
 function calcPlayerDmg(base, perHitBonus=0){
   const C=S.combat;
-  let d = base + pStr() + perHitBonus + (C.powers && C.powers.shippu_kensei ? C.powers.shippu_kensei : 0);
+  let d = base + pStr() + perHitBonus + (C.powers && C.powers.shippu_kensei ? C.powers.shippu_kensei : 0)
+            + (hasRelic("tsume") ? 2 : 0);                                               // けもののつめ
   if(C.stance==="wrath") d*=2;
   if(C.st.weak) d*=0.75;
   return Math.max(0, Math.floor(d));
@@ -1915,6 +2042,7 @@ function damagePlayer(dmg, pierce=false){
     if(dmg>0 && C.negate>0){ C.negate--; dmg=0; floatText("p-portrait","バリア!","#8ad4f5"); noted=true; }               // エンシェントバリア
     else if(dmg>0 && hasRelic("anc_negate5")){ C.hitc=(C.hitc||0)+1; if(C.hitc%5===0){ dmg=0; floatText("p-portrait","むこうか!","#8ad4f5"); noted=true; } }  // 5かいごと むこうか
     if(dmg>0 && hasRelic("anc_cap20")){ const room=Math.max(0,20-(C.dmgTaken||0)); if(dmg>room) dmg=room; C.dmgTaken=(C.dmgTaken||0)+dmg; }  // 1ターン ダメージ上限20
+    if(dmg>1 && hasRelic("tate_r")) dmg -= 1;                                           // ちいさなたて
   }
   if(dmg>0){
     S.hp-=dmg;
@@ -1924,6 +2052,14 @@ function damagePlayer(dmg, pierce=false){
     $("p-portrait").classList.add("shake");
     if(!pierce) screenShake();                          // てきの こうげきが ヒット → 画面ゆれ
   } else if(!pierce && !noted){ AudioEng.sfx("block"); floatText("p-portrait","ガード","#7fb2e5"); }
+  /* てんしのはね：HPが 30%いかに なったら 1かいだけ たすかる */
+  if(S.hp>0 && hasRelic("hane") && !S.haneUsed && S.hp <= S.maxHp*0.3){
+    S.haneUsed = true;
+    S.hp = Math.min(S.maxHp, S.hp+25);
+    AudioEng.sfx("heal"); pulse("healp");
+    floatText("p-portrait","🪶+25","#8ce6a0");
+    toast("てんしのはねが まもってくれた! (HP+25)");
+  }
   if(S.hp<=0){ S.hp=0; setTimeout(defeat, 600); }
 }
 function screenShake(){
@@ -2380,6 +2516,7 @@ function victory(){
   const stage=stageOf(S.floor);
   S.combat=null;
   if(hasRelic("ribbon") && S.ch.id==="nozomi") S.hp=Math.min(S.maxHp,S.hp+4);
+  if(hasRelic("kusuri")) S.hp=Math.min(S.maxHp,S.hp+6);                                  // きゅうきゅうばこ
   if(kind==="boss"){
     if(S.floor===14){ midResult(); return; }        // まおう撃破 → ちゅうかんリザルト
     ending(true, 2); return;                          // やみのまおう撃破 → ステージ2エンディング
@@ -2387,13 +2524,25 @@ function victory(){
   AudioEng.sfx("win"); AudioEng.playBGM("home");
   let base = 18+rnd(15);
   if(stage===2) base = Math.floor(base*1.5);          // ステージ2は ゴールド 1.5ばい
-  let gold = base + (kind==="elite"?25:0) + (hasRelic("piggy")?15:0);
+  let gold = base + (kind==="elite"?25:0) + (hasRelic("piggy")?15:0) + (hasRelic("saifu")?25:0);
   gold = Math.floor(gold * DIFF.goldMul);
   S.gold += gold;
   AudioEng.sfx("coin");
+  /* ポーションドロップ：かんたん70% / ふつう50% / むずかしい40%（ふくぶくろで +25%）*/
+  let dropped = null;
+  {
+    const rate = (DIFF.potionDrop!==undefined ? DIFF.potionDrop : 0.5) + (hasRelic("fukubukuro") ? 0.25 : 0);
+    if(Math.random() < rate){
+      const id = pick(POTION_ORDER);
+      if(gainPotion(id)){ dropped = POTIONS[id]; AudioEng.sfx("wallet"); }
+      else dropped = "full";
+    }
+  }
   const scr=$("reward-screen"); scr.innerHTML="";
   scr.innerHTML = `<h2>たたかいに かった!</h2>
-    <p class="flavor">まものたちは にげていった。<br>◆ ${gold} ゴールドを ゲット!</p>
+    <p class="flavor">まものたちは にげていった。<br>◆ ${gold} ゴールドを ゲット!${
+      dropped==="full" ? `<br><span style="color:var(--ink-dim)">ポーションを みつけたが、もう もてない…</span>`
+      : dropped ? `<br><span style="color:var(--gold)">${dropped.glyph} ${dropped.name} を ひろった!</span>` : ""}</p>
     <h3 style="letter-spacing:.15em">ごほうびの カードを 1まい えらぼう</h3>`;
   const list=document.createElement("div"); list.className="card-list";
   const offers = rollCardRewards(3);
@@ -2415,9 +2564,8 @@ function midResult(){
   const ci=CHAR_ORDER.indexOf(S.ch.id);
   CLEARED1[ci]=true;                                          // ステージ1クリアを きろく
   S.hp=Math.min(S.maxHp, S.hp+Math.floor(S.maxHp*0.8));       // HP80%かいふく
-  const used=(S.potions||[]).filter(p=>p.used);               // つかった ポーションを 1つ 補填
-  let refilled=null;
-  if(used.length){ const p=pick(used); p.used=false; refilled=POTIONS[p.id].name; }
+  let refilled=null;                                          // あきスロットを 1つ うめる
+  { const id=pick(POTION_ORDER); if(gainPotion(id)) refilled=POTIONS[id].name; }
   updateTopbar();
   const scr=$("reward-screen");
 
@@ -2772,6 +2920,65 @@ const EVENTS = [
   {glyph:"📦",title:"おうちからの こづつみ",flavor:"「がんばってるみんなへ」— とうの ふもとの おうちから、こづつみが とどいた。かぞくは いつでも みかたなのだ。",
    opts:s=>[
      {txt:"あける（HP8 かいふく ＆ +20◆）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+8);S.gold+=20;AudioEng.sfx("heal");}},
+   ]},
+
+  /* ================= v3.2 ついかイベント（10しゅ）================= */
+  {glyph:"🧙",title:"あやしい くすりや",flavor:"ローブの おじいさんが、いろとりどりの ビンを ならべて にこにこしている。「どれでも ひとつ、もっていきなさい」",
+   opts:s=>[
+     {txt:"ビンを 1つ もらう（ポーション1つ）",fn:()=>{ if(!gainPotion()){ toast("ポーションが いっぱいだ…"); return "stay"; } AudioEng.sfx("magic"); }},
+     {txt:"おかねを めぐんでもらう（+50◆）",fn:()=>{S.gold+=50;AudioEng.sfx("coin");}},
+     {txt:"あやしいので でていく",fn:()=>{}}
+   ]},
+  {glyph:"🎰",title:"うんだめしの ルーレット",flavor:"ほこりを かぶった ルーレットが、ひとりでに カラカラ まわりだした。とめる ゆうきは あるか。",
+   opts:s=>[
+     {txt:"まわす（HP-10 で たからもの ゲット）",fn:()=>{S.hp=Math.max(1,S.hp-10);const p=RELIC_POOL.filter(r=>!hasRelic(r));if(p.length)gainRelic(pick(p));else{S.gold+=60;toast("かわりに おかねが でた!");}}},
+     {txt:"おかねを かける（+80◆）",fn:()=>{S.gold+=80;AudioEng.sfx("coin");}},
+     {txt:"やめておく",fn:()=>{}}
+   ]},
+  {glyph:"🐈",title:"とうの ねこ",flavor:"まるまると ふとった ねこが、かいだんの まんなかで ねそべっている。どいてくれる きは なさそうだ。",
+   opts:s=>[
+     {txt:"なでる（HP10 かいふく）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+10);AudioEng.sfx("heal");}},
+     {txt:"エサを あげる（-20◆、ポーション1つ）",fn:()=>{ if(S.gold<20){toast("ゴールドが たりない…");return"stay";} if(!gainPotion()){toast("ポーションが いっぱいだ…");return"stay";} S.gold-=20; AudioEng.sfx("magic"); }},
+     {txt:"そっと またぐ",fn:()=>{}}
+   ]},
+  {glyph:"🕳️",title:"ゆかの おとしあな",flavor:"ゆかに ぽっかりと あなが あいている。したの ほうで、なにかが キラリと ひかった。",
+   opts:s=>[
+     {txt:"とびこむ（HP-12、+100◆）",fn:()=>{S.hp=Math.max(1,S.hp-12);S.gold+=100;AudioEng.sfx("coin");}},
+     {txt:"まわりみちする",fn:()=>{}}
+   ]},
+  {glyph:"📚",title:"ふるい としょしつ",flavor:"てんじょうまで ほんが つみあがった へや。よみふけると、じぶんの わざが みがかれていく きが する。",
+   opts:s=>[
+     {txt:"べんきょうする（カード1まい きょうか）",fn:null,forge:true},
+     {txt:"いらない ページを やぶる（カード1まい てばなす・むりょう）",fn:null,remove:true,free:true},
+     {txt:"しずかに とじる",fn:()=>{}}
+   ]},
+  {glyph:"⛲",title:"いのりの いずみ",flavor:"あおく すきとおった いずみ。のぞきこむと、じぶんの かおが いつもより げんきそうに みえた。",
+   opts:s=>[
+     {txt:"みずを のむ（さいだいHP+6、そのぶん かいふく）",fn:()=>{S.maxHp+=6;S.hp+=6;AudioEng.sfx("heal");}},
+     {txt:"みずあびする（HPを ぜんかいふく）",fn:()=>{S.hp=S.maxHp;AudioEng.sfx("heal");}},
+     {txt:"コインを なげる（-30◆、ポーション1つ）",fn:()=>{ if(S.gold<30){toast("ゴールドが たりない…");return"stay";} if(!gainPotion()){toast("ポーションが いっぱいだ…");return"stay";} S.gold-=30; AudioEng.sfx("magic"); }}
+   ]},
+  {glyph:"🧊",title:"こおりの へや",flavor:"はく いきが しろい。こごえる さむさの なかで しゅうちゅうすると、わざが とぎすまされていく。",
+   opts:s=>[
+     {txt:"がまんして しゅうちゅう（HP-8、カード2まい きょうか）",fn:null,forge2:true},
+     {txt:"すぐ でる",fn:()=>{}}
+   ]},
+  {glyph:"🛒",title:"いどうしょうにん",flavor:"おおきな せおいぶくろの しょうにんが、かいだんの おどりばで みせを ひろげていた。",
+   opts:s=>[
+     {txt:"ポーションを 2つ かう（-60◆）",fn:()=>{ if(S.gold<60){toast("ゴールドが たりない…");return"stay";} if(potionSpace()<2){toast("ポーションを 2つ もてない…");return"stay";} S.gold-=60; gainPotion(); gainPotion(); AudioEng.sfx("magic"); }},
+     {txt:"たからものを かう（-120◆）",fn:()=>{ if(S.gold<120){toast("ゴールドが たりない…");return"stay";} const p=RELIC_POOL.filter(r=>!hasRelic(r)); if(!p.length){toast("うるものが もう ない…");return"stay";} S.gold-=120; gainRelic(pick(p)); }},
+     {txt:"ひやかして いく",fn:()=>{}}
+   ]},
+  {glyph:"👻",title:"まよえる たましい",flavor:"はんとうめいの ひとかげが、さみしそうに ういている。「ちからを あげるかわりに、すこし わけて ほしい」",
+   opts:s=>[
+     {txt:"わけてあげる（さいだいHP-8、たからもの ゲット）",fn:()=>{S.maxHp=Math.max(20,S.maxHp-8);S.hp=Math.min(S.hp,S.maxHp);const p=RELIC_POOL.filter(r=>!hasRelic(r));if(p.length)gainRelic(pick(p));else{S.gold+=70;toast("かわりに おかねを もらった");}}},
+     {txt:"おいのりする（HP15 かいふく）",fn:()=>{S.hp=Math.min(S.maxHp,S.hp+15);AudioEng.sfx("heal");}},
+     {txt:"にげる",fn:()=>{}}
+   ]},
+  {glyph:"🎪",title:"たびの げいにん",flavor:"おどけた かっこうの げいにんが、かいだんで ジャグリングを していた。「にもつが おおいと おどれないよ!」",
+   opts:s=>[
+     {txt:"にもつを へらす（カード1まい てばなす・HP15 かいふく）",fn:null,remove:true,free:true,heal:15},
+     {txt:"げいを みる（+35◆）",fn:()=>{S.gold+=35;AudioEng.sfx("coin");}}
    ]}
 ];
 function eventScreen(){
@@ -2784,9 +2991,20 @@ function eventScreen(){
     const b=document.createElement("button"); b.textContent=o.txt;
     b.onclick=()=>{
       if(o.forge){ pickCardFromDeck("きょうかする カードを えらぼう", c=>!c.up, card=>{card.up=true; toast(`「${cname(card)}」が つよくなった!`); afterEvent();}, ()=>{}); return; }
+      if(o.forge2){                                   // HPを はらって 2まい きょうか
+        S.hp=Math.max(1,S.hp-8); updateTopbar();
+        upgradeChoose(2, ()=>afterEvent());
+        return;
+      }
       if(o.remove){
-        if(S.gold<25){ toast("ゴールドが たりない…"); return; }
-        pickCardFromDeck("てばなす カードを えらぼう", ()=>true, card=>{S.gold-=25; S.deck.splice(S.deck.indexOf(card),1); toast(`「${cname(card)}」を てばなした`); afterEvent();}, ()=>{});
+        const cost = o.free ? 0 : 25;
+        if(S.gold<cost){ toast("ゴールドが たりない…"); return; }
+        if(S.deck.length<=1){ toast("これいじょう へらせない…"); return; }
+        pickCardFromDeck("てばなす カードを えらぼう", ()=>true, card=>{
+          S.gold-=cost; S.deck.splice(S.deck.indexOf(card),1);
+          if(o.heal){ S.hp=Math.min(S.maxHp,S.hp+o.heal); AudioEng.sfx("heal"); }
+          toast(`「${cname(card)}」を てばなした`); afterEvent();
+        }, ()=>{});
         return;
       }
       const r=o.fn(); if(r==="stay") return;
