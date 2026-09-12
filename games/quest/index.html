@@ -468,6 +468,54 @@ html,body{min-height:100%;height:auto}body{background:radial-gradient(ellipse at
 @media(max-width:700px){#combat-screen{gap:8px;padding-bottom:max(16px,env(safe-area-inset-bottom))}#combat-screen>#enemy-zone{padding:8px 0;gap:8px}.enemy{padding-top:8px;padding-bottom:8px}.enemy .ename{margin-bottom:6px}.enemy .intent{margin-bottom:6px}.enemy .eglyph{margin:6px 0;min-height:72px}.enemy .eglyph .enemy-illustration{width:88px}#combat-screen>#hand{padding-top:16px}}
 
 .upgrade-note{flex-basis:100%;text-align:center;font-size:15px;color:#d1e3de;line-height:1.6}.upgrade-option{width:390px;max-width:100%;padding:16px 12px;border:1px solid #53777f;border-radius:16px;background:#0c2430}.upgrade-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.upgrade-column{min-width:0}.upgrade-column h4{text-align:center;font-size:15px;margin:0 0 18px;color:#d8e8e4}.upgrade-column:last-child h4{color:#f7cd78}.upgrade-pair .card{width:100%;height:auto;min-height:250px;transform:none;margin:0;padding:10px 6px}.upgrade-pair .card .cname{font-size:14px;white-space:normal;height:auto;line-height:1.5}.upgrade-pair .card .cdesc{font-size:14px;line-height:1.65}.upgrade-pair .card.upg{box-shadow:0 0 0 2px #f7cd78}.upgrade-choose{width:100%;margin-top:16px;min-height:48px;font-size:15px;background:#f7cd78;color:#17313d;border-color:#f7cd78}.upgrade-choose:hover{background:#ffdf99;color:#17313d}.upgrade-option .card:focus-visible{outline:3px solid #f7cd78;outline-offset:3px}@media(max-width:450px){.upgrade-option{padding:14px 8px}.upgrade-pair{gap:10px}.upgrade-pair .card{min-height:260px}.upgrade-pair .card .cart{height:64px;min-height:64px}}
+/* Compact battle: player portrait left, enemy portraits right. */
+#combat-screen{gap:8px}
+#combat-screen>#enemy-zone{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:6px 0;align-items:stretch;justify-content:stretch}
+#enemy-zone .enemy{width:auto;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:center;padding:10px;border-radius:12px;text-align:left}
+#enemy-zone .enemy.dead{display:none}
+#enemy-zone .enemy-info{min-width:0;display:flex;flex-direction:column;gap:5px}
+#enemy-zone .enemy .eglyph{grid-column:2;grid-row:1;margin:0;min-height:0;transform:none;justify-content:center;align-items:center;overflow:hidden}
+#enemy-zone .enemy-info{grid-column:1;grid-row:1}
+#enemy-zone .enemy .eglyph .enemy-illustration{width:76px;max-width:100%;height:auto;aspect-ratio:1}
+#enemy-zone .eglyph .spr{max-width:100%}#enemy-zone .eglyph canvas{max-width:100%;max-height:80px;object-fit:contain}
+#enemy-zone .enemy .ename{font-size:14px;line-height:1.4;margin:0;letter-spacing:0;overflow-wrap:anywhere}
+#enemy-zone .enemy .intent{font-size:13px;line-height:1.4;margin:0;min-height:0;padding:4px 6px}
+#enemy-zone .intent:before{display:none}
+#enemy-zone .enemy .hpbar{height:18px;flex-shrink:0}
+#enemy-zone .enemy .statuses:empty{display:none}
+#enemy-zone .enemy .statuses{gap:3px;margin:0}
+#enemy-zone .enemy .st{font-size:12px;padding:1px 4px;line-height:1.3}
+#enemy-zone .enemy:only-child{grid-column:1/-1;grid-template-columns:minmax(0,1fr) 90px}
+#enemy-zone .enemy:only-child .enemy-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);align-items:center}
+#enemy-zone .enemy:only-child .hpbar,#enemy-zone .enemy:only-child .statuses{grid-column:1/-1}
+@media(max-width:700px){
+ #combat-screen{padding:6px 8px max(8px,env(safe-area-inset-bottom));gap:6px}
+ #combat-screen>.battle-guide{padding:6px 10px;gap:2px 10px;line-height:1.4}
+ #combat-screen>.battle-guide strong{font-size:14px}
+ #combat-screen>.battle-guide span{font-size:13px}
+ #combat-screen>#enemy-zone{grid-template-columns:minmax(0,1fr);gap:5px;padding:4px 0}
+ #enemy-zone .enemy,#enemy-zone .enemy:only-child{grid-template-columns:minmax(0,1fr) 56px;gap:8px;padding:6px 8px}
+ #enemy-zone .enemy-info,#enemy-zone .enemy:only-child .enemy-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr);gap:4px 8px;align-items:center}
+ #enemy-zone .enemy .ename{font-size:13px;line-height:1.35}
+ #enemy-zone .enemy .intent{font-size:13px;line-height:1.35;padding:3px 5px}
+ #enemy-zone .enemy .hpbar,#enemy-zone .enemy .statuses{grid-column:1/-1}
+ #enemy-zone .enemy .eglyph .enemy-illustration{width:56px}
+ #enemy-zone .enemy .eglyph canvas{max-height:60px}
+ #combat-screen>#player-zone{grid-template-columns:44px minmax(0,1fr) 112px;gap:6px 8px;padding:8px 10px;align-items:center}
+ #player-zone #p-portrait{width:42px;height:48px;grid-column:1;grid-row:1}
+ #player-zone #p-portrait .player-illustration{--player-size:46px!important}
+ #player-zone #p-info{grid-column:2;grid-row:1;min-width:0}
+ #player-zone #p-name{font-size:14px}
+ #player-zone #energy-orb{grid-column:3;grid-row:1;justify-self:end;width:42px;height:42px;margin:0 0 10px;font-size:16px}
+ #player-zone #energy-orb:after{font-size:11px;bottom:-14px}
+ #player-zone #p-details{grid-column:1/-1;grid-row:2;gap:3px}
+ #player-zone #p-mechanics{font-size:13px;gap:3px 12px}
+ #player-zone #p-statuses:empty{display:none}
+ #player-zone #pile-info{grid-column:1/3;grid-row:3;gap:4px 10px;flex-wrap:wrap;font-size:12px;line-height:1.4}
+ #player-zone #pile-info>span{padding:3px 0}
+ #player-zone #end-turn{grid-column:3;grid-row:3;width:112px;min-height:44px;font-size:13px;padding:8px 4px;margin:0;letter-spacing:0}
+ #combat-screen>#hand{min-height:0;padding:14px 6px 8px;gap:10px}
+}
 </style>
 </head>
 <body>
@@ -1567,7 +1615,7 @@ const ART_BG = {
 
 /* ================= じょうたい ================= */
 let S = null;
-const VERSION = "3.32";   // ★トップ画面に ひょうじ（デプロイ確認用）
+const VERSION = "3.33";   // ★トップ画面に ひょうじ（デプロイ確認用）
 /* ---------- なんいど ---------- */
 const DIFFS = {
   easy:   { key:"easy",   eHp:0.85, eDmg:0.85, pHpBonus:10, goldMul:1.0, potionDrop:0.70 },
@@ -2470,11 +2518,11 @@ function renderCombat(){
     if(C.actingUid===e.uid) cls += " lunge";
     el.className=cls;
     el.id=`e-${e.uid}`;
-    el.innerHTML=`<div class="eglyph"></div>
+    el.innerHTML=`<div class="eglyph"></div><div class="enemy-info">
       <div class="ename">${e.elite?"🔥 ":""}${e.boss?"👿 ":""}${e.name}</div>
       <div class="intent">${intentText(e)}</div>
       <div class="hpbar">${e.blk>0?`<div class="blkfill"></div>`:""}<div class="fill" style="width:${e.hp/e.maxHp*100}%"></div><div class="txt">${e.hp}/${e.maxHp}${e.blk>0?` 🛡${e.blk}`:""}</div></div>
-      <div class="statuses"></div>`;
+      <div class="statuses"></div></div>`;
     el.querySelector(".eglyph").appendChild(spriteEl(e.spr, Math.max(2, e.sprScale-(MOBILE?1:0)), true));
     stEl(e.st, el.querySelector(".statuses"));
     el.onclick=()=>clickEnemy(e.uid);
