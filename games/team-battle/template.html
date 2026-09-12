@@ -16,9 +16,9 @@ function text(t,x,y,size=16,color='#f7efd9',align='left'){ctx.fillStyle=color;ct
 function button(label,x,y,w,h,fn,enabled=true,color='#285969'){rect(x,y,w,h,enabled?color:'#253440');text(label,x+w/2,y+h/2+6,16,enabled?'#fff5db':'#6a7c88','center');if(enabled)buttons.push({label,x,y,w,h,fn});}
 function portrait(f,x,y,scale=3){const c=COLORS[f]||'#8ce0d0';ctx.fillStyle='#16202b';ctx.fillRect(x+2*scale,y,10*scale,4*scale);ctx.fillStyle='#f5c99f';ctx.fillRect(x+3*scale,y+3*scale,8*scale,7*scale);ctx.fillStyle=c;ctx.fillRect(x+scale,y+10*scale,12*scale,7*scale);ctx.fillStyle='#16202b';ctx.fillRect(x+4*scale,y+5*scale,scale,scale);ctx.fillRect(x+9*scale,y+5*scale,scale,scale);if(f===3){ctx.strokeStyle='#293745';ctx.lineWidth=scale*.65;ctx.strokeRect(x+3*scale,y+4*scale,3*scale,3*scale);ctx.strokeRect(x+8*scale,y+4*scale,3*scale,3*scale);}if(f===1){ctx.fillStyle=c;ctx.fillRect(x+scale,y+2*scale,12*scale,2*scale);}if(f===2){ctx.fillStyle=c;ctx.fillRect(x+11*scale,y,3*scale,4*scale);}if(f===4){ctx.fillStyle='#eef0d4';ctx.fillRect(x+5*scale,y+8*scale,4*scale,2*scale);}}
 function act(fn){const ok=fn();if(ok===false)notice='コインや あきわくを たしかめてね';else {notice='';tone(600);}render();}
-function showFight(){undoState=null;selected=null;modal=null;fx=null;oldHearts=g.players[0].hp;paused=false;elapsed=0;g.fight();const r=g.results.find(r=>r.x===0||r.y===0);replay=r||g.results[0];frame=0;paused=false;screen='battle';tick();}
+function showFight(){if(online){sendLan('ready');return;}undoState=null;selected=null;modal=null;fx=null;oldHearts=g.players[0].hp;paused=false;elapsed=0;g.fight();const r=g.results.find(r=>r.x===0||r.y===0);replay=r||g.results[0];frame=0;paused=false;screen='battle';tick();}
 function tick(){elapsed=0;lastPaint=0;render();}
-function next(){clearTimeout(timer);if(g.phase==='end'||g.players[0].hp<=0){screen='finish';render();return;}g.next();screen='prep';notice='';render();}
+function next(){if(online){lanNext();return;}clearTimeout(timer);if(g.phase==='end'||g.players[0].hp<=0){screen='finish';render();return;}g.next();screen='prep';notice='';render();}
 // Additional presentation helpers, embedded into the single HTML at build time.
 let elapsed=0,lastPaint=0,paused=false,fx=null,fxAge=0,oldHearts=25,accessKey='';
 const SKILL_LABEL={summon:'ロボを よぶ',double:'2かい うつ',cheer:'おうえん',guard:'まもる',grow:'そだつ',buff:'みんな +1',none:'バランス'};
@@ -63,7 +63,7 @@ function drawBattle(){
  button('けっかへ →',746,490,190,36,()=>{screen='result';paused=false;render();});
  if(paused){rect(359,240,242,38,'#132a38');text('とまっているよ',480,266,21,'#ffe1a0','center');}
 }
-function purchase(i){
+function purchase(i){if(online){sendLan('buy',[i]);return;}
  undoState=null;const p=g.players[0],id=p.shop[i];if(id==null)return;const before=p.gold,rewards=p.rewards.length,oldIds=new Set([...p.board,...p.bench].map(u=>u.uid));
  if(!g.buy(p,i)){notice='コインや あきわくを たしかめてね';render();return;}
  selected=null;modal=null;tone(600);
