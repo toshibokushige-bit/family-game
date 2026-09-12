@@ -1,649 +1,717 @@
 {
   "renda": {
     "tier": "common",
-    "sheet": "basic-starter",
+    "sheet": "hair-common-1",
     "tile": 0,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "a4d59b2614a76b6b9d629f5136d94bbe161e6e114588a84958027d7e7adad628"
+    "pixelHash": "0dba58043c23f81a3b6b46927875f61cbcb01407704e7d6e29cf87c322d09132",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "step_guard": {
     "tier": "common",
-    "sheet": "basic-starter",
+    "sheet": "hair-common-1",
     "tile": 1,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fb46572a5b20f3e6440589315dfade43d3dfaca8820e22777c3277a6825dcbba"
+    "pixelHash": "93c1f6ddcb62a4037c9e98f99b4c326366229c85cf87cf132b766e08bd522275",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "tozoku_kokoroe": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 0,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1834862385321101,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "d71a069c6030023f3e6cb11a11213998ba1fc54ba5a32bedee91795fa2bd785e"
+    "pixelHash": "70cad8b0a1ef8a8e0c22dcf6491bd03e5396f7cf58d4fdf79d67ef6b0aa6e361",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "shippu_kick": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 1,
     "region": {
-      "x": 364,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "a878c396cce43a18173853cd16309b3e0be8fb7933ada739c83d76cd6bd303f6"
+    "pixelHash": "c6baa99f1a873afef0eb4bdc892c3d6dacbdba1295f22573453961d4dac94725",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "combo_rush": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 0,
+    "sheet": "hair-common-1",
+    "tile": 2,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fc80d672bbdcaccd54978eb6bb9d9c20ea12f2eb36f64c645b2d057001c34115"
+    "pixelHash": "fabca125de108b05cbeae62875527eff756dfea9409972086f73cf94dbeba92c",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "okashi_pocket": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 1,
+    "sheet": "hair-common-1",
+    "tile": 3,
     "region": {
-      "x": 258,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "6eb0e78c97bf22d28a5aa270c8d388500e8321f692ff274530265ad166b57ea9"
+    "pixelHash": "598d84b9f9708fc2f8d37c77d3044b5aff7faf4d768a95e2ca4fbe711dc02616",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "iki_totonoeru": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 2,
+    "sheet": "hair-common-1",
+    "tile": 4,
     "region": {
-      "x": 514,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 40.03115264797508,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "40e4cc0bb301dd5cb99a12b8d1359bcdd6ce93dcc5c0d09d860502958b5d894c"
+    "pixelHash": "fe1a0118187bdf585c33d5d57820c4ef76411d78b8970b6828693896114d4334",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kage_bunshin": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 3,
+    "sheet": "hair-common-1",
+    "tile": 5,
     "region": {
-      "x": 770,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 59.96884735202492,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "eab5f6f87aeb3afa9bb798849a328e13f0f9e805d357ab359af093c53e8bf4dc"
+    "pixelHash": "6bb0fc64dfe94a6f242bb605de39c778be8e003628ac19a97d5425910e8aa234",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "subayai_miugoki": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 2,
     "region": {
-      "x": 726,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 66.60550458715596,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "58be02c37bd3a12ced6decf3344b8c980998d189158a8f35a9146ffc084423c1"
+    "pixelHash": "96f1ababd3ab3378fe8f4673c6c072eee48b1cc394c661de70deb4855c4ade98",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "tsubame_gaeshi": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 3,
     "region": {
-      "x": 1088,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.81651376146789,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "5376fb00a9b6f1ba4ac53e5ee54a0bb815a19709510675673b93186e14971eea"
+    "pixelHash": "1679fdfa97c1acd66e9157f2b878fc31130bbc688ab4f41d4d408242f481126b",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "shippu_kensei": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 0,
     "region": {
       "x": 2,
-      "y": 2,
-      "w": 508,
-      "h": 178
+      "y": 120,
+      "w": 358,
+      "h": 122
     },
     "crop": {
-      "x": 0.19455252918287938,
-      "y": 0.2364066193853428,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 0.1834862385321101,
+      "y": 12.448132780082988,
+      "bx": 404.4692737430168,
+      "by": 890.1639344262295,
+      "ratio": 2.9344262295081966
     },
-    "pixelHash": "dc4c45b670f91cb87921e1babf28fac9ef2f7eccbf1420ac1521bfde6078831d"
+    "pixelHash": "35a398af003d4705d93a7a315fb62aa7af720b30d4dfdb9fb124ad5d084292f0",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "hyakuretsu": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 1,
     "region": {
-      "x": 514,
-      "y": 2,
-      "w": 508,
-      "h": 178
+      "x": 365,
+      "y": 120,
+      "w": 357,
+      "h": 122
     },
     "crop": {
-      "x": 50,
-      "y": 0.2364066193853428,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 33.45554537121907,
+      "y": 12.448132780082988,
+      "bx": 405.6022408963585,
+      "by": 890.1639344262295,
+      "ratio": 2.9262295081967213
     },
-    "pixelHash": "fdf8c2c1682c2791026176cf94b05183a6938c54a31b5fa15c07ce018faf1b36"
+    "pixelHash": "2a1a89bd5d6bdde91097d3b46ee1c8eef0f62fd47e52b94a1da4179fb8464fc5",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "nusumi_ashi": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 4,
+    "sheet": "hair-common-1",
+    "tile": 6,
     "region": {
-      "x": 1026,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 79.90654205607477,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "5127aa3a8f76f61acb376e49aed2f2b2626fae9357e035adba45d2c335c6d0f8"
+    "pixelHash": "20e2977e22a2dbcfbc2e182d3a29f3601eb4b0bb1436fb5db43eeabcc5094bb0",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kaiten_geri": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 4,
     "region": {
-      "x": 2,
-      "y": 364,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1834862385321101,
+      "x": 0.27472527472527475,
       "y": 50,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "14df88aaf3047a78ee3fdb16cd30a73b7c5874bfcd2194f848d41af4746e460b"
+    "pixelHash": "1d8439c9355da3a1b9f69b476eff703cbc181926ae1aade138c6196fe2d9ceaf",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "step_renshu": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 5,
     "region": {
-      "x": 364,
-      "y": 364,
-      "w": 358,
-      "h": 358
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
+      "x": 33.42490842490842,
       "y": 50,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "6cf5ae1c8cca2d891676e334801a9c21ed315eccdc27a5f0f0b504af8f4ca91d"
+    "pixelHash": "ce9d3be219f4b1348adad79b04c2a5643fabab957dd38c34df0ab61472286234",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "shippu_mode": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 6,
     "region": {
-      "x": 726,
-      "y": 364,
-      "w": 358,
-      "h": 358
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 66.60550458715596,
+      "x": 66.57509157509158,
       "y": 50,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "43437d8efa50e2a04021f419fe740b5ccd8a47ac06a00d35de877f7b8f1f3167"
+    "pixelHash": "fc72efc6449e879ae5c12dcdd8accd82267de72de816d763dff53b6178b88d05",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "final_rush": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 2,
     "region": {
-      "x": 1026,
-      "y": 2,
-      "w": 508,
-      "h": 178
+      "x": 728,
+      "y": 120,
+      "w": 354,
+      "h": 122
     },
     "crop": {
-      "x": 99.80544747081711,
-      "y": 0.2364066193853428,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 66.54478976234005,
+      "y": 12.448132780082988,
+      "bx": 409.03954802259886,
+      "by": 890.1639344262295,
+      "ratio": 2.901639344262295
     },
-    "pixelHash": "9cf7976d69cdf4d15dca5b98aed64e065d8130cfd6acd585595e36fe3f1e2505"
+    "pixelHash": "9c74857a08e59d670bb2207e1816cd3510b708f6360cd3d07fc332859fbc4c1d",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "spanner": {
     "tier": "common",
-    "sheet": "basic-starter",
-    "tile": 2,
+    "sheet": "hair-common-1",
+    "tile": 7,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "65e62c8481f4f046f713209c450d0eb0a107bcd1cbc7a451db1bb6002968f8b9"
+    "pixelHash": "579c33fa6cf3d730c7f9355ee6aea3acd55e8182627a9f8521726172afeba2c4",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kosaku_tate": {
     "tier": "common",
-    "sheet": "basic-starter",
-    "tile": 3,
+    "sheet": "hair-common-1",
+    "tile": 8,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "42ae1ea0054843cb3c9bd90b3d175f767c7d7b132347695a4a99200a4428d595"
+    "pixelHash": "927ca786c4c01c2ee83c5f28b31c23419b26c97b39d076898dfa5e6b8b547ae4",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kenkyu": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 7,
     "region": {
-      "x": 1088,
-      "y": 364,
-      "w": 358,
-      "h": 358
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.81651376146789,
+      "x": 99.72527472527473,
       "y": 50,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "95447831d71e4d394bbd9000c1c8e9a831d516525963a61d3464aca386be885b"
+    "pixelHash": "db246407650d4b38ef0b3ffe789a34b0fe16ba2d6d3a127a93ff572cd3b89e22",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "bakudan_nage": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 8,
     "region": {
-      "x": 2,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1834862385321101,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "794eee706ec0cd396752d55ef7ecffa96eb54e40c130ec977151b421303bc59b"
+    "pixelHash": "3cf6cb618e15f3dda97819145314153494cbbce682e422c2edd687fb9e8fbfce",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "sekkeizu": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 5,
+    "sheet": "hair-common-1",
+    "tile": 9,
     "region": {
-      "x": 1282,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.84423676012462,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "eea21aa4905249633212a30642c7e81271fd5cdaca4280f0d711918a905e94df"
+    "pixelHash": "395a826be8784c335b81bf7dd11525e01c639d24827f02ae1edc38e46573fa40",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "rocket_punch": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 6,
+    "sheet": "hair-common-1",
+    "tile": 10,
     "region": {
-      "x": 2,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "17aa6a11c9d88f910bdc33bbdd36ef10f224c11be0b0d23db3807b2566d122a5"
+    "pixelHash": "a1954a9a9ffb2140721dcadb0f4d05ecfb650a1955f51970404fe6ec3148f04a",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "barrier_ki": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 7,
+    "sheet": "hair-common-1",
+    "tile": 11,
     "region": {
-      "x": 258,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "5e60609b42dc64a3410c37804ce2b7582e3a1dc12462c57c6dd94d44ece51647"
+    "pixelHash": "42e0ae6efea28dada8b9dcbb291f81fc55fba2a0fd2c08de0bfc3c9350b4d962",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "renzoku_bakudan": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 9,
     "region": {
-      "x": 364,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "c0521690575098b8c0ffdff696344f6e5a1a48ab74acb3543c87ef788410f895"
+    "pixelHash": "a7289f49318253627e1b56f9af8cb4e6a6533e776714925e9a3abf10e260e5ae",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "hiruyasumi": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 10,
     "region": {
-      "x": 726,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 66.60550458715596,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "519a0a92066752e513ef173a0931799e8d5b864260fe837dc48b03a69afc7bfd"
+    "pixelHash": "e18c6d721fd042994cf4aeb8c88b206afc57ab2bdbaa32fd37e9e91a0a413409",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kemuridama": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-1",
+    "sheet": "hair-uncommon-1",
     "tile": 11,
     "region": {
-      "x": 1088,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.81651376146789,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "9181c1bbb9bb43edf915074d69188f92a747a1e4e23d998b8a905f5cec3a7bbd"
+    "pixelHash": "05227f1cd10c43e0c5859dd9f3295f7e1449605bf7e0828beb8968ff222d5da0",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "tensai_ou": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 3,
     "region": {
-      "x": 2,
-      "y": 184,
-      "w": 508,
-      "h": 178
+      "x": 1089,
+      "y": 120,
+      "w": 357,
+      "h": 122
     },
     "crop": {
-      "x": 0.19455252918287938,
-      "y": 21.749408983451538,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 99.8166819431714,
+      "y": 12.448132780082988,
+      "bx": 405.6022408963585,
+      "by": 890.1639344262295,
+      "ratio": 2.9262295081967213
     },
-    "pixelHash": "0f8d44188e8f4174b9033fb69411330fa80cf28f5ec6e35bb4a41c1b9df5dbe7"
+    "pixelHash": "2636af9e0d2c4562e04f9ec0c3b2c8139b5c7c859764433668756361911f746c",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "daibakuhatsu": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 4,
     "region": {
-      "x": 514,
-      "y": 184,
-      "w": 508,
-      "h": 178
+      "x": 2,
+      "y": 481,
+      "w": 357,
+      "h": 122
     },
     "crop": {
-      "x": 50,
-      "y": 21.749408983451538,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 0.18331805682859761,
+      "y": 49.89626556016597,
+      "bx": 405.6022408963585,
+      "by": 890.1639344262295,
+      "ratio": 2.9262295081967213
     },
-    "pixelHash": "06801d5ec237c4b6d372009fde46843fc3d1c669d8dcfe00118889e0535dcfb8"
+    "pixelHash": "e854a50255f692cfded48d84d62a46d1b7e09402e36920ff174bd36df31ab75a",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "bakuhatsu_nut": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 8,
+    "sheet": "hair-common-2",
+    "tile": 0,
     "region": {
-      "x": 514,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 40.03115264797508,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "973e2c056e4a7444696268610bb33be48cd181d3a2e6e0e5c32d2f6c6e200540"
+    "pixelHash": "c1a69100a866bbd44422be4ad3b32bf6f124d317b2e7bf0cc953fa53a3e36f0d",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kaizo_kyoka": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 9,
+    "sheet": "hair-common-2",
+    "tile": 1,
     "region": {
-      "x": 770,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 59.96884735202492,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "705eb07e3b7b64e11fa2d6539ccbf8ac5ee73def416e02bb8c77c80eacba0b70"
+    "pixelHash": "cb27fa3a6eb2bc9ddd91df29a9b37eb1ef4c3e839727ecfccb6ee2a4ce4f5f48",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "jido_barrier": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-2",
+    "sheet": "hair-uncommon-2",
     "tile": 0,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1834862385321101,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "a36a35f249b00ecd92bb721b0d0db2d3f27c3b1944bad4cec6d57cb4cc8d9d52"
+    "pixelHash": "39a6345c413d385e93d50468338640fdab767158f2612d920b4329d958ce42c0",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "drone": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-2",
+    "sheet": "hair-uncommon-2",
     "tile": 1,
     "region": {
-      "x": 364,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "fd42635f6428f2dd47b69ca7dbcaa538f54581844c45e0360883e6dce5eae62e"
+    "pixelHash": "92380a913d166a852eb9a14d64f7b801cdb75f41d1c205af2907922611280f18",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "megaton_bomb": {
     "tier": "rare",
-    "sheet": "rare",
+    "sheet": "hair-rare-1",
     "tile": 5,
     "region": {
-      "x": 1026,
-      "y": 184,
-      "w": 508,
-      "h": 178
+      "x": 366,
+      "y": 481,
+      "w": 356,
+      "h": 122
     },
     "crop": {
-      "x": 99.80544747081711,
-      "y": 21.749408983451538,
-      "bx": 302.3622047244094,
-      "by": 575.2808988764045,
-      "ratio": 2.853932584269663
+      "x": 33.51648351648351,
+      "y": 49.89626556016597,
+      "bx": 406.7415730337078,
+      "by": 890.1639344262295,
+      "ratio": 2.918032786885246
     },
-    "pixelHash": "5caccd38edd0ee5bfdcce4a6c609ca50c43a36a3eeee280c99cf70d31fedd184"
+    "pixelHash": "9557e355494598ea37b3546067afd4a788811eb451b067dea4f4d7dc9b1a17b7",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "dance_attack": {
     "tier": "common",
@@ -1008,364 +1076,402 @@
   },
   "bunmawashi": {
     "tier": "common",
-    "sheet": "basic-starter",
-    "tile": 6,
+    "sheet": "hair-common-2",
+    "tile": 2,
     "region": {
-      "x": 350,
-      "y": 399,
-      "w": 441,
-      "h": 392
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 22.69779507133593,
-      "y": 99.50124688279301,
-      "bx": 449.6598639455782,
-      "by": 202.29591836734696,
-      "ratio": 1.125
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "3b5dc24c79847b22fe8c80b6639e7562d01bdb5015a198313aa866045b43dd2b"
+    "pixelHash": "97240f8796d520c29e9ecc22a9003024eb0c37c085dd218d24f5643feb1384c6",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "mama_tate": {
     "tier": "common",
-    "sheet": "basic-starter",
-    "tile": 7,
+    "sheet": "hair-common-2",
+    "tile": 3,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "e520f692d3dd1f1c2e813e573eee32af6aa0e46fb16b13cb4c3d7fb9ecdb6a4d"
+    "pixelHash": "491799d704b890d35f10a0f8e13be86a1010930226fa8a11e31e21d195945340",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "fansa_wink": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-2",
-    "tile": 9,
+    "sheet": "hair-uncommon-2",
+    "tile": 2,
     "region": {
-      "x": 364,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "4a3529ec90be5b47e3b505278621ce24de7871f76281ba346f2ee832da7584e4"
+    "pixelHash": "3e22a2b7388d3a1bb5aa738f2759d747b94296794be9e1b2b50c3a6a896df716",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "ouen_koe": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-2",
-    "tile": 10,
+    "sheet": "hair-uncommon-2",
+    "tile": 3,
     "region": {
-      "x": 726,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 66.60550458715596,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "50a4be997fd64c4bb0d19c3e8f55f30c0258bb14b3d680210252427d4e178985"
+    "pixelHash": "9646b19e181ad2ca62c98baf4e4846a2e8d673ac5723892cde589a01dd40a1a9",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kaishin_hitofuri": {
     "tier": "common",
-    "sheet": "common-character-1",
-    "tile": 17,
+    "sheet": "hair-common-2",
+    "tile": 4,
     "region": {
-      "x": 1282,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.84423676012462,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "2d375828bd300612cbc35fbef67c9603d9935aa766680b8857fb87e59dca571f"
+    "pixelHash": "dd376fe127a10e82852d5d3e17a0ab4ddfbf3414eec66f6e8d7f2cf533be15cb",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "uchiwa_guard": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 0,
+    "sheet": "hair-common-2",
+    "tile": 5,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "acbd219928b5e8a9e922dbcf528424b80e63cfede2649170424f30725cd54695"
+    "pixelHash": "f5831e64061a34a103b9d607e67e315ff874f4c918ed603fee106e18e8498964",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "ensei_junbi": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 1,
+    "sheet": "hair-common-2",
+    "tile": 6,
     "region": {
-      "x": 258,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "bd3c4f120efba95de2e63d391e97fb646ed66e15f107cf51a3a7f71c4c466745"
+    "pixelHash": "d440106afb162433ef5fc71602367e18a51cc8ee33c0d88ba82e304ba69b4bbe",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "sashiire": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 2,
+    "sheet": "hair-common-2",
+    "tile": 7,
     "region": {
-      "x": 514,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 40.03115264797508,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "e65538a19ca526cadb2f35cd859288c08f2b4354b86741be307420994cc7344d"
+    "pixelHash": "f63c517f060628c236e699c3310b1e2898d64a3648456a29848993281a8ea810",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kiai_sakebi": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 3,
+    "sheet": "hair-common-2",
+    "tile": 8,
     "region": {
-      "x": 770,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 59.96884735202492,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "34e1a659836787c039378f844c95a4f4335c84efabd7a4a49cfc47d66b913991"
+    "pixelHash": "1ae6c2148f12f502447a58091b8d0043bad9889aa05bf3a503a87d17e9264c49",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "penlight_swing": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-2",
-    "tile": 11,
+    "sheet": "hair-uncommon-2",
+    "tile": 4,
     "region": {
-      "x": 1088,
-      "y": 726,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.81651376146789,
-      "y": 99.72527472527473,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "480e3701f64efddf4ca023de22673ba914834938d4aa034c05e91c3b2c14f1b9"
+    "pixelHash": "64f4b7ba3a10f8ae10f67b721016c0ae7c34dada9e4265c38c443fbae46aa85f",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "chozetsu_fansa": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-3",
-    "tile": 0,
+    "sheet": "hair-uncommon-2",
+    "tile": 5,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1834862385321101,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "3e9cd1e7185e44eca242cf135607be1eb1eaf49f7c4abd47dd58010c6f47dcdc"
+    "pixelHash": "ec83f8d989c459f293e78839b6f152a51a2a208b4ac8d408906e936d62a79e1f",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "gokai_zangeki": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-3",
-    "tile": 1,
+    "sheet": "hair-uncommon-2",
+    "tile": 6,
     "region": {
-      "x": 364,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 33.39449541284404,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "0b0f7cc2401ca3171e424d1934a573bc5dd0d6da82013c90f75d69e607d653ed"
+    "pixelHash": "39178408e30823f5b7935681f05ff76410578d1fa3e6cad0c447433164dccb6b",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "densetsu_senshi": {
     "tier": "rare",
-    "sheet": "rare",
-    "tile": 9,
+    "sheet": "hair-rare-1",
+    "tile": 6,
     "region": {
-      "x": 2,
-      "y": 547,
-      "w": 508,
-      "h": 197
+      "x": 728,
+      "y": 475,
+      "w": 354,
+      "h": 135
     },
     "crop": {
-      "x": 0.19455252918287938,
-      "y": 66.14268440145102,
-      "bx": 302.3622047244094,
-      "by": 519.7969543147208,
-      "ratio": 2.5786802030456855
+      "x": 66.54478976234005,
+      "y": 49.94742376445846,
+      "bx": 409.03954802259886,
+      "by": 804.4444444444445,
+      "ratio": 2.6222222222222222
     },
-    "pixelHash": "e4feb1d4171e4bc77b6cb4c8a7154b5c8778ce0dbf81c4b961eefddafabba056"
+    "pixelHash": "115346df9fcefb7b6e1ea336fbecec4fc53a19b10d4bbad59fa74e87b0ad2cca",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "magnum_slash": {
     "tier": "rare",
-    "sheet": "rare",
-    "tile": 10,
+    "sheet": "hair-rare-1",
+    "tile": 7,
     "region": {
-      "x": 514,
-      "y": 547,
-      "w": 508,
-      "h": 197
+      "x": 1089,
+      "y": 475,
+      "w": 357,
+      "h": 135
     },
     "crop": {
-      "x": 50,
-      "y": 66.14268440145102,
-      "bx": 302.3622047244094,
-      "by": 519.7969543147208,
-      "ratio": 2.5786802030456855
+      "x": 99.8166819431714,
+      "y": 49.94742376445846,
+      "bx": 405.6022408963585,
+      "by": 804.4444444444445,
+      "ratio": 2.6444444444444444
     },
-    "pixelHash": "7152ac5c236a12e057033efae31525db44142241a765462480375d1b855efeb9"
+    "pixelHash": "cb0503356b1c74a1aef07339909ec570f27a563a609f3b108124f40e4528bea1",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "ai_no_hakushu": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 4,
+    "sheet": "hair-common-2",
+    "tile": 9,
     "region": {
-      "x": 1026,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 79.90654205607477,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "494c8938e57af36eecb4b07ec2ba9dfa35ea23c239e4726a8eaec73448ec5145"
+    "pixelHash": "01f424f7c59070cd4d56ef7364d0b39a801a0aeb3ca848d553b6e5e34cd87f23",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "megane_kirari": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 5,
+    "sheet": "hair-common-2",
+    "tile": 10,
     "region": {
-      "x": 1282,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.84423676012462,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fb35e5f79a70cdc24eda2e341128bbc70aacaf8a84cf8f37346b1b4a09e1c816"
+    "pixelHash": "b5b44ba3e498bb30c473199a55b410b0a1d3f7c5a39c68272bf5b1dc989ceff4",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "cyalume_rain": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-3",
-    "tile": 2,
+    "sheet": "hair-uncommon-2",
+    "tile": 7,
     "region": {
-      "x": 726,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 66.60550458715596,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "1bd386dd39f6b30f3b35efedb4880a8f806ad39b5967863475b243f45e7ebd5b"
+    "pixelHash": "9847a6b3205ab6e9d47ab7ce228b95e968b9a9a97f3932d8212783ac4728c6d1",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kanko_chikara": {
     "tier": "uncommon",
-    "sheet": "uncommon-unique-3",
-    "tile": 3,
+    "sheet": "hair-uncommon-2",
+    "tile": 8,
     "region": {
-      "x": 1088,
-      "y": 2,
-      "w": 358,
-      "h": 358
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.81651376146789,
-      "y": 0.27472527472527475,
-      "bx": 404.4692737430168,
-      "by": 303.35195530726253,
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "32991f145810d73c7d9de6854218ab9a75b3af6e51a684027ebe7e858d5104ae"
+    "pixelHash": "749c80d011132554ecdadf9259154a6ddd8c7349f3100212e4806ed4c82c1c9c",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "unmei_stage": {
     "tier": "rare",
-    "sheet": "rare",
-    "tile": 11,
+    "sheet": "hair-rare-1",
+    "tile": 8,
     "region": {
-      "x": 1026,
-      "y": 547,
-      "w": 508,
-      "h": 197
+      "x": 2,
+      "y": 837,
+      "w": 356,
+      "h": 135
     },
     "crop": {
-      "x": 99.80544747081711,
-      "y": 66.14268440145102,
-      "bx": 302.3622047244094,
-      "by": 519.7969543147208,
-      "ratio": 2.5786802030456855
+      "x": 0.18315018315018314,
+      "y": 88.01261829652996,
+      "bx": 406.7415730337078,
+      "by": 804.4444444444445,
+      "ratio": 2.637037037037037
     },
-    "pixelHash": "8e190a8ec23d3a9bc95b641ef49b93da356a3905aa82f8bef7c23527139fc92a"
+    "pixelHash": "cf3c384a300030b3b955dea2b33151c8d4c172002a97f040156905badf54f3a9",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "tsue_ichigeki": {
     "tier": "common",
@@ -1692,41 +1798,45 @@
   },
   "ganbari_muchi": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 12,
+    "sheet": "hair-common-2",
+    "tile": 11,
     "region": {
-      "x": 2,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "a2ff9053bfa5e3753d42a696e1ad79cf2f901b679fa1857e20406021c83dd684"
+    "pixelHash": "82ab6dc98d32badc1325b76780215e2e47ee4f3d7c6f848136e9075c67a67ebf",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "mama_onigiri": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 13,
+    "sheet": "hair-common-3",
+    "tile": 0,
     "region": {
-      "x": 258,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "c0d713a9bff225fdae1b4d678753f0d53994fee527384ed2cd6a3eefe51458c5"
+    "pixelHash": "554f8cb30358599814e73ee8e70b185e389605a50d3248845d895a6358d35fd6",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "shinkokyu": {
     "tier": "common",
@@ -1749,41 +1859,45 @@
   },
   "hitamuki_lesson": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 15,
+    "sheet": "hair-common-3",
+    "tile": 1,
     "region": {
-      "x": 770,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 59.96884735202492,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "535075963edc1509dc2f48f0c4cf303e2ddf4751c8ea0799f0ab988fb2c32de8"
+    "pixelHash": "9df52cbbc5eb9bb5100861f28798f6239cf0ddaf522650e236e9b0bbab0f3ff7",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "jido_kenkyusho": {
     "tier": "common",
-    "sheet": "common-character-2",
-    "tile": 16,
+    "sheet": "hair-common-3",
+    "tile": 2,
     "region": {
-      "x": 1026,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 79.90654205607477,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "7e3092bdc51b1dbb02631d21f941d15f152f799ce38dac5d8e4cc7f016f93463"
+    "pixelHash": "9bab51504ada06a45e6a3ffea160ea13451e147b862b8a87ed97f3d6999283a0",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kuchizusamu": {
     "tier": "common",
@@ -1806,22 +1920,24 @@
   },
   "mainichi_lesson": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 0,
+    "sheet": "hair-common-3",
+    "tile": 3,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "e3e16d305f0b57b6b90670e0ade895b799556ffc9ee0eb90ba63b8e9901a1fdb"
+    "pixelHash": "9b469ec2a25e75cb7b51ff65ada0b4422e9be1065d1b64d6fa67b03c3424d4bd",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "keiko_no_hibi": {
     "tier": "common",
@@ -1844,117 +1960,129 @@
   },
   "miyaburi": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 2,
+    "sheet": "hair-common-3",
+    "tile": 4,
     "region": {
-      "x": 514,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 40.03115264797508,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "b9e3b1ece0334400fddbd3a070eb4519fbfc1cbde0d8c3cf5c104536c9295e35"
+    "pixelHash": "938dfb4864eb997c38c1e0c4389dad6e4cac64442d03081ccb3daf7945dd303d",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kakuran_kamae": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 3,
+    "sheet": "hair-common-3",
+    "tile": 5,
     "region": {
-      "x": 770,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 59.96884735202492,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "2b6bec143959f8493d2c880dfb01226f68e70858325e53fe6ca1249ec13ad310"
+    "pixelHash": "26d9d25f79723a0b6344d93feb7433e80a3206c1f559451be2fabbaad92e737a",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "misukashi_wink": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 4,
+    "sheet": "hair-common-3",
+    "tile": 6,
     "region": {
-      "x": 1026,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 79.90654205607477,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fb51c0c82f59a221f9498025838ab2a6aa2a4accb4a0714a8da212d8658e5a05"
+    "pixelHash": "d152f18f4b2640a360e23285bd2708845afb1d5cc1d3f5457ff74145838879ba",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "gekisho_spot": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 5,
+    "sheet": "hair-common-3",
+    "tile": 7,
     "region": {
-      "x": 1282,
-      "y": 2,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.84423676012462,
-      "y": 0.2911208151382824,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "2d70c64e57dd3d99ba658d425972a91c04c6d32bbfe4ecc590bdb21564b2f005"
+    "pixelHash": "e3715394cad3c95a4b5c1cedf68c494a5a6cd165ce9a43e12eeb88ced5ff4cce",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kona_kemuri": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 6,
+    "sheet": "hair-common-3",
+    "tile": 8,
     "region": {
-      "x": 2,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "6177896bef6de680c34a7181830d5c0e0e34cf344cb768a77171ca8429fdbf5b"
+    "pixelHash": "1278363fa9c8998ea72ba871f1e9fb9867b493269760709642c55ca888ba7ea9",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "dai_kemuridama": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 7,
+    "sheet": "hair-common-3",
+    "tile": 9,
     "region": {
-      "x": 258,
-      "y": 343,
-      "w": 252,
-      "h": 338
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 50,
-      "bx": 609.5238095238095,
-      "by": 302.9585798816568,
-      "ratio": 0.7455621301775148
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "4e25a7038c182d4733f80b87e4a8679a2730da7b94d12c1fedec1fed459d4c2a"
+    "pixelHash": "6c9460105a24512dfa8ac54f808c44adeb6b885d692599f66feda91807717e44",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "komoriuta": {
     "tier": "common",
@@ -2034,193 +2162,213 @@
   },
   "anc_barrier": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 12,
+    "sheet": "hair-common-5",
+    "tile": 10,
     "region": {
-      "x": 2,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.1557632398753894,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "9915ab144c0f573178cbcdd2409fb53ea2111388220d91e7de71fb140877d2e5"
+    "pixelHash": "8963fc6ef9a03b5178ae46593ba7650ebd1d0dd63c01dca291238ff448a1f4ba",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "anc_wall": {
     "tier": "common",
-    "sheet": "common-character-3",
-    "tile": 13,
+    "sheet": "hair-common-5",
+    "tile": 11,
     "region": {
-      "x": 258,
-      "y": 685,
-      "w": 252,
-      "h": 337
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 20.093457943925234,
-      "y": 99.70887918486171,
-      "bx": 609.5238095238095,
-      "by": 303.85756676557867,
-      "ratio": 0.7477744807121661
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "54332a87914108c9937902852c0aae5861dbe55687550ca4a2ae27c8562ee87f"
+    "pixelHash": "695948025db0c572953e4d8b8161779474d2262790bff43142dcdb30bcd8bebc",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "nagenaifu": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 0,
+    "sheet": "hair-common-3",
+    "tile": 10,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "3a4359b77da3fcccb8bc0ca900226cd75fda0bb22f30850af1ce0f75d188fe2b"
+    "pixelHash": "ef0eb3ff5eb60e99bc6d2921dd698227858dfedd3e288dc9233b3ca411f7d903",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "suri_no_te": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 1,
+    "sheet": "hair-common-3",
+    "tile": 11,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "964aecbae41179371a9db901000b2f2cd1343bdde271e15f57cda66a9ff95560"
+    "pixelHash": "d628efa3ddef02a15b4ef72a97c58a869fb85373c0a78098e0c889b1c80aef81",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "hayate_dash": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 2,
+    "sheet": "hair-common-4",
+    "tile": 0,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "0d363c362dd04e81ad97e49b90b019eee838440fd1b138723ee69aee140a2ebc"
+    "pixelHash": "3340a1768dcfecdb021c5006b592a7667a2bb3a0dff41249d7c6b467802da5b7",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kagefumi": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 3,
+    "sheet": "hair-common-4",
+    "tile": 1,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "30827f40242b7085e83eca5123db2f414f7f6930f5b620a225105a92d956a0c2"
+    "pixelHash": "49928f06abf372dc497bf51b2a6e68b2e2dd749e2cf4973b3ffcb922835d6e9a",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "dokugas_dan": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 4,
+    "sheet": "hair-common-4",
+    "tile": 2,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "38f5086b112e29575eb0580a8db008eb05347aae7f8a6d4fad4aa14edc1e726e"
+    "pixelHash": "0367e609cd1525db68c2723c71c17cd7b628f050c8c57ad8832777eebab80b07",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "jirai_settchi": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 5,
+    "sheet": "hair-common-4",
+    "tile": 3,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "0a3a6b5244fff56f06c9ca6c8c7289dfa087ae80cdb5f5062bc95a7f1697c431"
+    "pixelHash": "9857b25b23fc207b190bf268ee23bba83708a0d1627a1c9d4068697993ff2dcd",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "haguruma": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 6,
+    "sheet": "hair-common-4",
+    "tile": 4,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "1c6ce9c4ea1c961a6bf8200ca7fd8ddbbeede1e392ceface9cfd7e8900dc1281"
+    "pixelHash": "99daa0aaa854a12df7f3a28fe353c3c7bd157aeea7e95597ad616591157bbaed",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "seimitsu_shageki": {
     "tier": "common",
-    "sheet": "expansion-c1",
-    "tile": 7,
+    "sheet": "hair-common-4",
+    "tile": 5,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "9c4ae79693f8b1b22cf3d7e64ae49bd8741fe55038f3299b2fb67031716d052d"
+    "pixelHash": "f7a264e1799d2a4b36918e9be84eb9605c00d15407476822ff313443b2d41989",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "harmony": {
     "tier": "common",
@@ -2300,79 +2448,87 @@
   },
   "gachikoi_beam": {
     "tier": "common",
-    "sheet": "expansion-c2",
-    "tile": 2,
+    "sheet": "hair-common-4",
+    "tile": 6,
     "region": {
-      "x": 757,
-      "y": 2,
-      "w": 481,
-      "h": 393
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50.3994673768309,
-      "y": 0.5,
-      "bx": 412.2661122661123,
-      "by": 201.78117048346058,
-      "ratio": 1.2239185750636132
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fc2fa46f11e7b228b73840b4a48fece8e8e8257fb596be491bfa835e0a464359"
+    "pixelHash": "7e37879d634a46a73939e216ff2e13fe658f0d9a39d49e8649967a718cd199bd",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "hachimaki": {
     "tier": "common",
-    "sheet": "expansion-c2",
-    "tile": 3,
+    "sheet": "hair-common-4",
+    "tile": 7,
     "region": {
-      "x": 1242,
-      "y": 2,
-      "w": 341,
-      "h": 393
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 75.6394640682095,
-      "y": 0.5,
-      "bx": 581.524926686217,
-      "by": 201.78117048346058,
-      "ratio": 0.8676844783715013
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "eabe3da5eb01111eb2d5048842a5cf5913fed7801da8a8a6204f663430a2f523"
+    "pixelHash": "1fb9abbea2e652e9620c5ba0a1b773a1ecca38d419aec38a37b739aff9e91b86",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "obento_power": {
     "tier": "common",
-    "sheet": "expansion-c2",
-    "tile": 4,
+    "sheet": "hair-common-4",
+    "tile": 8,
     "region": {
-      "x": 1587,
-      "y": 2,
-      "w": 394,
-      "h": 393
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87413467589678,
-      "y": 0.5,
-      "bx": 503.2994923857868,
-      "by": 201.78117048346058,
-      "ratio": 1.0025445292620865
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "677067a238723f0e01f553587fdd51510f3f4b06e7eaf50a9e7d8dbb64a22da1"
+    "pixelHash": "4a82ff534bd73962e6dea3af891d6f40b8f94ac8e3a2f7c908c1c0696e639e0e",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "zenryoku_jump": {
     "tier": "common",
-    "sheet": "expansion-c2",
-    "tile": 5,
+    "sheet": "hair-common-4",
+    "tile": 9,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "46a0dc93d86c1aade9c2f85898c88c2530ab872c072faed62b21ee3086eed108"
+    "pixelHash": "e6889ee2e4b289f52b5e1cf25107f2d1b209702096997ee11711232b7d299b33",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "oyaji_gag": {
     "tier": "common",
@@ -2452,155 +2608,171 @@
   },
   "kirikae_step": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 0,
+    "sheet": "hair-uncommon-2",
+    "tile": 9,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "f2aa894ef122a6d0ab2333c4449e6693796a1539bfdc4e4711f0aa84f83b8d73"
+    "pixelHash": "0b342efc2bd2f2769483c32e0cd732b62a0721f0f4b9b14414238b8daae01cd6",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "renkei_kick": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 1,
+    "sheet": "hair-uncommon-2",
+    "tile": 10,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "00d48c8a19b2c4ac7c37a43252a35ad5823f4783281bc1f6c6ef77e8421d9ac1"
+    "pixelHash": "dc0aa779a5fc80b2f021b59f320acdeb58e1bbda2f2d366dc80d062bfd3c7304",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "zenryoku_shonen": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 2,
+    "sheet": "hair-uncommon-2",
+    "tile": 11,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "93cc8a2ff6190bf82bc4cc6d18dbdfefe2a4f3a244e2538e4c95911f6d0d7de2"
+    "pixelHash": "79c1d8a5f3e18c1be0e7842ddd80d3e989d15c9eb2210946edd062fe4f7726a7",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "otakara_dorobo": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 3,
+    "sheet": "hair-uncommon-3",
+    "tile": 0,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "c3b504adfe1ed38444ad2f68a4326d532b6d5a48b4d1ef579b7f0a1befb8e3ee"
+    "pixelHash": "7497e62543276007b36d9f3f1afad7193127a11585d99a785634416ffee9e4de",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "jetpack": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 4,
+    "sheet": "hair-uncommon-3",
+    "tile": 1,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "593e7bd3bf3eaca0e0b92822664a56a01be66cce1bf610763b926befb02c87bc"
+    "pixelHash": "35c7a20f4440ec6b757bbef7aeaa18aea23c6003ab005403529a04cf8d59a8e9",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kaiten_nokogiri": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 5,
+    "sheet": "hair-uncommon-3",
+    "tile": 2,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "5355a2c3355513d14a3d151719d66dc7b47c3289f2fa3bc69cfa5839943f8f46"
+    "pixelHash": "c8317986466ab0f0a05fbd062579b2ea1abf49129299c93b821117a2bd7553ac",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kikai_gundan": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 6,
+    "sheet": "hair-uncommon-3",
+    "tile": 3,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "765ba22de76afc099407657de6ab4fdf87a4c137744def8659448c14e3b507ac"
+    "pixelHash": "babf8c43bd26f13408fe58d2ff02c9c0408d5edb44a820bec4be218b47070b9d",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kinkyu_shuri": {
     "tier": "uncommon",
-    "sheet": "expansion-u1",
-    "tile": 7,
+    "sheet": "hair-uncommon-3",
+    "tile": 4,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "9bfb81a2a23e052b1cf21f18c55eb965eafc70fec159dc30d0b612b1d65eea94"
+    "pixelHash": "fa0c128dc6684b8e23bb902546a66a1692ff26f9a6f30ded7e522f51b2301aef",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "duet": {
     "tier": "uncommon",
@@ -2680,79 +2852,87 @@
   },
   "hi_touch": {
     "tier": "uncommon",
-    "sheet": "expansion-u2",
-    "tile": 2,
+    "sheet": "hair-uncommon-3",
+    "tile": 5,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "edb89098f9021f6fde4012f57c37c75bd818536415d8b714b6c3c21338198c9c"
+    "pixelHash": "53346124c5066ff8ca3e6ba50df8ec9078966595cb044508cf9ef4e317b1566d",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "mamoru_chikara": {
     "tier": "uncommon",
-    "sheet": "expansion-u2",
-    "tile": 3,
+    "sheet": "hair-uncommon-3",
+    "tile": 6,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "b7adfb203f62b23ff3e7f1f5e142b32e1ccc013b85683b464f9ca4cfaf59ae54"
+    "pixelHash": "01faea55afed7fadff0e375061506a5681676ab9d71cf08fae1cb0f8053cd0c3",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "mama_no_ikari": {
     "tier": "uncommon",
-    "sheet": "expansion-u2",
-    "tile": 4,
+    "sheet": "hair-uncommon-3",
+    "tile": 7,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "0d5ee0776123b895d5319981396aaaab278a7f3529e5e3c0648297f0816a01e9"
+    "pixelHash": "5631d912906ebfa8164d1c24bed415860de7347316669367b0ce1542248f6148",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "oshi_no_tame": {
     "tier": "uncommon",
-    "sheet": "expansion-u2",
-    "tile": 5,
+    "sheet": "hair-uncommon-3",
+    "tile": 8,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "52aa36f8c07cdf2ff50d651316c52cd3a827d91cf61c49d801f0533f75183c2b"
+    "pixelHash": "5a1272440d81d5dbd17221b5e0f911cb39d882c87380eeb5685ee1e282930ee4",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "sake_no_chikara": {
     "tier": "uncommon",
@@ -2832,79 +3012,87 @@
   },
   "shinsoku_ranbu": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 0,
+    "sheet": "hair-rare-1",
+    "tile": 9,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "fa97e6c8c064844cf7af6a65d8aef228e5925127fef46bd928440276e828b125"
+    "pixelHash": "bc293a999fc0306361c6c6a23c7dcc695194a4511755d9c9f922f7aeb5a2336f",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "chokasoku": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 1,
+    "sheet": "hair-rare-1",
+    "tile": 10,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "7c01b673fdf2ea091ef2596bd5747f9b4416e193b6fe85d3f2d1f062f42f4b7e"
+    "pixelHash": "86d1cce681defbc08ce402ebea1551c5b451d75527477392134b17adad610b80",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "plasma_ho": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 2,
+    "sheet": "hair-rare-1",
+    "tile": 11,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "0370b6af2c3bd01fb7b8cbabaddd674e0bc37c581fbf4c68656c60037556ae40"
+    "pixelHash": "e11892d056abb3e3f70e44b1d0c97e578f2ac331c9628d5a0136d87707096c85",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "hakase_mode": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 3,
+    "sheet": "hair-rare-2",
+    "tile": 0,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "fe006c42aed6a3c7b2fbcc2f33b2b4ae8ec7eacc3b930279720d84b1aefd5838"
+    "pixelHash": "e3e6c2b185c09b1166350ea918dadf4bcec1d442a70ab3aca3cf607e31da8272",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "dai_gassho": {
     "tier": "rare",
@@ -2946,41 +3134,45 @@
   },
   "kazoku_no_kizuna": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 6,
+    "sheet": "hair-rare-2",
+    "tile": 1,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "7375d2530fe53c43caad436d1ac4303700f8b6cdce25db9d64bfbf0519d8308a"
+    "pixelHash": "48a0964f62a7e9729e38315a68ca68b4c9405c3d00bff90084753ff90f54e621",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kami_taio": {
     "tier": "rare",
-    "sheet": "expansion-r1",
-    "tile": 7,
+    "sheet": "hair-rare-2",
+    "tile": 2,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "2084549a96fedf4b1fa65c9137ae7fb894236754c02743fc433c20230377e0f3"
+    "pixelHash": "a2962a76dc421800119e288f658bc615d8a674427f42c80939a4cc5804944fc1",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "daikenja_satori": {
     "tier": "rare",
@@ -3022,155 +3214,171 @@
   },
   "oyatsu_taimu": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 0,
+    "sheet": "hair-common-4",
+    "tile": 10,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "64b7173c7fd06e8248c9a19c0c754511b3d5fe8ce878e2f6277f58c2e82cdc62"
+    "pixelHash": "03a754b242499bb9dd6456081deaafc85d41862253c215485b859aa58100ff10",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kaze_migawari": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 1,
+    "sheet": "hair-common-4",
+    "tile": 11,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "c07bfa8c5eaa69080a56afd2b4ff35fb7090da15558d86e6dab25dbea8b84630"
+    "pixelHash": "7a0b849a1be46718e107dd107c707ee359313487798168f1e14b42bde105bdd6",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kaihi_step": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 2,
+    "sheet": "hair-common-5",
+    "tile": 0,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "73d8a09aff7fbce3ef742085c951a0d36e0d334459997835217eb7172b4c8a84"
+    "pixelHash": "a908e388983d07d4bf92bd0568605616951327f8419aab731955e00b66ee1e05",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "makibishi": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 3,
+    "sheet": "hair-common-5",
+    "tile": 1,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "c2099a39c042849ad6afea4515ee6beeed595a765ee284a5fbf8bc2962711c9d"
+    "pixelHash": "27d967c7969dfc0d7a989e6eaddca58f5c71318405b5dbd629efe58d6c6ea1cd",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "dokubari": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 4,
+    "sheet": "hair-common-5",
+    "tile": 2,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "779167d2d296c4f2fa29504babef93c27d9e44d3df53ff4bbfcadc1641fd3f35"
+    "pixelHash": "630861d0fa377b94d80284306b76eeb6d78f2d4d575ce9eaaa553ab0358f1f9a",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "baikin_baramaki": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 5,
+    "sheet": "hair-common-5",
+    "tile": 3,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "6b9f452159f8402b2e8d5ba39e4732c86d9feadcb8ff959f643a105bb331c78b"
+    "pixelHash": "290fa1dd5eaa6304a674d0dd6fe192a573803d7a1253b4c08701486661f8b772",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "doku_kenkyu": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 6,
+    "sheet": "hair-common-5",
+    "tile": 4,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "494b962ad85b46ff4b7f8a8036d21e6eed78d341a4c0b15eb48e1a8bf50c28d7"
+    "pixelHash": "0a898e692444e7702233a7626a5d6f9415ab14329480493a347293f5140ec285",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kagaku_hannou": {
     "tier": "common",
-    "sheet": "add2-c1",
-    "tile": 7,
+    "sheet": "hair-common-5",
+    "tile": 5,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "bf4936a055c564d2841fd4f7df5dd6624f493558024c001cd2efd72b73fdf4a3"
+    "pixelHash": "64a265375bdc50542b017ff392d989d0b6c4396a5b9102a3e256346823c6ece1",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "serenade": {
     "tier": "common",
@@ -3250,79 +3458,87 @@
   },
   "oshi_power": {
     "tier": "common",
-    "sheet": "add2-c2",
-    "tile": 2,
+    "sheet": "hair-common-5",
+    "tile": 6,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "6ae2e85a7211bb1dafaa00498469f3b741aa9cd24d12b4cb85d0299118c0d6e7"
+    "pixelHash": "0582d32fcc5686fe144469bbc2477bc936acaca6b18e3c9fbc766d705134d24d",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "uchiwa_bariki": {
     "tier": "common",
-    "sheet": "add2-c2",
-    "tile": 3,
+    "sheet": "hair-common-5",
+    "tile": 7,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "b4f8b821d72632f81a9cf8f3c2256648df953532d82acb0c69f46b9182892c87"
+    "pixelHash": "08e7545c35be01ec76d851d89abe68e8ec3c4c5bd5c192ad5615571ae550d002",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kansei_ouen": {
     "tier": "common",
-    "sheet": "add2-c2",
-    "tile": 4,
+    "sheet": "hair-common-5",
+    "tile": 8,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "93d77c261f30ba1e7fdcf9162375561f8fad809d87b3ec2ad21547bc6c18bff9"
+    "pixelHash": "c143e40febd7302e4aa6f7725ed50e6f74293fe39fb94d71c20e95e323db2ff8",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "tokimeki": {
     "tier": "common",
-    "sheet": "add2-c2",
-    "tile": 5,
+    "sheet": "hair-common-5",
+    "tile": 9,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "2915f6f26ff2a614ca2f6e95f50e69eabc67eec985041ef25d5954ab01d874fb"
+    "pixelHash": "a8390e2685c0bd8aec704dc9a6b5a2133460581d0926658581a0cafe05409cff",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "raimei_ichigeki": {
     "tier": "common",
@@ -3402,155 +3618,171 @@
   },
   "shukuchi": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 0,
+    "sheet": "hair-uncommon-3",
+    "tile": 9,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "567f45e364165afc51e475c9b5614c2e249c60ef3dbbc868e4dfdb02d49d944b"
+    "pixelHash": "24f48007eff36dfbb96ce509024d6d0a06f5cbd4ecb1f12b38eb0449e3eaf963",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "kabe_nobori": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 1,
+    "sheet": "hair-uncommon-3",
+    "tile": 10,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "83292f1487fad968877155350218738da5cf25f94e6e70efbc63c047e7b9052d"
+    "pixelHash": "36aec1155de55dc572fc4a7374f648919feed7533ec384c4ae7d6b4c251d25b7",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "hayawaza_ren": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 2,
+    "sheet": "hair-uncommon-3",
+    "tile": 11,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "53d9a05e70203878ce0c5fbc185094cb374da00bfa70ee8003e8d9b851c3d644"
+    "pixelHash": "555835a8f4adb544b3ecb19c2d1e9cc3730a39008ef79bebf0acbde63e661314",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "kamaitachi": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 3,
+    "sheet": "hair-uncommon-4",
+    "tile": 0,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 3,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 0.27472527472527475,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "d21f6517bf4c61c335397251c3844dd0df49d13612d4ef79a839099fe6aa0b21"
+    "pixelHash": "b2b13d36d2518d1c4409443ec5ec7ea2624a7dd5a0bc7dc3f6b56529bf5a11f5",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "mouduku_dan": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 4,
+    "sheet": "hair-uncommon-4",
+    "tile": 1,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "04fb25ba86bcd9c0e8b9e97c13772018ec7338033c292f259e04410276e70f1f"
+    "pixelHash": "02039beeb99a8d4aa5b01a6033e51c4b5df02c300a82d24fb57c8ce62a765ac7",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "sokushinzai": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 5,
+    "sheet": "hair-uncommon-4",
+    "tile": 2,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 727,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 66.57509157509158,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "3b9354a622710d0d2610052973823b28bccd9783bccf1cb799675827c1cd7781"
+    "pixelHash": "de714aa46f33ec9a901f3f80ec5b4f1e6568d87e25adec1fc9e99c428dbc97b9",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "dokugaku_hakase": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 6,
+    "sheet": "hair-uncommon-4",
+    "tile": 3,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "4974c03499b81aa32e0e72e4d8e7493daff960b6defc38dfa696e626c79a9ade"
+    "pixelHash": "875ec016730c0609b66b28060ae074771d8fb5c1ce854bd31d48d4a354ea7e04",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kaiho_ki": {
     "tier": "uncommon",
-    "sheet": "add2-u1",
-    "tile": 7,
+    "sheet": "hair-uncommon-4",
+    "tile": 4,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "b126ec3df92c5dbc7b732bbd836c2dbf00966da98f977cc209d4b995c2eee622"
+    "pixelHash": "be154e16f1b06ae9c251c71b9ffb7bdece758b466602a78fc1c57b0aec6daf6e",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "kassai": {
     "tier": "uncommon",
@@ -3630,79 +3862,87 @@
   },
   "kanzen_nensho": {
     "tier": "uncommon",
-    "sheet": "add2-u2",
-    "tile": 2,
+    "sheet": "hair-uncommon-4",
+    "tile": 5,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "79715d7e6b4173150978cc6eb55c56e997e2bbaa674788e8ec5f8c76417d28c8"
+    "pixelHash": "9337262712ab2f05eec97599f859891929398f6441a9efdab84d1f701c1fcfa9",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "ai_no_tate": {
     "tier": "uncommon",
-    "sheet": "add2-u2",
-    "tile": 3,
+    "sheet": "hair-uncommon-4",
+    "tile": 6,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "7f8c457ae31f126dcc7d0507c8de47b0dc99e93a45f4c58cad4ef37a2db595f5"
+    "pixelHash": "28a0f85561f9ad907f426989fa1fb8b17212133a6813d6801ed835a03fdd5b4f",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "fansa_bakuhatsu": {
     "tier": "uncommon",
-    "sheet": "add2-u2",
-    "tile": 4,
+    "sheet": "hair-uncommon-4",
+    "tile": 7,
     "region": {
-      "x": 1588,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 99.87421383647799,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "e0a7a31e35809cd94e8ae743ec43e361a0f9d0ace42a2a11c44071301487ca21"
+    "pixelHash": "986e1f85d7793bc791cee1ab42d248cc212737d2ec97d16a02790e8a8c381dd8",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "mama_no_yuuki": {
     "tier": "uncommon",
-    "sheet": "add2-u2",
-    "tile": 5,
+    "sheet": "hair-uncommon-4",
+    "tile": 8,
     "region": {
-      "x": 2,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "4213e98353f626552191901d6ea59ab0cc6ebe31ba82bff51c9810faf41189eb"
+    "pixelHash": "e44717a750129173d117d5a37c627f0eac589cfad3ab00d7d0a9118b8f44b171",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "kaminari_ranbu": {
     "tier": "uncommon",
@@ -3782,79 +4022,87 @@
   },
   "zettai_kaihi": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 0,
+    "sheet": "hair-rare-2",
+    "tile": 3,
     "region": {
-      "x": 2,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 1089,
+      "y": 3,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 0.12578616352201258,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 99.72527472527473,
+      "y": 0.410958904109589,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "903dbb2b367557da2373826df6c8a1fd5fbcc8b5562baa5e29cdba9df704b1c6"
+    "pixelHash": "1b910c22bbe3df3682d8cd50de21a69348bce396448515fa6260ed6ddd3492f5",
+    "actor": "kento",
+    "kentoGlasses": true
   },
   "tenchu_rush": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 1,
+    "sheet": "hair-rare-2",
+    "tile": 4,
     "region": {
-      "x": 399,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 3,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 0.27472527472527475,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "de8e40b4cdb376b2788cd83d96fbc79ffab51fb4e4a77763b7ffd420a0c05851"
+    "pixelHash": "2b54b9f785266d7f5dc9ee000f380717e70cd6bbf5b89d65b75c739ca6810ac2",
+    "actor": "kento",
+    "kentoGlasses": false
   },
   "dai_dokugiri": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 2,
+    "sheet": "hair-rare-2",
+    "tile": 5,
     "region": {
-      "x": 795,
-      "y": 2,
-      "w": 393,
-      "h": 393
+      "x": 365,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 0.5,
-      "bx": 504.58015267175574,
-      "by": 201.78117048346058,
+      "x": 33.42490842490842,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "55060efb019c68c09b5dc4c698a23fade3533a019accf9504be529f7fd650b7b"
+    "pixelHash": "29082409d17b1e752529e068c4e13ae9f8f4a49a17f2a1434829abf6549a2eec",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "saishu_heiki": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 3,
+    "sheet": "hair-rare-2",
+    "tile": 6,
     "region": {
-      "x": 1192,
-      "y": 2,
-      "w": 392,
-      "h": 393
+      "x": 727,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 74.92143306096794,
-      "y": 0.5,
-      "bx": 505.8673469387755,
-      "by": 201.78117048346058,
-      "ratio": 0.9974554707379135
+      "x": 66.57509157509158,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "0cb5b6c82edfb3d0a07cd506dd1ca1d428927693dfa00ff249ef625e54cc6002"
+    "pixelHash": "0baf07936cfcd5c4e7df885dcc045af9837e52c465dfa94bd315676e4178f093",
+    "actor": "taichi",
+    "kentoGlasses": false
   },
   "zettai_onkan": {
     "tier": "rare",
@@ -3896,41 +4144,45 @@
   },
   "kazoku_wo_mamoru": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 6,
+    "sheet": "hair-rare-2",
+    "tile": 7,
     "region": {
-      "x": 399,
-      "y": 399,
-      "w": 392,
-      "h": 392
+      "x": 1089,
+      "y": 365,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 25.078566939032054,
-      "y": 99.50124688279301,
-      "bx": 505.8673469387755,
-      "by": 202.29591836734696,
+      "x": 99.72527472527473,
+      "y": 50,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
       "ratio": 1
     },
-    "pixelHash": "fd9bfe2a38aed06705d874c63f2de6acca2e22f5bfab3070926a6ab1aa9451ee"
+    "pixelHash": "b0e53be0393bc6b8a597825357fe23a551b24ce104baa95cffdf98e135eec510",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "subete_wo_kakete": {
     "tier": "rare",
-    "sheet": "add2-r1",
-    "tile": 7,
+    "sheet": "hair-rare-2",
+    "tile": 8,
     "region": {
-      "x": 795,
-      "y": 399,
-      "w": 393,
-      "h": 392
+      "x": 3,
+      "y": 727,
+      "w": 356,
+      "h": 356
     },
     "crop": {
-      "x": 50,
-      "y": 99.50124688279301,
-      "bx": 504.58015267175574,
-      "by": 202.29591836734696,
-      "ratio": 1.0025510204081634
+      "x": 0.27472527472527475,
+      "y": 99.58904109589041,
+      "bx": 406.7415730337078,
+      "by": 305.0561797752809,
+      "ratio": 1
     },
-    "pixelHash": "6161e5c4869040d1ef0f828d50e110a89ab7f504aa6ebc7a8d0334b3d072276d"
+    "pixelHash": "fd8d0f9eeed490f4f25a58448617d636e66f1bcdc16c2f4b53edd90f38699fad",
+    "actor": "erika",
+    "kentoGlasses": false
   },
   "tenku_ikazuchi": {
     "tier": "rare",
