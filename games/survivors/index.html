@@ -352,6 +352,7 @@ cv.addEventListener('touchend',endT);cv.addEventListener('touchcancel',endT);
 let G=null, state='menu', shake=0, levelQueue=0, selChar='taichi';
 let eid=0;
 function newGame(){
+ ecoReset();   // あたらしい ゲームでは ふかていげんを もとに もどす
  G={char:selChar,stage:1,t:0,soul:1,kills:0,totalKills:0,maxDmg:0,startReal:Date.now(),
   px:0,py:0,fx:1,fy:0,hp:100,iframe:0,
   weapons:{},passives:{},rares:{},revive:0,reviveDropped:false,
@@ -418,7 +419,50 @@ function stageMult(){return Math.pow(HP_MULT,G.stage-1);}
 // きずなボーナス縮小と同率で敵HPインフレも圧縮(道中難度は従来踏襲)
 function stageHP(){return {1:1,2:5.5,3:18,4:75,5:470,6:3600}[G.stage]||1;} // 攻撃+100%レア削除・報酬1択化に合わせて圧縮
 function zakoSpeedMult(){return {4:1.5,5:2,6:3}[G.stage]||1;} // 雑魚移動速度
+/* ================= ふかの じょうげん(スマホたいさく) =================
+   てき・てきだんの さいだいすうを 1かしょで きめる。ボスの しょうかんなど
+   すべての わきぐちが この かんすうを とおるので、じょうげんが かならず きく。 */
+const LIMITS={enemies:230, ebullets:300, drops:40, fxs:90};
+const LIMITS_BASE={enemies:230, ebullets:300, drops:40, fxs:90};
+/* ---- じどう ふかていげん(たいさくC) ----
+   おそい たんまつでも おちない ように、フレームじかんを みて じょうげんを さげる。
+   0=ふつう / 1=かるめ / 2=さらに かるめ。はやくなれば じかんを かけて もどす。 */
+let ECO=0, ecoSlow=0, ecoFast=0;
+function ecoApply(){
+ const k=[1,0.72,0.5][ECO];
+ LIMITS.enemies =Math.round(LIMITS_BASE.enemies *k);
+ LIMITS.ebullets=Math.round(LIMITS_BASE.ebullets*k);
+ LIMITS.fxs     =Math.round(LIMITS_BASE.fxs     *k);
+}
+function ecoTick(frameMs){
+ const budget=frameInterval;                 // 30FPSなら 33ms
+ if(frameMs>budget*1.15){ ecoSlow++; ecoFast=0; } else if(frameMs<budget*0.6){ ecoFast++; ecoSlow=0; } else { ecoSlow=0; }
+ if(ecoSlow>=20&&ECO<2){ ECO++; ecoSlow=0; ecoApply(); toast('⚙ かるいモードに きりかえました'); }
+ else if(ecoFast>=300&&ECO>0){ ECO--; ecoFast=0; ecoApply(); }
+}
+function ecoReset(){ ECO=0; ecoSlow=0; ecoFast=0; ecoApply(); }
+function enemyRoom(){ return LIMITS.enemies - G.enemies.length; }
+function canSpawnEnemy(){ return G.enemies.length < LIMITS.enemies; }
+function pushDrop(d){ if(G.drops.length < LIMITS.drops) G.drops.push(d); }
+/* てきだんの まびき: ふるい順ではなく「がめんの そとに ある たま」から けす。
+   がめんないの だんまくは のこるので、みため・むずかしさは かわりにくい。 */
+function trimEbullets(){
+ const over=G.ebullets.length-LIMITS.ebullets;
+ if(over<=0)return;
+ const halfW=W/2+80, halfH=H/2+80;
+ let removed=0;
+ for(let i=0;i<G.ebullets.length&&removed<over;i++){
+  const b=G.ebullets[i];
+  if(Math.abs(b.x-G.px)>halfW||Math.abs(b.y-G.py)>halfH){ b.life=0; removed++; }
+ }
+ if(removed<over){                       // それでも あまるなら ふるい順に
+  for(let i=0;i<G.ebullets.length&&removed<over;i++){
+   if(G.ebullets[i].life>0){ G.ebullets[i].life=0; removed++; }
+  }
+ }
+}
 function spawnEnemy(type,ang){
+ if(!canSpawnEnemy())return;
  const d=Math.max(W,H)*0.62, a=ang!==undefined?ang:rnd(0,TAU);
  const x=G.px+Math.cos(a)*d, y=G.py+Math.sin(a)*d;
  const tf=1+G.t/60*0.55, sm=stageMult();
@@ -432,6 +476,7 @@ function spawnEnemy(type,ang){
   r:T.r,dmg:T.dmg*(1+0.32*(G.stage-1))*DIFF.eDmg,xp:T.xp,elite:false,boss:false,hitCD:{},wob:rnd(0,TAU)});
 }
 function spawnElite(){
+ if(!canSpawnEnemy())return;
  const a=rnd(0,TAU),d=Math.max(W,H)*0.6;
  const tf=1+G.t/60*0.55,sm=stageMult();
  const HPv=300*tf*sm*stageHP()*DIFF.eHP;
@@ -474,7 +519,7 @@ function updateSpawn(dt){
  if(G.t<BOSS_AT){
   const rate=(1.3+G.t/60*0.85)*(1+0.18*(G.stage-1))*(G.stage>=2?1.3:1)*DIFF.rate;
   G.spawnAcc+=dt*rate;
-  while(G.spawnAcc>=1&&G.enemies.length<260){
+  while(G.spawnAcc>=1&&canSpawnEnemy()){
    G.spawnAcc--;
    const r=Math.random(),late=G.t/STAGE_TIME;
    spawnEnemy(r<0.14+late*0.12?'tank':r<0.4?'runner':r<0.55?'charger':'grunt');
@@ -484,6 +529,7 @@ function updateSpawn(dt){
   G.waveT-=dt;
   if(G.waveT<=0){G.waveT=60;const n=24+G.stage*4;for(let i=0;i<n;i++)spawnEnemy('runner',i/n*TAU);toast('⚠ てきのだいぐんがくるぞ!');}
  }else if(!G.boss&&!G.bossDone){G.enemies.length=Math.min(G.enemies.length,80);spawnBoss();}
+ if(G.drops.length>LIMITS.drops)G.drops.splice(0,G.drops.length-LIMITS.drops);
 }
 /* ---------- weapons fire ---------- */
 function nearest(n){
@@ -553,7 +599,7 @@ function fireWeapons(dt){
     G.bullets.push({k,x:G.px,y:G.py,vx:Math.cos(a)*310,vy:Math.sin(a)*310,r:9*A,dmg:s.dmg,pierce:2,life:1.25,hit:{}});}
   }else if(k==='light'){ // えりか固有: 前方扇形を即時なぎ払い(発射数で扇が広がる)
    const R=125*A*(1+0.05*(s.lv-1)),fa=Math.atan2(G.fy,G.fx),half=1.15+0.25*(s.count-1);
-   if(G.fxs.length<90)G.fxs.push({t:0.16,life:0.16,type:'swing',x:G.px,y:G.py,a:fa,r:R,half});
+   if(G.fxs.length<LIMITS.fxs)G.fxs.push({t:0.16,life:0.16,type:'swing',x:G.px,y:G.py,a:fa,r:R,half});
    forECircle(G.px,G.py,R+70,e=>{
     if(e.dead)return false;
     if(dist2(e.x,e.y,G.px,G.py)<(R+e.r)**2){
@@ -574,9 +620,9 @@ function explode(x,y,R,dmg,quiet){
 function doomBurst(e){
  // 画面全域を覆う高密度の破壊不可リングを多重展開。中心付近に安地を作らない
  SFX.berserk&&SFX.berserk();shakeAdd(16);
- const layers=3;
+ const layers=2;
  for(let L=0;L<layers;L++){
-  const n=40,base=rnd(0,TAU),bs=120+L*55;
+  const n=28,base=rnd(0,TAU),bs=120+L*70;
   for(let i=0;i<n;i++){const a=base+(i/n)*TAU;
    EB(e.x,e.y,a,bs,7,e.dmg*0.7,6,false);}
  }
@@ -712,7 +758,7 @@ function killEnemy(e){
    // 6面の召喚ボス(過去ボス)は撃破してもクリアにはならない。本体撃破で消滅する
    shakeAdd(10);
   }else{
-   G.drops.push({x:e.x,y:e.y,type:'heal'});
+   pushDrop({x:e.x,y:e.y,type:'heal'});
    if(!G.reviveDropped){G.reviveDropped=true;G.drops.push({x:e.x+rnd(-40,40),y:e.y-30,type:'ankh'});}
    // 5面: 2体とも倒すまでクリアしない
    if(G.bosses){G.bosses=G.bosses.filter(b=>b!==e&&!b.dead);}
@@ -729,15 +775,15 @@ function killEnemy(e){
    }
   }
  }else if(e.elite){
-  G.drops.push({x:e.x,y:e.y,type:'chest'});
-  if(e.healDrop)G.drops.push({x:e.x+rnd(-24,24),y:e.y+rnd(-24,24),type:'heal'});
+  pushDrop({x:e.x,y:e.y,type:'chest'});
+  if(e.healDrop)pushDrop({x:e.x+rnd(-24,24),y:e.y+rnd(-24,24),type:'heal'});
   G.gems.push({x:e.x,y:e.y,v:xv,r:9});
  }else{
   if(G.gems.length>420){let m=G.gems[0];m.v+=xv;}
   else G.gems.push({x:e.x,y:e.y,v:xv,r:e.xp>=3?7:5});
   const luck=(CH().bombEvery?2:1)*(1+(G.rares.lucky||0)); // たいち: ドロップ運2倍 / ラッキーだるま: さらに倍
-  if(Math.random()<0.012*luck)G.drops.push({x:e.x,y:e.y,type:'heal'});
-  if(Math.random()<0.004*luck)G.drops.push({x:e.x,y:e.y,type:'magnet'});
+  if(Math.random()<0.012*luck)pushDrop({x:e.x,y:e.y,type:'heal'});
+  if(Math.random()<0.004*luck)pushDrop({x:e.x,y:e.y,type:'magnet'});
  }
  G.fxs.push({t:0.3,life:0.3,type:'pop',x:e.x,y:e.y,r:e.r});
 }
@@ -834,7 +880,7 @@ function update(dt){
      }else{ // エリート招集: 画面外からエリート大量出現
       e.motT=(e.berserk?6:10)+rnd(0,3);shakeAdd(12);toast('⚠ せいえいぶたいが くる! たおせばドロップ!');
       const tf=1+G.t/60*0.55,sm=stageMult();
-      const cnt=4;
+      const cnt=Math.max(0,Math.min(4,enemyRoom()));
       for(let i=0;i<cnt;i++){const ang=rnd(0,TAU),d=Math.max(W,H)*0.6;
        {const HPv=300*tf*sm*stageHP()*0.5*DIFF.eHP;
        G.enemies.push({id:eid++,type:'elite',x:G.px+Math.cos(ang)*d,y:G.py+Math.sin(ang)*d,
@@ -885,9 +931,10 @@ function update(dt){
       for(let i=-2;i<=2;i++){const a2=base+i*0.15;
        EB(e.x,e.y,a2,bs,6,e.dmg*0.5,3.5,false);}}
      e.sumT=(e.sumT===undefined?6:e.sumT)-dt;
-     if(e.sumT<=0&&G.enemies.length<260){e.sumT=7;
+     if(e.sumT<=0&&canSpawnEnemy()){e.sumT=7;
       const tf=1+G.t/60*0.55,sm=stageMult();
-      for(let i=0;i<2+G.stage;i++)
+      const sn=Math.max(0,Math.min(2+G.stage,enemyRoom()));
+      for(let i=0;i<sn;i++)
        {const HPv=6*tf*sm*1.3*stageHP()*DIFF.eHP;
        G.enemies.push({id:eid++,type:'runner',x:e.x+rnd(-70,70),y:e.y+rnd(-70,70),hp:HPv,maxhp:HPv,spd:118*zakoSpeedMult(),r:10,dmg:7*(1+0.32*(G.stage-1))*DIFF.eDmg,xp:1,elite:false,boss:false,hitCD:{},wob:rnd(0,TAU)});}
       G.fxs.push({t:0.4,life:0.4,type:'warn',x:e.x,y:e.y});}
@@ -931,7 +978,7 @@ function update(dt){
   b.x+=b.vx*dt;b.y+=b.vy*dt;
   if(b.bottle){ // とっくりは着地(寿命切れ)で水たまり化。飛行中は無害
    if(b.life<=0){(G.zones=G.zones||[]).push({x:b.x,y:b.y,r:b.zr,t:2.2,tt:0,dmg:b.zdmg});
-    if(G.fxs.length<90)G.fxs.push({t:0.25,life:0.25,type:'pop',x:b.x,y:b.y,r:b.zr*0.5});}
+    if(G.fxs.length<LIMITS.fxs)G.fxs.push({t:0.25,life:0.25,type:'pop',x:b.x,y:b.y,r:b.zr*0.5});}
    continue;}
   if(b.seek)continue; // 追尾ドローンは接触では爆発せず時限式
   // 画面外の自弾は敵判定スキップ(負荷削減)
@@ -966,7 +1013,7 @@ function update(dt){
    forBNear(b.x,b.y,pb=>{
     if(pb.life<=0)return false;
     if(dist2(pb.x,pb.y,b.x,b.y)<(pb.r+b.r)**2){
-     b.bhp-=pb.dmg;if(Math.random()<0.4&&G.fxs.length<90)G.fxs.push({t:0.15,life:0.15,type:'pop',x:b.x,y:b.y,r:5});
+     b.bhp-=pb.dmg;if(Math.random()<0.4&&G.fxs.length<LIMITS.fxs)G.fxs.push({t:0.15,life:0.15,type:'pop',x:b.x,y:b.y,r:5});
      pb.pierce--;if(pb.pierce<=0)pb.life=0;
      return true;}
     return false;});
@@ -980,8 +1027,8 @@ function update(dt){
    if(G.hp<=0){if(tryRevive())continue;gameOver();return;}
   }
  }
- // 敵弾の上限管理(古い順に間引いて処理落ち防止)
- if(G.ebullets.length>500)G.ebullets.splice(0,G.ebullets.length-500);
+ // 敵弾の上限管理(画面外をゆうせんに けして 処理落ち・タブおちを 防止)
+ trimEbullets();
  G.ebullets=G.ebullets.filter(b=>b.life>0);
  // gems & drops
  const pr=stat.pickup();
@@ -1007,7 +1054,7 @@ function update(dt){
  for(const t of G.texts){t.t-=dt;t.y-=40*dt;}
  G.texts=G.texts.filter(t=>t.t>0);
  for(const f of G.fxs)f.t-=dt;
- if(G.fxs.length>90)G.fxs.splice(0,G.fxs.length-90);
+ if(G.fxs.length>LIMITS.fxs)G.fxs.splice(0,G.fxs.length-LIMITS.fxs);
  G.fxs=G.fxs.filter(f=>f.t>0);
  // boss bar
  if(G.boss){
@@ -1622,9 +1669,29 @@ function audioInit(){
  }catch(e){}
 }
 function resumeAudio(){if(AUD.ctx&&AUD.ctx.state==='suspended')AUD.ctx.resume();}
+/* --- どうじはつおんの じょうげん(スマホで タブが おちるのを ふせぐ) ---
+   ボスせんの だんまくちゅうは SE が まいびょう 数十かい なる。
+   ノードを つくりっぱなしに すると スマホの おとエンジンが パンクするので、
+   ①どうじはつおん数を かぎる ②おわったら かならず disconnect する。 */
+const AUD_MAX_VOICES=18;
+let AUD_VOICES=0;
+function voiceFree(){AUD_VOICES=Math.max(0,AUD_VOICES-1);}
+function voiceTake(){ if(AUD_VOICES>=AUD_MAX_VOICES)return false; AUD_VOICES++; return true; }
+/* かいほうの ほけん: onended は AudioContext が suspended の あいだ はっかしない。
+   タイマーでも かならず かいほうして、はつおんわくが つまって おとが とまるのを ふせぐ。
+   (どちらか はやいほう 1かいだけ きく) */
+function voiceRelease(nodes, dur){
+ let done=false;
+ const free=()=>{ if(done)return; done=true;
+  for(const n of nodes){ try{ n.disconnect(); }catch(e){} }
+  voiceFree(); };
+ setTimeout(free, Math.min(3000, (dur+0.25)*1000));
+ return free;
+}
 // 単発トーン
 function tone(freq,dur,type,vol,when,slideTo){
  if(!AUD.ctx||AUD.muted)return;
+ if(!voiceTake())return;                       // なりすぎは すてる(おとは にごらない)
  const t0=when||AUD.ctx.currentTime;
  const o=AUD.ctx.createOscillator(),g=AUD.ctx.createGain();
  o.type=type||'square';o.frequency.setValueAtTime(freq,t0);
@@ -1633,35 +1700,59 @@ function tone(freq,dur,type,vol,when,slideTo){
  g.gain.exponentialRampToValueAtTime(vol||0.3,t0+0.008);
  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
  o.connect(g);g.connect(AUD.sfxGain);o.start(t0);o.stop(t0+dur+0.02);
+ const rel=voiceRelease([o,g],dur);
+ o.onended=rel;
 }
-// ノイズ(爆発・被弾)
+/* --- ノイズ(爆発・被弾) ---
+   もとは よぶたびに AudioBuffer を つくって Math.random で うめていた
+   (ボスせんで まいびょう 約29まんサンプル＝まいふん 66MB)。
+   きどうじに 1ぽんだけ つくって、さいせいそくどと きりだしいちで なりわけ、つかいまわす。 */
+let NOISE_BUF=null;
+function noiseBuf(){
+ if(NOISE_BUF)return NOISE_BUF;
+ const sr=AUD.ctx.sampleRate,n=Math.floor(sr*1.0);
+ const buf=AUD.ctx.createBuffer(1,n,sr),d=buf.getChannelData(0);
+ for(let i=0;i<n;i++)d[i]=Math.random()*2-1;   // げんさい は GainNode がわで かける
+ NOISE_BUF=buf;return buf;
+}
 function noise(dur,vol,filtFreq){
  if(!AUD.ctx||AUD.muted)return;
- const t0=AUD.ctx.currentTime,n=Math.floor(AUD.ctx.sampleRate*dur);
- const buf=AUD.ctx.createBuffer(1,n,AUD.ctx.sampleRate),d=buf.getChannelData(0);
- for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
- const src=AUD.ctx.createBufferSource();src.buffer=buf;
+ if(!voiceTake())return;
+ const t0=AUD.ctx.currentTime,D=Math.min(1.0,dur||0.3);
+ const src=AUD.ctx.createBufferSource();src.buffer=noiseBuf();
+ src.loop=false;
  const f=AUD.ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=filtFreq||1200;
- const g=AUD.ctx.createGain();g.gain.value=vol||0.3;
- src.connect(f);f.connect(g);g.connect(AUD.sfxGain);src.start(t0);
+ const g=AUD.ctx.createGain();
+ g.gain.setValueAtTime(vol||0.3,t0);
+ g.gain.exponentialRampToValueAtTime(0.0001,t0+D);   // もとの げんさいカーブを ここで さいげん
+ src.connect(f);f.connect(g);g.connect(AUD.sfxGain);
+ src.start(t0,Math.random()*0.5,D);                   // まいかい ちがう ところを きりだす
+ src.stop(t0+D+0.02);
+ const rel=voiceRelease([src,f,g],D);
+ src.onended=rel;
 }
 // SE定義
 let _fireT=0;
+/* れんだされる SE の スロットル(まえに なってから 〇〇ms は ならさない)。
+   ボスせんで hit/hurt/special が まいびょう数十かい なるのを おさえる。 */
+const _sfxT={};
+function sfxOK(key,ms){const now=performance.now();if(now-(_sfxT[key]||0)<ms)return false;_sfxT[key]=now;return true;}
 const SFX={
  fire(){const now=performance.now();if(now-_fireT<45)return;_fireT=now;tone(620,0.06,'square',0.10,0,360);},
- hit(){tone(220,0.04,'square',0.06,0,160);},
+ hit(){if(!sfxOK('hit',60))return;tone(220,0.04,'square',0.06,0,160);},
  levelup(){const b=AUD.ctx?AUD.ctx.currentTime:0;[523,659,784,1046].forEach((f,i)=>tone(f,0.18,'triangle',0.22,b+i*0.07));},
  pickup(){tone(880,0.07,'triangle',0.16,0,1320);},
  heal(){const b=AUD.ctx?AUD.ctx.currentTime:0;[659,880].forEach((f,i)=>tone(f,0.16,'sine',0.2,b+i*0.08));},
  chest(){const b=AUD.ctx?AUD.ctx.currentTime:0;[784,988,1318].forEach((f,i)=>tone(f,0.14,'triangle',0.2,b+i*0.06));},
- hurt(){noise(0.22,0.34,700);tone(150,0.18,'sawtooth',0.16,0,80);},
+ hurt(){if(!sfxOK('hurt',120))return;noise(0.22,0.34,700);tone(150,0.18,'sawtooth',0.16,0,80);},
  bossSpawn(){const b=AUD.ctx?AUD.ctx.currentTime:0;[110,98,82].forEach((f,i)=>tone(f,0.5,'sawtooth',0.28,b+i*0.12));noise(0.6,0.3,400);},
  berserk(){const b=AUD.ctx?AUD.ctx.currentTime:0;[660,560,460,360].forEach((f,i)=>tone(f,0.3,'sawtooth',0.3,b+i*0.05,f*0.6));noise(0.5,0.35,900);},
  bossDie(){const b=AUD.ctx?AUD.ctx.currentTime:0;for(let i=0;i<8;i++)tone(880-i*70,0.5,'square',0.22,b+i*0.09,200);noise(1.0,0.4,500);},
  revive(){const b=AUD.ctx?AUD.ctx.currentTime:0;[523,659,784,1046,1318].forEach((f,i)=>tone(f,0.4,'triangle',0.26,b+i*0.08));},
  stageclear(){const b=AUD.ctx?AUD.ctx.currentTime:0;[523,659,784,1046,784,1046].forEach((f,i)=>tone(f,0.22,'triangle',0.24,b+i*0.13));},
  laser(){tone(1400,0.18,'sawtooth',0.12,0,200);},
- special(){tone(300,0.25,'sawtooth',0.16,0,900);noise(0.2,0.18,1500);},
+ special(){if(!sfxOK('special',110))return;tone(300,0.25,'sawtooth',0.16,0,900);noise(0.2,0.18,1500);},
+ pop(){if(!sfxOK('pop',90))return;tone(420,0.05,'square',0.07,0,240);},
 };
 // BGM: トラックごとにコード進行をループ
 const TRACKS={
@@ -1725,8 +1816,10 @@ function loop(now){
  if(elapsed<frameInterval-1)return; // 目標FPSまでスキップ
  // dtは実経過に基づく(描画間引いてもゲーム速度は一定)
  const dt=Math.min(0.05,elapsed/1000);last=now;
+ const t0=performance.now();
  if(state==='play'){update(dt);}
  if(G&&state!=='menu'){render();hud();}
+ if(state==='play')ecoTick(performance.now()-t0);   // おもい たんまつでは じどうで かるくする
 }
 requestAnimationFrame(loop);
 </script>
