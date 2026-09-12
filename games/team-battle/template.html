@@ -1,0 +1,117 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ひがしやま チームバトル！</title><style>*{box-sizing:border-box}body{margin:0;background:#101824;color:#f5e9ce;font-family:system-ui,sans-serif;overflow:hidden}canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;touch-action:manipulation}#home{position:fixed;top:env(safe-area-inset-top,8px);left:8px;z-index:99999;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:rgba(16,24,36,.72);color:#ffd94d;font-size:15px;line-height:1;text-decoration:none;border:2px solid rgba(255,217,77,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:.45;transition:opacity .15s}#home:hover,#home:active{opacity:1}@media(max-width:700px){#home{padding:7px 9px;font-size:13px;opacity:.85}#home .hb-tx{display:none}}#access{position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden}#access:focus-within{width:auto;height:auto;z-index:4;background:#102532;padding:8px}button{font-size:16px}#rotate{position:fixed;bottom:5px;left:0;right:0;text-align:center;color:#8d9fab;font-size:11px;pointer-events:none}@media(orientation:landscape){#rotate{display:none}}dialog{width:min(720px,92vw);border:2px solid #9ec5d3;border-radius:16px;background:#193745;color:#fff0d4;padding:22px}dialog::backdrop{background:#07121ce8}dialog textarea{width:100%;min-height:130px;background:#102631;color:white;border:1px solid #7daaba;border-radius:8px;padding:12px;user-select:text;font-size:14px}dialog button{padding:12px 20px;margin:6px;border:0;border-radius:8px;background:#376378;color:#fff}dialog p{line-height:1.6}canvas{touch-action:none}button:focus-visible{outline:3px solid #ffd88c}</style>
+<canvas id="game" width="960" height="540" aria-label="ひがしやま チームバトル"></canvas><div id="access"></div><div id="rotate">よこむきにすると おおきく あそべるよ</div>
+<!-- HOME_BUTTON --><a id="home" href="../../index.html"><span class="hb-ic">&#8962;</span><span class="hb-tx">ゲームセンター</span></a>
+<dialog id="save-dialog"><h2 id="save-title"></h2><p id="save-note"></p><textarea id="save-code" aria-label="あいことば" spellcheck="false"></textarea><button id="copy-button">コピーする</button><button id="restore-button">つづきから あそぶ</button><button id="close-save">とじる</button></dialog>
+<script>/* ENGINE */
+__ENGINE__
+</script><script>
+'use strict';
+const ART=__ART__;
+const cv=document.getElementById('game'),ctx=cv.getContext('2d'),access=document.getElementById('access');
+let g=null,screen='title',leader=0,selected=null,notice='',modal=null,replay=null,frame=0,timer=null,speed=1,sound=false,audio=null,buttons=[];
+const LEADER=['さいしょの ひきなおしが むりょう','せんとうの なかま こうげき+2','まんなかの はつこうげきで となり+1','せんとうの なかま たいりょく+3','おみせの せいちょうで なかま+1/+1'];
+function tone(f=440){if(!sound)return;try{audio||=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),v=audio.createGain();o.type='square';o.frequency.value=f;v.gain.setValueAtTime(.025,audio.currentTime);v.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);o.connect(v).connect(audio.destination);o.start();o.stop(audio.currentTime+.1);}catch{}}
+function rect(x,y,w,h,c,r=10){ctx.fillStyle=c;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
+function text(t,x,y,size=16,color='#f7efd9',align='left'){ctx.fillStyle=color;ctx.font=`${size>=22?'bold ':''}${size}px system-ui,sans-serif`;ctx.textAlign=align;ctx.fillText(t,x,y);}
+function button(label,x,y,w,h,fn,enabled=true,color='#285969'){rect(x,y,w,h,enabled?color:'#253440');text(label,x+w/2,y+h/2+6,16,enabled?'#fff5db':'#6a7c88','center');if(enabled)buttons.push({label,x,y,w,h,fn});}
+function portrait(f,x,y,scale=3){const c=COLORS[f]||'#8ce0d0';ctx.fillStyle='#16202b';ctx.fillRect(x+2*scale,y,10*scale,4*scale);ctx.fillStyle='#f5c99f';ctx.fillRect(x+3*scale,y+3*scale,8*scale,7*scale);ctx.fillStyle=c;ctx.fillRect(x+scale,y+10*scale,12*scale,7*scale);ctx.fillStyle='#16202b';ctx.fillRect(x+4*scale,y+5*scale,scale,scale);ctx.fillRect(x+9*scale,y+5*scale,scale,scale);if(f===3){ctx.strokeStyle='#293745';ctx.lineWidth=scale*.65;ctx.strokeRect(x+3*scale,y+4*scale,3*scale,3*scale);ctx.strokeRect(x+8*scale,y+4*scale,3*scale,3*scale);}if(f===1){ctx.fillStyle=c;ctx.fillRect(x+scale,y+2*scale,12*scale,2*scale);}if(f===2){ctx.fillStyle=c;ctx.fillRect(x+11*scale,y,3*scale,4*scale);}if(f===4){ctx.fillStyle='#eef0d4';ctx.fillRect(x+5*scale,y+8*scale,4*scale,2*scale);}}
+function act(fn){const ok=fn();if(ok===false)notice='コインや あきわくを たしかめてね';else {notice='';tone(600);}render();}
+function showFight(){undoState=null;selected=null;modal=null;fx=null;oldHearts=g.players[0].hp;paused=false;elapsed=0;g.fight();const r=g.results.find(r=>r.x===0||r.y===0);replay=r||g.results[0];frame=0;paused=false;screen='battle';tick();}
+function tick(){elapsed=0;lastPaint=0;render();}
+function next(){clearTimeout(timer);if(g.phase==='end'||g.players[0].hp<=0){screen='finish';render();return;}g.next();screen='prep';notice='';render();}
+// Additional presentation helpers, embedded into the single HTML at build time.
+let elapsed=0,lastPaint=0,paused=false,fx=null,fxAge=0,oldHearts=25,accessKey='';
+const SKILL_LABEL={summon:'ロボを よぶ',double:'2かい うつ',cheer:'おうえん',guard:'まもる',grow:'そだつ',buff:'みんな +1',none:'バランス'};
+const SKILL_COLOR={summon:'#81d8f3',double:'#c9adff',cheer:'#ffb2da',guard:'#8be2bc',grow:'#a5d98e',buff:'#f6d584',none:'#bdcbd1'};
+const motionReduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let gentle=motionReduced;
+function battlePosition(f,side,uid){const i=f.sides[side].findIndex(u=>u.uid===uid);return i<0?null:{x:140+i*139,y:side===0?308:116,w:129,h:116};}
+function bubble(label,x,y,color='#ffe0a0'){const w=Math.min(230,Math.max(104,label.length*15+24));x=Math.max(w/2+12,Math.min(948-w/2,x));rect(x-w/2,y-24,w,32,'#f7e6bc');text(label,x,y-2,16,'#263b48','center');ctx.fillStyle='#f7e6bc';ctx.beginPath();ctx.moveTo(x-5,y+8);ctx.lineTo(x+5,y+8);ctx.lineTo(x,y+14);ctx.fill();}
+function drawBattle(){
+ const r=replay,f=r.frames[frame],p=Math.min(1,elapsed/(f.duration||700)),a=g.players[r.x],b=r.y>=0?g.players[r.y]:g.players[-r.y-2];
+ text((b?.name||'おばけ')+(r.y<0?'の おばけ':''),24,106,18,'#ffafbc');
+ text('あなたの チーム',24,299,18,'#9ce0f1');
+ const positions=new Map();for(let side=0;side<2;side++)for(const u of f.sides[side])positions.set(u.uid,battlePosition(f,side,u.uid));
+ // Attack path is visible before contact; the moving card is painted last.
+ if(f.type==='attack'){
+  const from=positions.get(f.actor.uid),to=positions.get(f.target.uid);
+  if(from&&to){ctx.strokeStyle='#ffd578';ctx.lineWidth=4;ctx.setLineDash([8,7]);ctx.beginPath();ctx.moveTo(from.x+64,from.y+58);ctx.lineTo(to.x+64,to.y+58);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#ffbd87';ctx.lineWidth=3;ctx.strokeRect(to.x-3,to.y-3,135,122);}
+ }
+ const units=f.sides.flatMap((list,side)=>list.map(u=>({u,side}))).sort((a,b)=>(a.u.uid===f.actor?.uid)-(b.u.uid===f.actor?.uid));
+ for(const {u,side} of units){const pos=positions.get(u.uid);let dx=0,dy=0,alpha=1;
+  const focused=f.focus?.some(v=>v.uid===u.uid);
+  if(f.type==='attack'&&f.actor.uid===u.uid&&!gentle){const to=positions.get(f.target.uid),travel=Math.sin(Math.PI*p)*.66;if(to){dx=(to.x-pos.x)*travel;dy=(to.y-pos.y)*travel;}}
+  if(f.type==='damage'&&!gentle)dx=Math.sin(p*Math.PI*10)*(1-p)*7;
+  if(f.type==='death'&&focused){alpha=1-p*.82;if(!gentle)dy=p*20;}
+  if(f.type==='summon'&&focused&&!gentle)dy=-Math.sin(p*Math.PI)*28;
+  if(f.type==='end'&&f.winner===side&&!gentle)dy=-Math.abs(Math.sin(p*Math.PI*3))*9;
+  ctx.save();ctx.globalAlpha=alpha;card(u,pos.x+dx,pos.y+dy,pos.w,pos.h,()=>showDetail(u));ctx.restore();
+  if(focused&&f.type!=='death'){ctx.strokeStyle=f.type==='buff'?'#97e7b3':'#ffe0a0';ctx.lineWidth=3;ctx.strokeRect(pos.x-3,pos.y-3,pos.w+6,pos.h+6);}
+ }
+ // Numbers are anchored to their exact recipient, including counter-damage.
+ for(const n of f.numbers||[]){const pos=positions.get(n.uid);if(!pos)continue;const rise=gentle?0:Math.sin(p*Math.PI/2)*20;const label=n.stat==='both'?'+'+n.value+'/+'+n.value:(n.value>0?'+':'')+n.value;rect(pos.x+31,pos.y+40-rise,68,35,n.value<0?'#933c4e':'#28694d');text(label,pos.x+65,pos.y+67-rise,28,'#fff8dd','center');}
+ const focus=f.focus?.[0]||f.actor;
+ if(f.label&&focus){const pos=positions.get(focus.uid);if(pos)bubble(f.label,pos.x+64,pos.y-8);}
+ // Fixed story strip: short phase title + explanation, never over the cards.
+ const step={start:'じゅんび',ready:'じゅんび',attack:'こうげき',damage:'ダメージ',death:'おやすみ',summon:'とくいわざ',buff:'とくいわざ',ability:'とくいわざ',settle:'つぎの ばん',end:'けっか'}[f.type]||'バトル';
+ rect(22,435,916,45,'#263e4b');text(step,38,464,17,'#ffdc91');text(f.text,556,464,Math.min(18,710/Math.max(1,f.text.length)),'#f5edd9','center');
+ button(paused?'つづける ▶':'とめる Ⅱ',24,490,145,36,()=>{paused=!paused;render();});
+ button(speed===1?'はやさ ×1':'はやさ ×2',179,490,130,36,()=>{speed=speed===1?2:1;render();});
+ button(gentle?'うごき ひかえめ':'うごき あり',319,490,155,36,()=>{gentle=!gentle;render();});
+ if(paused)button('つぎの うごき →',489,490,231,36,()=>{frame=Math.min(frame+1,replay.frames.length-1);elapsed=replay.frames[frame].duration*.5;render();});
+ else {rect(501,505,199,5,'#345360');rect(501,505,199*(frame+p)/r.frames.length,5,'#e5bc79');}
+ button('けっかへ →',746,490,190,36,()=>{screen='result';paused=false;render();});
+ if(paused){rect(359,240,242,38,'#132a38');text('とまっているよ',480,266,21,'#ffe1a0','center');}
+}
+function purchase(i){
+ undoState=null;const p=g.players[0],id=p.shop[i];if(id==null)return;const before=p.gold,rewards=p.rewards.length,oldIds=new Set([...p.board,...p.bench].map(u=>u.uid));
+ if(!g.buy(p,i)){notice='コインや あきわくを たしかめてね';render();return;}
+ selected=null;modal=null;tone(600);
+ const u=[...p.board,...p.bench].find(u=>!oldIds.has(u.uid));
+ const inBoard=p.board.some(v=>v.uid===u.uid),idx=p[inBoard?'board':'bench'].findIndex(v=>v.uid===u.uid);
+ fx={type:p.rewards.length>rewards?'merge':'buy',u:structuredClone(u),from:{x:24+i*164,y:109},to:{x:24+idx*(inBoard?134:117),y:inBoard?392:266},before,after:p.gold};fxAge=0;
+ notice=fx.type==='merge'?'3まい そろった！ ★スターに なったよ！':'なかまが ふえたよ！ コインを 3まい つかったよ。';render();
+}
+function drawPurchase(){
+ if(!fx||screen!=='prep')return;
+ const length=fx.type==='merge'?1500:950,p=Math.min(1,fxAge/length),t=1-Math.pow(1-p,3);
+ if(p>=1){fx=null;return;}
+ // Briefly block purchases while the card travels, avoiding overlapping actions.
+ buttons=[];
+ if(fx.type==='merge'){
+  rect(0,0,960,540,'#10202ae0',0);
+  text('3まい そろった！',480,125,31,'#ffe3a1','center');
+  if(p<.52&&!gentle){for(let i=0;i<3;i++){const x=240+i*175+(413-(240+i*175))*Math.min(1,p/.52);card({...fx.u,star:false},x,200,134,135);}}
+  else {card(fx.u,413,191,134,145);for(let i=0;i<8;i++){const angle=i*Math.PI/4;const radius=100+Math.sin(p*Math.PI)*25;text('★',480+Math.cos(angle)*radius,267+Math.sin(angle)*radius,22,'#ffdf8c','center');}text('★スターに なったよ！',480,392,26,'#ffe3a1','center');}
+ }else {
+  const x=gentle?fx.to.x:fx.from.x+(fx.to.x-fx.from.x)*t,y=gentle?fx.to.y:fx.from.y+(fx.to.y-fx.from.y)*t-Math.sin(p*Math.PI)*32;
+  ctx.save();ctx.shadowColor='#ffe3a1';ctx.shadowBlur=15;card(fx.u,x,y,123,100);ctx.restore();
+  rect(704,90,224,66,'#55462b');text('コイン '+fx.before+' → '+fx.after,816,118,22,'#ffe3a1','center');text('−3 つかったよ',816,143,16,'#ffe3a1','center');
+ }
+ if(p>=1)fx=null;
+}
+function animate(now){
+ const dt=lastPaint?Math.min(80,now-lastPaint):0;lastPaint=now;
+ music(now);if(screen==='battle'&&!paused&&!modal&&!document.hidden){
+  elapsed+=dt*speed;
+  const duration=replay.frames[frame].duration||700;
+  if(elapsed>=duration){elapsed=0;if(frame<replay.frames.length-1){frame++;const kind=replay.frames[frame].type;if(kind==='damage')tone(220);if(kind==='summon'||kind==='buff')tone(680);}else {screen='result';}}
+  render();
+ }else if(fx&&screen==='prep'&&!document.hidden){fxAge+=dt;render();}
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(animate);
+}
+
+__UI__
+cv.addEventListener('pointerdown',releasePointerDown);
+cv.addEventListener('pointerup',releasePointerUp);
+cv.addEventListener('pointercancel',cancelPointer);
+cv.addEventListener('lostpointercapture',cancelPointer);
+cv.addEventListener('pointermove',e=>{if(!press)return;const r=cv.getBoundingClientRect();if(Math.abs((e.clientX-r.left)*960/r.width-press.x)>16||Math.abs((e.clientY-r.top)*540/r.height-press.y)>16)cancelPointer();});
+cv.addEventListener('contextmenu',contextInspect);
+document.getElementById('restore-button').onclick=restoreFromDialog;
+document.getElementById('copy-button').onclick=async()=>{const field=document.getElementById('save-code');field.select();try{await navigator.clipboard.writeText(field.value);document.getElementById('save-note').textContent='コピーしたよ！ メモなどに のこしてね。';}catch{document.getElementById('save-note').textContent='えらんだ あいことばを コピーしてね。';}};
+document.getElementById('close-save').onclick=()=>document.getElementById('save-dialog').close();
+addEventListener('keydown',e=>{if(e.key==='Escape'&&modal){closeModal();}});
+function fit(){let s=Math.min(innerWidth/960,(innerHeight-24)/540);cv.style.width=960*s+'px';cv.style.height=540*s+'px';}
+addEventListener('resize',fit);fit();loadArt();render();if(typeof requestAnimationFrame==='function')requestAnimationFrame(animate);
+</script></html>
