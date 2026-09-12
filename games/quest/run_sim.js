@@ -165,7 +165,7 @@ const SUITE = `
 
   BS2();PL2("hitamuki_lesson"); ok("scale_kento_combo",  V.powers.shippu_mode===1);
   BS2();PL2("jido_kenkyusho");  ok("scale_taichi_wisdom", V.powers.tensai_ou===1);
-  BS2();PL2("kuchizusamu");     ok("scale_nozomi_faith",  V.powers.star_utahime===1);
+  BS2();PL2("kuchizusamu");     ok("scale_nozomi_faith",  V.powers.star_utahime===2);
   BS2();PL2("mainichi_lesson"); ok("scale_erika_crit",    V.powers.crit_gain===4);
   BS2();PL2("keiko_no_hibi");   ok("scale_yushi_block",   V.powers.horoyoi_kenja===3);
   BS2();V.powers={crit_gain:4};V.crit=0;RE2(999);startPlayerTurn(); ok("crit_gain_applies", S.combat.crit===4);
@@ -356,8 +356,8 @@ const SUITE = `
   ok("drawgain_per_turn", S.combat.hand.length===7, "hand="+S.combat.hand.length);
 
   /* パワー：かいふく／おんぷ／気／ファンサ→きんりょく／おかね */
-  S.combat.busy=false; BS3();PL3("koe_no_mahou"); ok("koe_no_mahou_power", W.powers.regen===2);
-  BS3();RE3(999);W.powers={regen:2};S.hp=10;S.maxHp=100;startPlayerTurn(); ok("regen_per_turn", S.hp===12);
+  S.combat.busy=false; BS3();PL3("koe_no_mahou"); ok("koe_no_mahou_power", W.powers.regen===3);
+  BS3();RE3(999);W.powers={regen:3};S.hp=10;S.maxHp=100;startPlayerTurn(); ok("regen_per_turn", S.hp===13);
   S.combat.busy=false; BS3();PL3("densetsu_live"); ok("densetsu_live_power", W.powers.faithgain===2 && W.powers.drawgain===1);
   BS3();RE3(999);W.powers={faithgain:2};startPlayerTurn(); ok("faithgain_per_turn", S.combat.faith===2);
   S.combat.busy=false; BS3();PL3("daikenja_satori"); ok("daikenja_satori_power", W.powers.energygain===1);
@@ -405,7 +405,7 @@ const SUITE = `
   N.faith=1; ok("fc_playable_with_faith", canPlay(mkCard("takaraka_voice"))===true);
   BSN();REN(999);N.faith=3;y0=N.enemies[0].hp;PLN("takaraka_voice");
   ok("fc_consumes_faith", (y0-N.enemies[0].hp)===10 && N.faith===2, "d="+(y0-N.enemies[0].hp)+" f="+N.faith);
-  BSN();REN(999);N.faith=5;N.blk=0;PLN("serenade"); ok("serenade_block_fc", N.blk===10 && N.faith===4, "blk="+N.blk);   // b9+1(底上げ)
+  BSN();REN(999);N.faith=5;S.hp=10;S.maxHp=100;PLN("serenade"); ok("serenade_heal_fc", S.hp===17 && N.faith===4, "hp="+S.hp);   // かいふく7・おんぷ1しょうひ
   BSN();REN(999);N.faith=4;y0=N.enemies[0].hp;PLN("harmony_chain");
   ok("harmony_chain_fc", (y0-N.enemies[0].hp)===18 && N.faith===2, "d="+(y0-N.enemies[0].hp));
   BSN();REN(999,2);N.faith=3;y0=N.enemies[0].hp;PLN("hoshi_no_uta");
@@ -577,6 +577,41 @@ const SUITE = `
     { S.combat.enemies.forEach(e=>e.hp=0); const h=S.hp; victory(); ok("relic_kusuri_heal", S.hp===h+6, "hp="+S.hp); }
     newRun("kento"); S.relics.push("saifu"); S.floor=3; startCombat(["bat"],"battle");
     { const g=S.gold; S.combat.enemies.forEach(e=>e.hp=0); victory(); ok("relic_saifu_gold", S.gold-g>=25+18, "gold+"+(S.gold-g)); }
+  }
+
+  /* --- v3.3: かいふくは のぞみ／えりか の こゆうのうりょく --- */
+  {
+    const healOf = id=>{ const c=CARDS[id]; const v=Object.assign({},c.v,c.vu||{}); return (c.v&&c.v.h)||0; };
+    const healers = Object.keys(CARDS).filter(id=>healOf(id)>0);
+    const owners  = [...new Set(healers.map(id=>CARDS[id].ch))].sort();
+    ok("heal_only_nozomi_erika_none", owners.join()==="erika,none,nozomi",
+       owners.join()+" / "+healers.filter(id=>!["nozomi","erika","none"].includes(CARDS[id].ch)).join());
+    /* パワーの まいターン かいふくも のぞみ だけ */
+    const regenPow = ["koe_no_mahou","star_utahime","kuchizusamu"];
+    ok("regen_powers_nozomi_only", regenPow.every(id=>CARDS[id].ch==="nozomi"));
+
+    /* マナあたりの かいふくりょう（おんぷ1 = マナ0.5 で かんさん）*/
+    const rate = id=>{ const c=CARDS[id]; const mana = c.cost + ((c.v.fc||0)*0.5); return mana>0 ? healOf(id)/mana : 0; };
+    const avg = ch=>{ const a=healers.filter(id=>CARDS[id].ch===ch); return a.reduce((n,id)=>n+rate(id),0)/a.length; };
+    const nz=avg("nozomi"), er=avg("erika");
+    ok("nozomi_heal_rate_4to5", nz>=4 && nz<=5.2, "のぞみ "+nz.toFixed(2)+"/マナ");
+    ok("erika_heal_rate_2to3",  er>=2 && er<=3.2, "えりか "+er.toFixed(2)+"/マナ");
+    ok("nozomi_heals_more_than_erika", nz > er*1.4, nz.toFixed(2)+" vs "+er.toFixed(2));
+    ok("mama_onigiri_heal3", CARDS.mama_onigiri.v.h===3 && CARDS.mama_onigiri.ex===1, "h="+CARDS.mama_onigiri.v.h);
+
+    /* えりかの カードめいは「ファンをする がわ」— じぶんが ファンサを する いいかたを しない */
+    const badName = Object.keys(CARDS).filter(id=>CARDS[id].ch==="erika")
+      .filter(id=>/ファンサウィンク|ちょうぜつファンサ|ファンサばくはつ|うんめいのステージ|まいにちレッスン|みすかしウィンク|げきしょうスポット/.test(CARDS[id].name));
+    ok("erika_names_fan_side", badName.length===0, badName.map(id=>CARDS[id].name).join());
+    const renamed = {fansa_wink:"めぢからアピール",chozetsu_fansa:"さいぜんれつのせき",unmei_stage:"うんめいのライブ",
+      mainichi_lesson:"じぶんみがき",misukashi_wink:"じっくりかんさつ",gekisho_spot:"アリーナのねっき",fansa_bakuhatsu:"ばくあげタイム",
+      sashiire:"きゅうけいタイム"};
+    const wrong = Object.keys(renamed).filter(id=>CARDS[id].name!==renamed[id]);
+    ok("erika_renames_applied", wrong.length===0, wrong.map(id=>id+"="+CARDS[id].name).join());
+    ok("erika_mech_receives_fansa", CHARS.erika.mech.indexOf("おしが ファンサを くれると")>=0, CHARS.erika.mech);
+    /* なまえが ながすぎない（10もじ まで。11もじ いじょうは カードから はみだす）*/
+    const longName = Object.keys(CARDS).filter(id=>CARDS[id].name.length>10);
+    ok("card_names_fit", longName.length===0, longName.map(id=>CARDS[id].name).join());
   }
 
   /* --- ボスギミック --- */
