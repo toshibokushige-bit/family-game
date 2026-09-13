@@ -12,8 +12,9 @@ for(const game of ['quest','ranger','dash','cards','team-battle','survivors']){
 ok(memory.size===6,'keys isolated');
 // The real mount path: write after a change, reload progress, and survive a quota error.
 {
- const handlers={},elements=[],timers=[];function el(){const e={style:{},textContent:'',setAttribute(){},appendChild(){},addEventListener(){}};elements.push(e);return e;}
- const ctx={console,localStorage:storage,document:{body:{appendChild(){}},createElement:el,addEventListener:(k,f)=>handlers[k]=f},addEventListener:(k,f)=>handlers[k]=f,setInterval:f=>{timers.push(f);return 1;},clearInterval(){},setTimeout:f=>f()};vm.createContext(ctx);vm.runInContext(read('shared/autosave.js'),ctx);
+ const handlers={},elements=[],timers=[];function el(){const e={style:{},textContent:'',setAttribute(){},appendChild(){},addEventListener(){},replaceChildren(){},focus(){},select(){},showModal(){e.open=true;},close(){e.open=false;(e.__close||[]).forEach(f=>f());},remove(){},open:false};const ael=e.addEventListener;e.addEventListener=(k,f)=>{if(k==='close')(e.__close=e.__close||[]).push(f);};elements.push(e);return e;}
+ const homeEl=el();homeEl.id='homeBtn';homeEl.getAttribute=()=>'../../index.html';
+ const ctx={console,localStorage:storage,document:{body:{appendChild(){}},createElement:el,getElementById:id=>(id==='homeBtn'?homeEl:null),addEventListener:(k,f)=>handlers[k]=f},addEventListener:(k,f)=>handlers[k]=f,setInterval:f=>{timers.push(f);return 1;},clearInterval(){},setTimeout:f=>f()};vm.createContext(ctx);vm.runInContext(read('shared/autosave.js'),ctx);
  let value=7,loaded=0;const config={validate:d=>d&&Number.isInteger(d.n),capture:()=>({n:value}),progress:d=>loaded=d.n,restore(){}};
  ctx.HGSave.mount('mount-test',config);handlers.pagehide();ok(JSON.parse(memory.get('higashiyama:mount-test:v1')).data.n===7,'pagehide writes');value=9;timers[0]();ctx.HGSave.mount('mount-test',config);ok(loaded===9,'mount reloads latest progress');ctx.localStorage={getItem(){throw Error('blocked');},setItem(){throw Error('quota');}};const m=ctx.HGSave.mount('quota-test',config);m.capture();ok(!!m.store.issue,'quota reported without crashing');
 }
