@@ -1,6 +1,33 @@
 'use strict';
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto'),os=require('os');
 const Engine=require('./engine');
+/* ホームボタン(../../index.html)から ゲームセンターに もどれる ように、
+   リポジトリの ハブと ほかの ゲームも よみとりせんようで くばる。
+   きどうじに ファイルを みて つくる「かんぜん一致の 許可リスト」なので、
+   ディレクトリを さかのぼる ような URLは とおらない。 */
+const SITE_ROOT=path.join(__dirname,'..','..');
+function staticRoutes(){
+ const routes={'/':path.join(__dirname,'index.html')};          // この ゲーム(LANの いりぐち)
+ const hub=path.join(SITE_ROOT,'index.html'),list=path.join(SITE_ROOT,'games.json');
+ if(fs.existsSync(hub))routes['/index.html']=hub;               // ゲームセンター
+ if(fs.existsSync(list))routes['/games.json']=list;
+ try{
+  for(const d of fs.readdirSync(path.join(SITE_ROOT,'games'),{withFileTypes:true})){
+   if(!d.isDirectory())continue;
+   const f=path.join(SITE_ROOT,'games',d.name,'index.html');
+   if(fs.existsSync(f))routes['/games/'+d.name+'/index.html']=f;
+  }
+ }catch(e){}
+ return routes;
+}
+const STATIC_ROUTES=staticRoutes();
+function serveStatic(req,res){
+ const url=(req.url||'/').split('?')[0];
+ const file=STATIC_ROUTES[url];
+ if(!file||req.method!=='GET'){res.writeHead(404);res.end('Not found');return;}
+ res.setHeader('Content-Type',file.endsWith('.json')?'application/json; charset=utf-8':'text/html; charset=utf-8');
+ fs.createReadStream(file).on('error',()=>{res.writeHead(503);res.end('Build the game first');}).pipe(res);
+}
 function createServer(){
  const rooms=new Map(),creates=new Map();
  const error=(message,status=400)=>{throw Object.assign(Error(message),{status});};
@@ -64,8 +91,7 @@ function createServer(){
    try{if(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)error('この ページからは つなげないよ',403);if(!req.headers['content-type']?.startsWith('application/json'))error('JSON required',415);let size=0,body='';for await(const c of req){size+=c.length;if(size>8192)error('Request too large',413);body+=c;}res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify(request(JSON.parse(body))));}
    catch(e){res.writeHead(e.status||400,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:e.message}));}return;
   }
-  const routes=['/','/index.html','/games/cards/index.html','/games/cards-astra/index.html'];if(req.method!=='GET'||!routes.includes((req.url||'').split('?')[0])){res.writeHead(404).end('Not found');return;}
-  fs.readFile(path.join(__dirname,'index.html'),(e,b)=>{if(e){res.writeHead(503).end('Build the game first');return;}res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(b);});
+  serveStatic(req,res);
  });
  const cleanup=setInterval(()=>{for(const[k,r]of rooms)if(Date.now()-Math.max(...r.seen)>2*60*60*1000){rooms.delete(k);creates.delete(r.createId);}},60000);cleanup.unref();server.on('close',()=>clearInterval(cleanup));return {server,request,rooms};
 }

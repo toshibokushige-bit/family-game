@@ -3,6 +3,7 @@ const read=f=>fs.readFileSync(__dirname+'/'+f,'utf8').replace(/\r\n/g,'\n');
 let html=read('source.html'),app=read('app.js');
 function patch(a,b){if(!app.includes(a))throw Error('Missing hook: '+a);app=app.replace(a,b);}
 patch("gameState.acting === selfIndex();", "gameState.acting === selfIndex() && (!online || (!online.pending && !online.error));");
+patch("f.textContent = ui.anim.dmgText;", "f.textContent = isZero ? 'ガード' : '−'+ui.anim.dmgText;");
 patch("titleEl.textContent = 'あいての ターン…';","titleEl.textContent = online && (online.pending || online.error) ? 'つうしん中…' : 'あいての ターン…';");
 for(const [signature,body] of [
  ['onMainAction()','if(online){lanMainAction();return;}'],

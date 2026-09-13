@@ -56,11 +56,21 @@
     ui.slots=ui.slots.map(function(slots,id){return slots.map(function(m){return m?next.players[id].field.find(function(n){return n.card.netId===m.card.netId;})||null:null;});});
     ui.selectedAttacker=next.acting===humanIdx?next.players[humanIdx].field.find(function(m){return m.card.netId===selectedId&&next.battleRemaining.includes(m);})||null:null;
     ui.anim=null;ui.deadGhost=null;closeModal();closeInspect();
+    if(old&&old.phase!=='init'&&value.rev>0){
+      var before=old.players.map(function(p){return p.hp;}),after=next.players.map(function(p){return p.hp;});
+      ui.anim=buildAttackAnim(before,after,{});
+      next.players.forEach(function(p,id){p.field.forEach(function(m){var previous=old.players[id].field.find(function(n){return n.card.netId===m.card.netId;});if(!previous)ui.anim.summonedCard=m;else if(m.damage>previous.damage){ui.anim.hitCard=m;ui.anim.dmgTargetMon=m;ui.anim.dmgText=String(m.damage-previous.damage);}});});
+      if(old.acting===next.acting&&old.phase==='battle'&&next.phase==='battle'){
+        var spent=old.battleRemaining.find(function(m){return !next.battleRemaining.some(function(n){return n.card.netId===m.card.netId;});});
+        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.attackDamagePreview(spent.card,target.card));}}
+      }
+    }
     if(!value.started){$('lan-wait-code').textContent=value.room;showScreen('screen-lan-wait');return;}
-    if(next.phase==='gameover'){if(!old||old.phase!=='gameover')showVictory();return;}
+    if(next.phase==='gameover'){if(!old||old.phase!=='gameover'){showScreen('screen-game');render();setTimeout(function(){if(gameState===next)showVictory();},900);}return;}
     var current=getCurrentScreenId();if(current!=='screen-fulllog')showScreen('screen-game');
     if(old&&next.players.some(function(p,i){return p.hp<old.players[i].hp;}))Sound.bodyDamage();
     render();
+    ui.anim=null;if(ui.deadGhost)setTimeout(function(){if(gameState===next){ui.deadGhost=null;render();}},900);
     if(current==='screen-fulllog')$('fulllog-content').textContent=buildDisplayLog(next.log).join('\n');
   }
   function lanMainAction(){

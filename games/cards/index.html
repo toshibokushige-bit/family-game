@@ -338,6 +338,21 @@ body.animal-online #app #screen-game{padding-top:12px}
 #lan-dialog{width:min(440px,calc(100vw - 32px));max-height:85svh;box-sizing:border-box;overflow:auto;border:3px solid #b8d5a5;border-radius:24px;padding:24px;color:#263d2a;background:#fffef5;box-shadow:0 20px 80px #1236;font-family:inherit}
 #lan-dialog::backdrop{background:#16352199}#lan-dialog h2{margin:0 0 16px}#lan-note{line-height:1.7;white-space:normal}#lan-dialog input{box-sizing:border-box;width:100%;padding:14px 10px;font:inherit;border:2px solid #9eba91;border-radius:12px;user-select:text;margin:8px 0 16px}#lan-dialog button{min-height:48px;width:100%;margin-top:8px}#lan-dialog [hidden]{display:none!important}#lan-code-label{font-size:14px}
 
+/* Touch feedback is immediate; effects never capture taps or move layout. */
+button,.hand-card,.mon-card{transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(.94);filter:brightness(1.1)}
+.mon-card.selectable{animation:animal-select .28s ease-out;transform:translateY(-7px);box-shadow:0 7px 0 #c59a20,0 0 0 6px #ffeaa0}
+#modal-overlay:not(.hidden) #modal-box,#inspect-overlay:not(.hidden) #inspect-box{animation:animal-open .22s ease-out}
+.mon-card.anim-lunge{z-index:5;animation:animal-strike .4s ease-out}.mon-card.anim-summon{animation:animal-arrive .48s ease-out}.mon-card.anim-hit,.hp-hit{animation:animal-hit .4s ease-out}
+.player-life{position:relative}.dmg-float,.dmg-float.body{pointer-events:none;z-index:20;top:15%;left:50%;font-size:30px;font-weight:900;line-height:1.2;color:#d52038;text-shadow:2px 0 white,-2px 0 white,0 2px white,0 -2px white,0 3px 8px #0005;white-space:nowrap;animation:animal-damage 1.15s ease-out forwards}.dmg-float.body{top:-12px;font-size:28px}.dmg-float.zero{color:#256a92;opacity:1;font-size:20px}
+@keyframes animal-select{0%{transform:translateY(0) scale(.94)}60%{transform:translateY(-10px) scale(1.04)}100%{transform:translateY(-7px)}}
+@keyframes animal-open{from{opacity:.4;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes animal-arrive{0%{opacity:0;transform:translateY(25px) scale(.75)}65%{opacity:1;transform:translateY(-6px) scale(1.06)}100%{transform:none}}
+@keyframes animal-strike{0%,100%{transform:none}35%{transform:translateY(-18px) scale(1.06)}}
+@keyframes animal-hit{0%,100%{transform:none}25%,65%{transform:translateX(-5px);filter:brightness(1.5)}45%,85%{transform:translateX(5px)}}
+@keyframes animal-damage{0%{opacity:0;transform:translate(-50%,12px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.2)}35%,70%{opacity:1;transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-32px)}}
+@media(prefers-reduced-motion:reduce){button,.hand-card,.mon-card{transition:none}.mon-card.selectable,.mon-card.anim-lunge,.mon-card.anim-hit,.mon-card.anim-summon,.hp-hit,#modal-box,#inspect-box{animation:none!important}.dmg-float,.dmg-float.body{animation:none;transform:translateX(-50%)} }
+
 </style>
 </head>
 <body>
@@ -2267,7 +2282,7 @@ body.animal-online #app #screen-game{padding-top:12px}
       var isZero = ui.anim.dmgText === '0';
       var f = document.createElement('div');
       f.className = 'dmg-float' + (isZero ? ' zero' : '');
-      f.textContent = ui.anim.dmgText;
+      f.textContent = isZero ? 'ガード' : '−'+ui.anim.dmgText;
       div.appendChild(f);
     }
   }
@@ -2622,11 +2637,21 @@ body.animal-online #app #screen-game{padding-top:12px}
     ui.slots=ui.slots.map(function(slots,id){return slots.map(function(m){return m?next.players[id].field.find(function(n){return n.card.netId===m.card.netId;})||null:null;});});
     ui.selectedAttacker=next.acting===humanIdx?next.players[humanIdx].field.find(function(m){return m.card.netId===selectedId&&next.battleRemaining.includes(m);})||null:null;
     ui.anim=null;ui.deadGhost=null;closeModal();closeInspect();
+    if(old&&old.phase!=='init'&&value.rev>0){
+      var before=old.players.map(function(p){return p.hp;}),after=next.players.map(function(p){return p.hp;});
+      ui.anim=buildAttackAnim(before,after,{});
+      next.players.forEach(function(p,id){p.field.forEach(function(m){var previous=old.players[id].field.find(function(n){return n.card.netId===m.card.netId;});if(!previous)ui.anim.summonedCard=m;else if(m.damage>previous.damage){ui.anim.hitCard=m;ui.anim.dmgTargetMon=m;ui.anim.dmgText=String(m.damage-previous.damage);}});});
+      if(old.acting===next.acting&&old.phase==='battle'&&next.phase==='battle'){
+        var spent=old.battleRemaining.find(function(m){return !next.battleRemaining.some(function(n){return n.card.netId===m.card.netId;});});
+        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.attackDamagePreview(spent.card,target.card));}}
+      }
+    }
     if(!value.started){$('lan-wait-code').textContent=value.room;showScreen('screen-lan-wait');return;}
-    if(next.phase==='gameover'){if(!old||old.phase!=='gameover')showVictory();return;}
+    if(next.phase==='gameover'){if(!old||old.phase!=='gameover'){showScreen('screen-game');render();setTimeout(function(){if(gameState===next)showVictory();},900);}return;}
     var current=getCurrentScreenId();if(current!=='screen-fulllog')showScreen('screen-game');
     if(old&&next.players.some(function(p,i){return p.hp<old.players[i].hp;}))Sound.bodyDamage();
     render();
+    ui.anim=null;if(ui.deadGhost)setTimeout(function(){if(gameState===next){ui.deadGhost=null;render();}},900);
     if(current==='screen-fulllog')$('fulllog-content').textContent=buildDisplayLog(next.log).join('\n');
   }
   function lanMainAction(){

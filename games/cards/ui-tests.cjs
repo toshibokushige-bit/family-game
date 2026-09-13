@@ -72,6 +72,9 @@ async function checkLan(){
  ok(!!lan.session().pending&&!lan.interactive(),'Lost response blocks extra actions');await lan.poll();
  ok(!lan.session().pending&&lan.interactive(),'Retry restores controls');ok(lan.state().players[0].hand.length===before-1,'Charge applied exactly once');
  const secret=session.room+'.'+session.token;lan.leave();ids['lan-code'].value=secret;await lan.enter('resume');ok(lan.state().players[0].hand.length===before-1,'Client resumes existing hand');
+ const room=service.rooms.get(session.room);room.state.players[0].hp-=2;room.rev++;await lan.poll();
+ ok(ids['my-bar'].innerHTML.includes('−2')&&ids['my-bar'].innerHTML.includes('dmg-float body'),'Received body damage has visible count');
+ await lan.poll();ok(ids['my-bar'].innerHTML.includes('−2'),'Unchanged polling does not restart or erase feedback');
  lan.leave();ids['btn-vs-human'].click();ids['btn-janken-go'].click();ids['btn-janken-go'].click();ok(!ids['screen-pass'].classList.contains('hidden'),'Hotseat still uses privacy pass screen');
  service.server.close();console.log('UI + LAN client PASS: '+assertions);
 }
