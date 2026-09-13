@@ -50,5 +50,38 @@ function createServer(){
  });
  const cleanup=setInterval(()=>{for(const[k,r]of rooms)if(Date.now()-Math.max(...r.seen)>2*60*60*1000)rooms.delete(k);},60000);cleanup.unref();server.on('close',()=>clearInterval(cleanup));return {server,request,rooms};
 }
-if(require.main===module){const port=Number(process.env.TEAM_BATTLE_PORT||8770),host=process.env.TEAM_BATTLE_HOST||'0.0.0.0';const {server}=createServer();server.listen(port,host,()=>{console.log('LAN team battle: http://'+host+':'+port+'/');if(host!=='0.0.0.0'&&host!=='127.0.0.1')http.createServer(server.listeners('request')[0]).listen(port,'127.0.0.1');console.log('This PC: http://127.0.0.1:'+port+'/');});}
+// このPCの LANアドレス(IPv4)を あつめる。スマホから つなぐ ときの あてさき。
+function lanAddresses(){
+ const out=[];
+ const ifaces=os.networkInterfaces();
+ for(const name of Object.keys(ifaces)){
+  for(const net of (ifaces[name]||[])){
+   if(net.family!=='IPv4'&&net.family!==4)continue;
+   if(net.internal)continue;
+   out.push({name,address:net.address});
+  }
+ }
+ // 192.168.x → 10.x → 172.16-31.x の じゅんに ならべる(かていの LANが さきに くる)
+ const rank=a=>/^192\.168\./.test(a)?0:/^10\./.test(a)?1:/^172\.(1[6-9]|2\d|3[01])\./.test(a)?2:3;
+ out.sort((x,y)=>rank(x.address)-rank(y.address));
+ return out;
+}
+if(require.main===module){const port=Number(process.env.TEAM_BATTLE_PORT||8770),host=process.env.TEAM_BATTLE_HOST||'0.0.0.0';
+ const {server}=createServer();
+ server.listen(port,host,()=>{
+  if(host!=='0.0.0.0'&&host!=='127.0.0.1')http.createServer(server.listeners('request')[0]).listen(port,'127.0.0.1');
+  const addrs=lanAddresses();
+  console.log('');
+  console.log('==== ひがしやま チームバトル LANたいせん ====');
+  if(addrs.length){
+   console.log('スマホ・タブレットから これを ひらいてね(おなじ Wi-Fi):');
+   for(const a of addrs) console.log('   http://'+a.address+':'+port+'/     ('+a.name+')');
+  }else{
+   console.log('LANアドレスが みつかりません。Wi-Fi / ゆうせんLANに つないでから もういちど。');
+  }
+  console.log('この パソコンで あそぶ とき: http://127.0.0.1:'+port+'/');
+  console.log('とめる ときは Ctrl+C');
+  console.log('');
+ });
+}
 module.exports={createServer};

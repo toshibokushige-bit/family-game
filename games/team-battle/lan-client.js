@@ -1,15 +1,13 @@
 let online=null,lanTimer=null;
 function lanDialog(message='へやを つくるか、ばんごうを いれてね'){
  let box=document.getElementById('lan-dialog');if(!box){box=document.createElement('dialog');box.id='lan-dialog';box.style.cssText='max-width:560px;width:85%;background:#254452;color:#edf3df;border:2px solid #ffe2a0;border-radius:16px;padding:24px;font:20px sans-serif';box.innerHTML='<h2>ふたりで LANたいせん</h2><p id="lan-note"></p><p>おなじ Wi-Fiで あそぼう。えらんだ リーダーで さんかするよ。</p><label>へやの ばんごう / ふっきの あいことば<input id="lan-code" autocomplete="off" style="display:block;width:95%;font:18px monospace;padding:10px;margin:12px 0"></label><div id="lan-actions"></div>';
- document.body.appendChild(box);}box.querySelector('#lan-note').textContent=message;const actions=box.querySelector('#lan-actions');actions.replaceChildren();
+ document.body.appendChild(box);}box.querySelector('#lan-code').parentElement.style.display='';box.querySelector('#lan-note').textContent=message;const actions=box.querySelector('#lan-actions');actions.replaceChildren();
  const add=(label,fn)=>{const b=document.createElement('button');b.textContent=label;b.style.cssText='font:18px sans-serif;padding:12px;margin:5px;border-radius:8px';b.onclick=fn;actions.appendChild(b);};
  if(online){box.querySelector('#lan-code').value=online.room+'.'+online.token;add('とじる',()=>box.close());add('たいせんから でる',()=>{box.close();leaveLan();});}
  else {add('へやを つくる',()=>enterLan('create'));add('へやに はいる',()=>enterLan('join'));add('つづきに もどる',()=>enterLan('resume'));add('とじる',()=>box.close());}
  if(!box.open)box.showModal();
 }
-// おうちの LAN(ローカル)から ひらいた ときだけ 8770ばんの サーバーへ うつる。
-// こうかいサイトから おすと つながらない ところへ とんで もどれなく なるので、
-// その ばあいは あんないだけ だして ゲームに とどまる。
+// 公開サイトでは家庭内サーバーへの入口を表示する。
 function lanAvailable(){
  if(location.protocol==='file:')return true;
  var h=location.hostname;
@@ -17,19 +15,64 @@ function lanAvailable(){
   /^192\.168\./.test(h)||/^10\./.test(h)||/^172\.(1[6-9]|2\d|3[01])\./.test(h)||/\.local$/.test(h);
 }
 function openLan(){
- if(!lanAvailable()){lanUnavailableDialog();return;}
+ if(!lanAvailable()||location.protocol==='file:'){lanUnavailableDialog();return;}
  if(location.port!=='8770'){location.href=location.protocol+'//'+location.hostname+':8770/#lan';return;}
  lanDialog();
 }
+// おうちの パソコンの アドレスは リポジトリに うめこまない。
+// URLの #home= に おぼえさせる（ブックマークに のこる）か、その ばで いれてもらう。
+function homeHostFromHash(){
+ const m=/[#&]home=([^&]+)/.exec(location.hash||'');
+ return m?decodeURIComponent(m[1]):'';
+}
+// 「192.168.1.10」「192.168.1.10:8770」「http://192.168.1.10:8770/」などを うけつける
+function normalizeHomeUrl(input){
+ let v=String(input||'').trim();
+ if(!v)return '';
+ v=v.replace(/^https?:\/\//i,'').replace(/[\/#].*$/,'');
+ if(!v)return '';
+ if(!/:\d+$/.test(v))v+=':8770';
+ return 'http://'+v+'/#lan';
+}
 function lanUnavailableDialog(){
- lanDialog('LANたいせんは、おうちの パソコンで サーバーを うごかして、おなじ Wi-Fi の 2だいで あそぶ きのうだよ。いまは インターネットから ひらいているので つかえません。');
- const box=document.getElementById('lan-dialog');
- const code=box.querySelector('#lan-code'); if(code&&code.parentElement)code.parentElement.style.display='none';
- const actions=box.querySelector('#lan-actions'); actions.replaceChildren();
- const b=document.createElement('button'); b.textContent='とじる';
- b.style.cssText='font:18px sans-serif;padding:12px;margin:5px;border-radius:8px';
- b.onclick=()=>{ box.close(); if(code&&code.parentElement)code.parentElement.style.display=''; };
- actions.appendChild(b);
+ lanDialog('おうちで ふたりたいせん！ おなじ Wi-Fiに つないで、おうちの パソコンで サーバーを うごかしてね。');
+ const box=document.getElementById('lan-dialog'),code=box.querySelector('#lan-code');
+ code.parentElement.style.display='none';
+ const actions=box.querySelector('#lan-actions');actions.replaceChildren();
+
+ const hint=document.createElement('p');
+ hint.textContent='パソコンの がめんに でた「http://…:8770/」を いれてね。';
+ hint.style.cssText='margin:4px 0 8px';actions.appendChild(hint);
+
+ const address=document.createElement('input');
+ address.value=homeHostFromHash();
+ address.placeholder='192.168.x.x:8770';
+ address.setAttribute('aria-label','おうちの パソコンの アドレス');
+ address.autocomplete='off'; address.spellcheck=false;
+ address.style.cssText='width:95%;padding:10px;font:16px monospace;user-select:text;border-radius:8px';
+ actions.appendChild(address);
+
+ const err=document.createElement('p');
+ err.style.cssText='margin:6px 0;min-height:1.4em;color:#ffd0a8';actions.appendChild(err);
+
+ const go=document.createElement('button');
+ go.textContent='おうちの たいせんへ →';
+ go.style.cssText='display:block;width:100%;padding:16px;margin:8px 0;background:#a77837;color:white;border:0;border-radius:10px;font:18px sans-serif';
+ go.onclick=()=>{
+  const url=normalizeHomeUrl(address.value);
+  if(!url){err.textContent='アドレスを いれてね。';address.focus();return;}
+  // つぎに この ページを ひらいた ときの ために おぼえておく（ブックマークに のこる）
+  try{ location.hash='home='+encodeURIComponent(url.replace(/^http:\/\//,'').replace(/\/#lan$/,'')); }catch(e){}
+  location.href=url;
+ };
+ actions.appendChild(go);
+
+ const close=document.createElement('button');
+ close.textContent='とじる';
+ close.style.cssText='font:18px sans-serif;padding:12px;margin:5px;border-radius:8px';
+ close.onclick=()=>box.close();
+ actions.appendChild(close);
+ address.focus();
 }
 async function lanFetch(data){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);try{const r=await fetch('/api/lan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:controller.signal});const result=await r.json();if(!r.ok)throw Object.assign(Error(result.error||'つなぎなおしてね'),{server:true});return result;}finally{clearTimeout(timeout);}}
 async function enterLan(op){const input=document.getElementById('lan-code').value.trim(),parts=input.split('.'),data=op==='resume'?{op:'state',room:parts[0],token:parts[1]}:{op,room:input,leader};
