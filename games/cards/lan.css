@@ -1,0 +1,6 @@
+.lan-session{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:58px 12px 0;padding:10px 14px;border-radius:16px;background:#e8f5df;color:#234327;font-size:14px}
+.lan-session.hidden{display:none}.lan-session button{margin-left:auto;padding:8px 12px;min-height:44px}.lan-session span{flex:1;min-width:100px}
+body.animal-online #app #screen-game{padding-top:12px}
+#screen-lan-wait{text-align:center;justify-content:center;gap:20px}#lan-wait-code{font-size:clamp(38px,12vw,72px);font-weight:900;letter-spacing:.12em;color:#245b30}
+#lan-dialog{width:min(440px,calc(100vw - 32px));max-height:85svh;box-sizing:border-box;overflow:auto;border:3px solid #b8d5a5;border-radius:24px;padding:24px;color:#263d2a;background:#fffef5;box-shadow:0 20px 80px #1236;font-family:inherit}
+#lan-dialog::backdrop{background:#16352199}#lan-dialog h2{margin:0 0 16px}#lan-note{line-height:1.7;white-space:normal}#lan-dialog input{box-sizing:border-box;width:100%;padding:14px 10px;font:inherit;border:2px solid #9eba91;border-radius:12px;user-select:text;margin:8px 0 16px}#lan-dialog button{min-height:48px;width:100%;margin-top:8px}#lan-dialog [hidden]{display:none!important}#lan-code-label{font-size:14px}
