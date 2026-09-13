@@ -224,6 +224,7 @@
       ? (humanIdx === 0 ? ['human', 'cpu'] : ['cpu', 'human'])
       : ['human', 'human'];
     gameState = Engine.newGame(deck0, deck1, jankenFirstPlayer, rng, controllers);
+    gameState.skillsEnabled=true;
     ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
     tut = null;
     Engine.beginTurn(gameState);
@@ -748,7 +749,7 @@
     box.className = 'rarity-' + cardLike.rarity;
     box.querySelector('.mcb-icon').innerHTML = animalPicture(cardLike);
     box.querySelector('.mcb-name').textContent = animalName(cardLike) + ' · ★' + cardLike.rarityNum;
-    box.querySelector('.mcb-stats').textContent = statsText.replace(/ATK/g,'こうげき').replace(/DEF/g,'ぼうぎょ').replace(/HP/g,'たいりょく');
+    box.querySelector('.mcb-stats').textContent = (statsText+(mode==='tutorial'?'':' / '+Engine.skillText(cardLike))).replace(/ATK/g,'こうげき').replace(/DEF/g,'ぼうぎょ').replace(/HP/g,'たいりょく');
   }
 
   // 「まだ行動が残っているよ」の確認ダイアログ。カード表示は使わずメッセージのみ。
@@ -882,7 +883,7 @@
   function animalPicture(c) {
     var a=ANIMAL_ART[c.name];
     if(!a)return '<span>'+escapeHtml(c.icon||'')+'</span>';
-    return '<span class="animal-art" role="img" aria-label="'+escapeHtml(a.label)+'" style="--atlas:var(--animals-'+a.sheet+');--ax:'+a.x+'%;--ay:'+a.y+'%;--abx:'+a.bx+'%;--aby:'+a.by+'%"></span>';
+    return '<span class="animal-art" role="img" aria-label="'+escapeHtml(a.label)+'" style="--atlas:var(--animals-'+a.sheet+');--ax:'+a.x+'%;--ay:'+a.y+'%;--abx:'+a.bx+'%;--aby:'+a.by+'%"></span>'+(mode==='tutorial'?'':'<small class="animal-skill">'+escapeHtml(Engine.skillText(c).split('：')[0])+'</small>');
   }
   function animalStats(c,hp){return '<span class="stat-atk" title="こうげき">⚔ '+c.atk+'</span><span class="stat-def" title="ぼうぎょ">🛡 '+c.df+'</span><span class="stat-hp" title="たいりょく">♥ '+(hp===undefined?c.hp:hp)+'</span>';}
   var dialogReturnFocus=null, inspectReturnFocus=null;
@@ -892,6 +893,7 @@
     $('inspect-title').textContent=animalName(c);
     $('inspect-picture').innerHTML=animalPicture(c);
     $('inspect-detail').innerHTML='<div class="inspect-cost">'+c.rarity+' · おうえん '+c.rarityNum+'にんで だせる</div><div class="inspect-stats"><span class="stat-atk">こうげき<b>'+c.atk+'</b></span><span class="stat-def">ぼうぎょ<b>'+c.df+'</b></span><span class="stat-hp">たいりょく<b>'+(remain===undefined?c.hp:remain)+'<small> / '+c.hp+'</small></b></span></div>';
+    if(mode!=='tutorial')$('inspect-detail').innerHTML+='<p class="skill-description">'+escapeHtml(Engine.skillText(c))+'</p>';
     $('inspect-overlay').classList.remove('hidden');$('inspect-close').focus();
   }
   function closeInspect(){ $('inspect-overlay').classList.add('hidden');if(inspectReturnFocus&&inspectReturnFocus.isConnected)inspectReturnFocus.focus(); }
@@ -1120,7 +1122,7 @@
       div.innerHTML = monCardHtml(m);
       if (m !== ghost && isMyInteractiveTurn() && gameState.phase === 'battle' && ui.selectedAttacker) {
         div.classList.add('targetable');
-        var dmg = Engine.attackDamagePreview(ui.selectedAttacker.card, m.card);
+        var dmg = Engine.previewAttack(gameState,ui.selectedAttacker,m);
         var badge = document.createElement('div');
         badge.className = 'dmg-badge';
         badge.textContent = String(dmg);
@@ -1301,4 +1303,3 @@
   initAnimalUI();
   showScreen('screen-title');
 })();
-

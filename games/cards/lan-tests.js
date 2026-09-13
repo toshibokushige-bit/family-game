@@ -39,6 +39,6 @@ async function main(){
   await post({op:'create',requestId:nonce()},403,{Origin:'https://elsewhere.example'});
   ok((await fetch(base+'/lan-server.js')).status===404,'Server source private');ok((await fetch(base+'/')).status===200,'Game served');
   console.log('LAN PASS: '+checks+' assertions; '+actions+' actions; 12 completed games through HTTP');
- }finally{await new Promise(r=>service.server.close(r));}
+ }finally{service.server.closeAllConnections();await new Promise(r=>service.server.close(r));}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

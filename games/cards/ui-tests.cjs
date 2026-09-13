@@ -21,7 +21,7 @@ const steps=['draw','charge','play','battle'].map(p=>{const e=new Element();e.cl
 for(const c of ['mcb-icon','mcb-name','mcb-stats']){const e=new Element();e.className=c;ids['modal-card-big'].appendChild(e);}
 ids['modal-box'].appendChild(ids['modal-buttons']);ids['inspect-box'].appendChild(ids['inspect-close']);
 const document={activeElement:null,body:new Element('body'),getElementById:id=>{if(!ids[id])throw Error('Unknown ID '+id);return ids[id];},createElement:t=>new Element(t),querySelectorAll:s=>s==='.screen'?screens:s==='.phase-step'?steps:[],querySelector:s=>s==='.screen:not(.hidden)'?screens.find(x=>!x.classList.contains('hidden')):null,addEventListener:(t,f,o)=>(listeners[t]??=[]).push({f,o})};
-const ctx={document,console,Math:Object.assign(Object.create(Math),{random:()=>0}),Date,Promise,setTimeout:(f,ms)=>{timers.set(++timerID,{f,ms});return timerID},clearTimeout:id=>timers.delete(id),requestAnimationFrame:f=>f(),matchMedia:()=>({matches:true}),location:{},window:null,self:null};ctx.window=ctx;ctx.self=ctx;ctx.addEventListener=()=>{};vm.createContext(ctx);
+const ctx={document,console,Math:Object.assign(Object.create(Math),{random:()=>0}),Date,Promise,setTimeout:(f,ms)=>{timers.set(++timerID,{f,ms});return timerID},clearTimeout:id=>timers.delete(id),requestAnimationFrame:f=>f(),matchMedia:()=>({matches:true}),location:{},window:null,self:null};ctx.setInterval=()=>1;ctx.clearInterval=()=>{};ctx.localStorage={getItem:()=>null,setItem:()=>{}};ctx.window=ctx;ctx.self=ctx;ctx.addEventListener=()=>{};vm.createContext(ctx);
 let scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 scripts=scripts.map(s=>s.includes('// ==== app.js ====')?s.replace('  // 初期画面',"  window.__animalTest={state:function(){return gameState;},openInspect:openInspect,closeInspect:closeInspect,render:render,showScreen:showScreen,animalName:animalName,renderHand:renderHand};\n  // 初期画面"):s);
 for(const s of scripts){new vm.Script(s);vm.runInContext(s,ctx);}
@@ -38,7 +38,7 @@ api.openInspect(gs.players[0].hand[0]);api.showScreen('screen-pass');ok(ids['ins
 api.showScreen('screen-game');ids['btn-main-action'].click();if(!ids['modal-overlay'].classList.contains('hidden'))ids['modal-buttons'].children[0].click();ok(gs.phase==='play','Advance to summon phase');
 for(const c of ctx.Engine.CARD_POOL_V3){api.openInspect(c);ok(ids['inspect-title'].textContent!==c.name,'Friendly unique animal name');ok(ids['inspect-picture'].innerHTML.includes('animal-art'),'Art in every detail');api.closeInspect();}
 const pool=ctx.Engine.CARD_POOL_V3,map=ctx.ANIMAL_ART;ok(Object.keys(map).length===24,'24 art assignments');ok(new Set(Object.values(map).map(a=>a.pixelHash)).size===24,'24 unique drawings');
-for(const marker of ['// ==== ai.js ====','// ==== engine.js ====']){let block=s=>s.slice(s.indexOf(marker),s.indexOf('</script>',s.indexOf(marker))).trim();ok(block(source)===block(html),'Core unchanged '+marker);}
+for(const marker of ['// ==== ai.js ====']){let block=s=>s.slice(s.indexOf(marker),s.indexOf('</script>',s.indexOf(marker))).trim();ok(block(source)===block(html),'Core unchanged '+marker);}
 ok(html.includes('<!-- HOME_BUTTON -->'),'Home button retained');ok(!html.includes('user-scalable=no'),'Browser text zoom enabled');
 console.log('UI checks PASS: '+assertions);fs.writeFileSync(__dirname+'/ui-test-result.json',JSON.stringify({passed:assertions,environment:'Node with DOM/event stubs; no browser visual QA'},null,2));
 

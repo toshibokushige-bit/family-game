@@ -1,4 +1,4 @@
 {
-  "passed": 76,
+  "passed": 75,
   "environment": "Node with DOM/event stubs; no browser visual QA"
 }

@@ -14,6 +14,9 @@ if '__PIX__' not in tpl:
     sys.exit('ERROR: template.html に __PIX__ プレースホルダがありません')
 
 out = tpl.replace('__PIX__', pix)
+out = out.replace('<script>', '<script>\n' + (root / 'shared/autosave.js').read_text(encoding='utf-8') + '\n', 1)
+pos = out.rfind('</script>')
+out = out[:pos] + '\n' + (here / 'autosave.js').read_text(encoding='utf-8') + '\n' + out[pos:]
 (here / 'index.html').write_text(out, encoding='utf-8')
 print(f'built index.html ({len(out):,} bytes)')
 

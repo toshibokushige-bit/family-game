@@ -353,6 +353,8 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
 @keyframes animal-damage{0%{opacity:0;transform:translate(-50%,12px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.2)}35%,70%{opacity:1;transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-32px)}}
 @media(prefers-reduced-motion:reduce){button,.hand-card,.mon-card{transition:none}.mon-card.selectable,.mon-card.anim-lunge,.mon-card.anim-hit,.mon-card.anim-summon,.hp-hit,#modal-box,#inspect-box{animation:none!important}.dmg-float,.dmg-float.body{animation:none;transform:translateX(-50%)} }
 
+.animal-skill{display:block;font-size:11px;line-height:1.4;padding:3px 2px;color:#245e47;background:#edf7ec;border-radius:5px}.inspect-picture .animal-skill{font-size:16px}
+
 </style>
 </head>
 <body>
@@ -364,7 +366,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
 
   <button id="btn-sound-toggle" class="sound-toggle" aria-label="音を オン/オフ">🔊</button>
 
-  <div id="screen-title" class="screen"><div class="title-copy"><div class="game-mark">むし・どうぶつ・きょうりゅう</div><h1>アニマル<br><span>カードバトル</span></h1><div class="title-buttons"><button id="btn-vs-cpu" class="btn-primary btn-block">ひとりで たたかう<span class="btn-sub">コンピューターと たいせん</span></button><button id="btn-vs-lan" class="btn-primary btn-block">2だいで たたかう<span class="btn-sub">同じWi-Fiで へやに さんか</span></button><button id="btn-vs-human" class="btn-secondary btn-block">ふたりで たたかう<span class="btn-sub">ひとつの がめんで こうたい</span></button><button id="btn-tutorial" class="btn-tutorial btn-block">はじめて あそぶ<span class="btn-sub">せんせいと いっしょに れんしゅう</span></button><button id="btn-rules" class="btn-plain btn-block">ルールを みる</button></div></div><div class="title-art" id="title-art" aria-hidden="true"></div><div class="version-tag">v0.4.0 · 2たんまつ たいせん</div></div>
+  <div id="screen-title" class="screen"><div class="title-copy"><div class="game-mark">むし・どうぶつ・きょうりゅう</div><h1>アニマル<br><span>カードバトル</span></h1><div class="title-buttons"><button id="btn-vs-cpu" class="btn-primary btn-block">ひとりで たたかう<span class="btn-sub">コンピューターと たいせん</span></button><button id="btn-vs-lan" class="btn-primary btn-block">2だいで たたかう<span class="btn-sub">同じWi-Fiで へやに さんか</span></button><button id="btn-vs-human" class="btn-secondary btn-block">ふたりで たたかう<span class="btn-sub">ひとつの がめんで こうたい</span></button><button id="btn-tutorial" class="btn-tutorial btn-block">はじめて あそぶ<span class="btn-sub">せんせいと いっしょに れんしゅう</span></button><button id="btn-rules" class="btn-plain btn-block">ルールを みる</button></div></div><div class="title-art" id="title-art" aria-hidden="true"></div><div class="version-tag">v0.5.0 · とくいわざ・じどうほぞん</div></div>
   <!-- ルール画面 -->
   <div id="screen-rules" class="screen hidden">
     <h2>ルール</h2>
@@ -374,8 +376,9 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       <li>ひく: 山ふだから1まいひく（せんこうの1かいめだけ ひかない）。</li>
       <li>おうえん: 手ふだを1まい うら向きに おいて「おうえん」に まわせる（にんい）。手ふだには もどらないが、つかっても つぎの ターンに また おうえんしてくれる。4にんまで。</li>
       <li>だす: おうえんの かずぶん、モンスターをだせる（★の かず＝ひつような おうえんの かず。ばには合計4てんまで）。</li>
-      <li>たたかう: だしたばかりのモンスターは たたかえない。</li>
+      <li>たたかう: だしたばかりのモンスターは たたかえない。「でた ばんから こうげき」の わざが あれば たたかえるよ。</li>
       <li>ダメージ = こうげき力 − ぼうぎょ力（0いかは0）。ダメージは のこる。</li>
+      <li>ほんばんは どうぶつごとの「とくいわざ」が じどうで はたらくよ。こうげき・ぼうぎょ・かいふくが かわる！ カードを ながおしすると せつめいを よめるよ。</li>
       <li>たいりょくが0になったモンスターは しんで、もちぬしに本体ダメージ。</li>
       <li>あいての ばがからっぽなら「ちょくせつこうげき」で本体にダメージ。</li>
       <li>さきに あいての たいりょくを0にしたら かち！</li>
@@ -452,6 +455,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       ・ダメージ ＝ こうげき力 − ぼうぎょ力<br>
       ・やられた モンスターの もちぬしは ★のかず だけ たいりょくが へる<br>
       ・あいての ばが からっぽなら ちょくせつこうげき
+      <br>・ほんばんは「とくいわざ」も はたらくよ。カードを ながおしして みてね！
     </div>
     <button id="btn-tutorial-cpu" class="btn-primary btn-block" style="max-width:280px;">CPUと たたかう</button>
     <button id="btn-tutorial-again" class="btn-secondary btn-block" style="max-width:280px;">もういちど おしえてもらう</button>
@@ -481,6 +485,45 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
 </div>
 
 <div id="inspect-overlay" class="hidden"><div id="inspect-box" role="dialog" aria-modal="true" aria-labelledby="inspect-title"><div id="inspect-picture"></div><h2 id="inspect-title"></h2><div id="inspect-detail"></div><button id="inspect-close" class="btn-primary inspect-close">とじる</button></div></div>
+<script>
+(function(root){
+'use strict';
+const clone=x=>JSON.parse(JSON.stringify(x));
+function safeTree(x,depth=0){if(depth>40)return false;if(x===null||typeof x==='boolean')return true;if(typeof x==='number')return Number.isFinite(x);if(typeof x==='string')return x.length<=1500000;if(typeof x!=='object')return false;if(Array.isArray(x))return x.length<=20000&&x.every(v=>safeTree(v,depth+1));return Object.keys(x).length<=5000&&Object.keys(x).every(k=>!['__proto__','constructor','prototype'].includes(k)&&safeTree(x[k],depth+1));}
+function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return(h>>>0).toString(36);}
+function create(game,validate,storage){
+ const key='higashiyama:'+game+':v1';let issue='';
+ function pack(data){if(!safeTree(data)||!validate(data))throw Error('きろくの かたちが ちがうよ');return {version:1,game,data:clone(data)};}
+ function read(raw){if(typeof raw!=='string'||raw.length>2000000)throw Error('きろくが おおきすぎるよ');const p=JSON.parse(raw);if(!safeTree(p)||p.version!==1||p.game!==game||!validate(p.data))throw Error('このゲームの きろくでは ないよ');return clone(p.data);}
+ return {key,get issue(){return issue;},load(){try{const raw=storage().getItem(key);if(!raw)return null;return read(raw);}catch(e){issue='きろくを よめません。あいことばから もどせます。';return null;}},save(data){try{storage().setItem(key,JSON.stringify(pack(data)));issue='';return true;}catch(e){issue='このブラウザに ほぞんできません。あいことばを コピーしてね。';return false;}},encode(data){const s=JSON.stringify(pack(data));return 'HG1.'+checksum(s)+'.'+encodeURIComponent(s);},decode(code){if(typeof code!=='string'||code.length>6000000)throw Error('あいことばが ながすぎるよ');const m=/^HG1\.([a-z0-9]+)\.(.+)$/.exec(code.trim());if(!m)throw Error('あいことばが ちがうよ');let s;try{s=decodeURIComponent(m[2]);}catch(e){throw Error('あいことばが こわれているよ');}if(checksum(s)!==m[1])throw Error('あいことばが とぎれているよ');return read(s);}};
+}
+function mount(game,config){
+ if(typeof root.addEventListener!=='function'||typeof document==='undefined'||!document.body||typeof document.createElement('button').setAttribute!=='function')return null;
+ const store=create(game,config.validate,()=>root.localStorage);let saved=store.load(),last='',busy=false,dialog=null;
+ if(saved&&config.progress)try{config.progress(clone(saved));}catch(e){saved=null;}
+ function capture(){if(busy)return saved;try{const value=config.capture(saved&&clone(saved));if(value){const raw=JSON.stringify(value);if(raw!==last){if(!safeTree(value)||!config.validate(value))return saved;saved=clone(value);store.save(saved);last=raw;}}}catch(e){/* Keep the last valid checkpoint during transitions. */}if(button)button.textContent=store.issue?'⚠ ほぞん':'💾 きろく・つづき';return saved;}
+ const button=document.createElement('button');button.textContent=store.issue?'⚠ ほぞん':'💾 きろく';button.type='button';button.setAttribute('aria-label','じどうほぞん・つづき・あいことば');button.style.cssText='position:fixed;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:100005;min-height:40px;padding:8px 12px;border:2px solid #8eb59d;border-radius:20px;background:#f8fff5;color:#234936;font:14px sans-serif;opacity:.9';document.body.appendChild(button);
+ button.onclick=()=>{
+  capture();if(config.pause)config.pause();busy=true;
+  dialog=document.createElement('dialog');dialog.style.cssText='max-width:460px;width:calc(100% - 48px);max-height:85svh;overflow:auto;padding:20px;border:2px solid #8eb59d;border-radius:18px;background:#f8fff5;color:#234936;font:16px sans-serif';
+  for(const type of ['keydown','keyup','pointerdown','pointerup'])dialog.addEventListener(type,e=>e.stopPropagation());
+  const title=document.createElement('h2');title.textContent='きろくと あいことば';dialog.appendChild(title);
+  const note=document.createElement('p');note.textContent=store.issue||config.note||'じどうで ほぞんしています。';dialog.appendChild(note);
+  const input=document.createElement('textarea');input.setAttribute('aria-label','バックアップの あいことば');input.rows=4;input.style.cssText='box-sizing:border-box;width:100%;user-select:text;font:14px monospace';dialog.appendChild(input);
+  const add=(label,fn)=>{const b=document.createElement('button');b.textContent=label;b.type='button';b.style.cssText='display:block;width:100%;min-height:44px;margin-top:8px;font:inherit';b.onclick=async()=>{try{await fn();}catch(e){note.textContent=e.message||'きろくを たしかめてね';}};dialog.appendChild(b);return b;};
+  add('ほぞんした つづきから',()=>{if(!saved)throw Error('まだ きろくが ないよ');config.restore(clone(saved));dialog.close();});
+  add('あいことばを だす',()=>{if(!saved)throw Error('まだ きろくが ないよ');input.value=store.encode(saved);input.focus();input.select();note.textContent='ぜんぶ コピーして メモに のこしてね。';});
+  add('コピー',async()=>{if(!input.value)return;input.focus();input.select();if(root.navigator?.clipboard)await root.navigator.clipboard.writeText(input.value);else note.textContent='えらばれた あいことばを コピーしてね。';});
+  add('いれた きろくで つづける',()=>{const data=store.decode(input.value);config.restore(data);saved=config.capture(data)||data;store.save(saved);last=JSON.stringify(saved);dialog.close();});
+  add('とじる',()=>dialog.close());dialog.addEventListener('close',()=>{busy=false;dialog.remove();dialog=null;if(config.unpause)config.unpause();capture();});document.body.appendChild(dialog);dialog.showModal();
+ };
+ const timer=setInterval(capture,config.interval||1000);root.addEventListener('pagehide',capture);document.addEventListener('click',()=>setTimeout(capture,0));document.addEventListener('visibilitychange',()=>{if(document.hidden)capture();});
+ return {capture,store,get saved(){return saved;},stop(){clearInterval(timer);}};
+}
+root.HGSave={create,mount,safeTree,clone};if(typeof module!=='undefined'&&module.exports)module.exports=root.HGSave;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+</script>
 <script>var ANIMAL_ART={"C-バランス":{"label":"バッタ","sheet":"C","tile":0,"x":0.19455252918287938,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"0462491461a13debb27ddd4cde6538e624b98be01caeb4e5c2c4178de17888d2"},"C-とっこう":{"label":"ハチ","sheet":"C","tile":1,"x":50,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"006cc3a0fc07d310ca9efa98dadc5ddeaa6fd2a9baccdf2f8dd72667f6e43b54"},"C-かたい":{"label":"テントウムシ","sheet":"C","tile":2,"x":99.80544747081711,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"decc1600399bafe8db1f7deaf2622bcf53d351b2e62a968790eab48800ac84e1"},"C-体力型":{"label":"イモムシ","sheet":"C","tile":3,"x":0.19455252918287938,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"30278d587a05bd7f556a1a0633a61938ef5f00f5989e6a26277ccc9b309c5cc1"},"C-攻撃型":{"label":"クモ","sheet":"C","tile":4,"x":50,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"175ff24761bfa9cb0cb5dd5f36114bf55f93400ee286d82089463839987bf329"},"C-よわい":{"label":"アリ","sheet":"C","tile":5,"x":99.80544747081711,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"c25708b31e09494de5b72e38594f813696ac1329e3915ba3debd6681ba6b2cf6"},"UC-バランス":{"label":"キツネ","sheet":"UC","tile":0,"x":0.19455252918287938,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"2ead8d6457906a36a5aa26ae042f4042b15a1a0008f765ed93e6dcebb40b8774"},"UC-攻撃型":{"label":"ヘビ","sheet":"UC","tile":1,"x":50,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"64f85dcee2e2bec131bee6d85e2b275745cfec1028c26dc08d69367d41a68a6e"},"UC-かたい":{"label":"カメ","sheet":"UC","tile":2,"x":99.80544747081711,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"79338e3daa1970b38057c21e949c1806e55d5a506760db78c0df71f37ca9cf93"},"UC-とっこう":{"label":"イノシシ","sheet":"UC","tile":3,"x":0.19455252918287938,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"ce2f4c99bc221204b2bb374dc14ef9b9308f47078f7271506d293958df451f4f"},"UC-体力型":{"label":"アナグマ","sheet":"UC","tile":4,"x":50,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"0c4e155b11c421df581d8d2f1f8116cac82f6875018b7d2ce839b48be4681151"},"UC-攻守型":{"label":"オオカミ","sheet":"UC","tile":5,"x":99.80544747081711,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"98da0add54d4661ac830325d161989d879ef0a47e6c2f922568fb5c87516a614"},"R-バランス":{"label":"ライオン","sheet":"R","tile":0,"x":0.19455252918287938,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"2e4af0bf5097dee985506c132cc8e69c2b9ac49536bf38ae9da12feb751547e2"},"R-攻撃型":{"label":"トラ","sheet":"R","tile":1,"x":50,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"4a56747089722a8ad0857f67d4f80fde2ff65a02221fe7f2894e11f1f0c1a4ce"},"R-かたい":{"label":"サイ","sheet":"R","tile":2,"x":99.80544747081711,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"40a98a647d97755739c81f714e880b35dddc50924ff3ba99a2935f31f6e7b161"},"R-攻守型":{"label":"クマ","sheet":"R","tile":3,"x":0.19455252918287938,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"74d637ffa50850bd9926517cd1002f2aaecc0acbdecc3f73a062c228403f3a22"},"R-とっこう":{"label":"バイソン","sheet":"R","tile":4,"x":50,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"c5c67b4fdec2b01061f2634a15339767a75b058021943714d1a7bf15c243e031"},"R-体力型":{"label":"ゾウ","sheet":"R","tile":5,"x":99.80544747081711,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"c53972535d85fb9952392dbfe5cadcf89bbd677f5a531bbcb355738a6f44bc7c"},"SR-バランス":{"label":"ティラノ","sheet":"SR","tile":0,"x":0.19455252918287938,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"e257d008a3f802ffea90dfd082fd23bafa0bc6d609bebf989240f9a2f9ae8239"},"SR-攻撃型":{"label":"おおワニ","sheet":"SR","tile":1,"x":50,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"f24d3b372f9c0880e0b29deeee2a9906abbd76b56b3b14eeda20a543564c6791"},"SR-かたい":{"label":"マンモス","sheet":"SR","tile":2,"x":99.80544747081711,"y":0.3875968992248062,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"9346e07d1805f6a0d3c36d3c6b9d67e9619a2f611803310d7ed5a1b8e42abe1a"},"SR-攻撃寄り":{"label":"ドラゴン","sheet":"SR","tile":3,"x":0.19455252918287938,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"ee0cf067986f2ce3aabc2dbfacc864d2ff897ff212f88bb12f485b8f0700a3b6"},"SR-攻守型":{"label":"おおザメ","sheet":"SR","tile":4,"x":50,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"a1a9ad1c3b591a393fbd4a7df8a02a945608d57b99372d268ea2af016c67670b"},"SR-体力型":{"label":"ブラキオ","sheet":"SR","tile":5,"x":99.80544747081711,"y":99.6124031007752,"bx":302.3622047244094,"by":201.57480314960628,"pixelHash":"4a1c8772b7524d6a4572b438339e0dfb1150131396b83a9a729fb126a1878dce"}};</script>
 <script>
 // ==== ai.js ====
@@ -742,6 +785,30 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
   'use strict';
 
   var FIELD_CAP = 4;
+  // One small, automatic trait per animal. Training keeps the original rules.
+  var SKILLS={
+    'C-バランス':['はねる','haste'],'C-とっこう':['ひとさし','pierce'],'C-かたい':['まるまる','shell'],'C-体力型':['ひとやすみ','heal'],'C-攻撃型':['いとねらい','pierce'],'C-よわい':['なかまのちから','pack'],
+    'UC-バランス':['すばやいあし','haste'],'UC-攻撃型':['するどいキバ','pierce'],'UC-かたい':['こうら','shell'],'UC-とっこう':['いかりのとっしん','fury'],'UC-体力型':['あなでひとやすみ','heal'],'UC-攻守型':['むれのれんけい','pack'],
+    'R-バランス':['おうのごうれい','pack'],'R-攻撃型':['とびかかり','haste'],'R-かたい':['ぶあついかわ','shell'],'R-攻守型':['ふんばり','fury'],'R-とっこう':['つのとっしん','pierce'],'R-体力型':['みずあび','heal'],
+    'SR-バランス':['おうじゃのいかり','fury'],'SR-攻撃型':['かみくだく','pierce'],'SR-かたい':['こおりのよろい','shell'],'SR-攻撃寄り':['ひしょう','haste'],'SR-攻守型':['えものをおう','fury'],'SR-体力型':['きのはでかいふく','heal']
+  };
+  var SKILL_DESC={haste:'でた ばんから こうげき',pierce:'ぼうぎょを 1むし',shell:'さいしょの ダメージを 1へらす',heal:'じぶんの ばんに 1かいふく',pack:'なかまが いると こうげき+1',fury:'きずが あると こうげき+1'};
+  function skill(c){return (SKILLS[c.name]||[])[1];}
+  function skillText(c){var s=SKILLS[c.name];return s?s[0]+'：'+SKILL_DESC[s[1]]:'';}
+  function previewAttack(state,m,target){var bonus=0;if(state.skillsEnabled){if(skill(m.card)==='pack'&&state.players[state.acting].field.length>1)bonus=1;if(skill(m.card)==='fury'&&m.damage>0)bonus=1;}
+    if(!target)return m.card.rarityNum;
+    var df=target.card.df;if(state.skillsEnabled&&skill(m.card)==='pierce')df=Math.max(0,df-1);
+    var damage=Math.max(0,m.card.atk+bonus-df);if(state.skillsEnabled&&skill(target.card)==='shell'&&!target.shellUsed&&damage>0)damage=Math.max(0,damage-1);return damage;
+  }
+  function serialize(state){var d=JSON.parse(JSON.stringify(state));d.version=1;d.seed=state.rng.getState();d.battleRemaining=state.battleRemaining.map(m=>state.players[state.acting].field.indexOf(m));delete d.rng;return d;}
+  function restore(d){
+    var int=(v,a,b)=>Number.isInteger(v)&&v>=a&&v<=b;
+    if(!d||d.version!==1||!int(d.seed,0,4294967295)||!int(d.acting,0,1)||!int(d.firstPlayer,0,1)||!int(d.ply,1,10000)||!['charge','play','battle'].includes(d.phase)||!Array.isArray(d.players)||d.players.length!==2||!int(d.chargeLimit,1,2)||!int(d.chargePlaced,0,2)||!d.damageBySource||!['death','direct','retreat','deckout'].every(k=>int(d.damageBySource[k],0,100000))||!Array.isArray(d.log)||d.log.length>20000||d.log.some(l=>typeof l!=='string')||typeof d.skillsEnabled!=='boolean')throw Error('たいせんの きろくが ちがうよ');
+    function validCard(c){var p=c&&CARD_POOL_V3.find(x=>x.name===c.name);return p&&['atk','df','hp','rarity','rarityNum'].every(k=>c[k]===p[k]);}
+    for(var i=0;i<2;i++){var p=d.players[i];if(!p||p.idx!==i||!int(p.hp,1,10)||!int(p.costTotal,0,4)||!int(p.costUsed,0,p.costTotal)||!int(p.turnNo,0,10000)||!['human','cpu'].includes(p.controller)||!Array.isArray(p.hand)||!Array.isArray(p.deck)||p.hand.length+p.deck.length>40||!p.hand.every(validCard)||!p.deck.every(validCard)||!Array.isArray(p.field)||p.field.length>4||!p.field.every(m=>validCard(m.card)&&int(m.damage,0,m.card.hp-1)&&int(m.enteredPly,0,d.ply)&&(m.shellUsed===undefined||typeof m.shellUsed==='boolean'))||AI.fieldOccupancy(p)>4)throw Error('カードの きろくが ちがうよ');}
+    if(!Array.isArray(d.battleRemaining)||new Set(d.battleRemaining).size!==d.battleRemaining.length||!d.battleRemaining.every(i=>int(i,0,d.players[d.acting].field.length-1)))throw Error('こうげきの きろくが ちがうよ');
+    var s=JSON.parse(JSON.stringify(d));s.rng=makeRng(d.seed);s.battleRemaining=d.battleRemaining.map(i=>s.players[s.acting].field[i]);delete s.seed;delete s.version;return s;
+  }
   var RARITY_NUM = { C: 1, UC: 2, R: 3, SR: 4 };
 
   // ---------------------------------------------------------------------
@@ -819,6 +886,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     }
     return {
       next: next,
+      getState: function(){return s>>>0;},
       randint: function (a, b) { return a + Math.floor(next() * (b - a + 1)); },
       shuffle: function (arr) {
         for (var i = arr.length - 1; i > 0; i--) {
@@ -932,6 +1000,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       ply: 0,
       phase: 'init', // init -> draw(自動) -> charge -> play -> battle -> (次のply) -> gameover
       winner: null,
+      skillsEnabled: false,
       endReason: '',
       log: [],
       damageBySource: { death: 0, direct: 0, retreat: 0, deckout: 0 },
@@ -1005,7 +1074,9 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     }
     var p = currentPlayer(state);
     p.turnNo += 1;
+    if(state.skillsEnabled)p.field.forEach(function(m){if(skill(m.card)==='heal'&&m.damage>0){m.damage--;pushLog(state,'P'+p.idx+': 「'+m.card.name+'」の とくいわざ：1かいふく');}});
     p.costUsed = 0;
+    state.battleRemaining = [];
 
     var isFirstOverallTurn = (p.turnNo === 1 && p.idx === state.firstPlayer);
     var isSecondFirstTurn = (p.turnNo === 1 && p.idx !== state.firstPlayer);
@@ -1124,7 +1195,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
 
   function advanceToBattle(state) {
     var p = currentPlayer(state);
-    state.battleRemaining = p.field.filter(function (m) { return m.enteredPly !== state.ply; });
+    state.battleRemaining = p.field.filter(function (m) { return m.enteredPly !== state.ply || state.skillsEnabled&&skill(m.card)==='haste'; });
     state.phase = 'battle';
   }
 
@@ -1158,7 +1229,8 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     }
 
     if (!targetMonster || opp.field.indexOf(targetMonster) < 0) return { ok: false };
-    var dmgToDef = attackDamagePreview(attackerMonster.card, targetMonster.card);
+    var dmgToDef = previewAttack(state,attackerMonster,targetMonster);
+    if(state.skillsEnabled&&skill(targetMonster.card)==='shell'&&!targetMonster.shellUsed&&previewAttack(state,attackerMonster,Object.assign({},targetMonster,{shellUsed:true}))>0)targetMonster.shellUsed=true;
     targetMonster.damage += dmgToDef;
     pushLog(state, 'P' + p.idx + ': 「' + attackerMonster.card.name + '」が P' + opp.idx + 'の「' + targetMonster.card.name + '」を攻撃 (' +
       attackerMonster.card.atk + '-' + targetMonster.card.df + '=' + dmgToDef + ', 蓄積' + targetMonster.damage + '/' + targetMonster.card.hp + ')');
@@ -1239,6 +1311,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
   }
 
   return {
+    skillText:skillText,previewAttack:previewAttack,serialize:serialize,restore:restore,
     FIELD_CAP: FIELD_CAP,
     RARITY_NUM: RARITY_NUM,
     CARD_POOL_V3: CARD_POOL_V3,
@@ -1500,6 +1573,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       ? (humanIdx === 0 ? ['human', 'cpu'] : ['cpu', 'human'])
       : ['human', 'human'];
     gameState = Engine.newGame(deck0, deck1, jankenFirstPlayer, rng, controllers);
+    gameState.skillsEnabled=true;
     ui = { selectedAttacker: null, anim: null, deadGhost: null, fullLogReturn: 'screen-game', slots: [[null, null, null, null], [null, null, null, null]] };
     tut = null;
     Engine.beginTurn(gameState);
@@ -2028,7 +2102,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     box.className = 'rarity-' + cardLike.rarity;
     box.querySelector('.mcb-icon').innerHTML = animalPicture(cardLike);
     box.querySelector('.mcb-name').textContent = animalName(cardLike) + ' · ★' + cardLike.rarityNum;
-    box.querySelector('.mcb-stats').textContent = statsText.replace(/ATK/g,'こうげき').replace(/DEF/g,'ぼうぎょ').replace(/HP/g,'たいりょく');
+    box.querySelector('.mcb-stats').textContent = (statsText+(mode==='tutorial'?'':' / '+Engine.skillText(cardLike))).replace(/ATK/g,'こうげき').replace(/DEF/g,'ぼうぎょ').replace(/HP/g,'たいりょく');
   }
 
   // 「まだ行動が残っているよ」の確認ダイアログ。カード表示は使わずメッセージのみ。
@@ -2164,7 +2238,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
   function animalPicture(c) {
     var a=ANIMAL_ART[c.name];
     if(!a)return '<span>'+escapeHtml(c.icon||'')+'</span>';
-    return '<span class="animal-art" role="img" aria-label="'+escapeHtml(a.label)+'" style="--atlas:var(--animals-'+a.sheet+');--ax:'+a.x+'%;--ay:'+a.y+'%;--abx:'+a.bx+'%;--aby:'+a.by+'%"></span>';
+    return '<span class="animal-art" role="img" aria-label="'+escapeHtml(a.label)+'" style="--atlas:var(--animals-'+a.sheet+');--ax:'+a.x+'%;--ay:'+a.y+'%;--abx:'+a.bx+'%;--aby:'+a.by+'%"></span>'+(mode==='tutorial'?'':'<small class="animal-skill">'+escapeHtml(Engine.skillText(c).split('：')[0])+'</small>');
   }
   function animalStats(c,hp){return '<span class="stat-atk" title="こうげき">⚔ '+c.atk+'</span><span class="stat-def" title="ぼうぎょ">🛡 '+c.df+'</span><span class="stat-hp" title="たいりょく">♥ '+(hp===undefined?c.hp:hp)+'</span>';}
   var dialogReturnFocus=null, inspectReturnFocus=null;
@@ -2174,6 +2248,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     $('inspect-title').textContent=animalName(c);
     $('inspect-picture').innerHTML=animalPicture(c);
     $('inspect-detail').innerHTML='<div class="inspect-cost">'+c.rarity+' · おうえん '+c.rarityNum+'にんで だせる</div><div class="inspect-stats"><span class="stat-atk">こうげき<b>'+c.atk+'</b></span><span class="stat-def">ぼうぎょ<b>'+c.df+'</b></span><span class="stat-hp">たいりょく<b>'+(remain===undefined?c.hp:remain)+'<small> / '+c.hp+'</small></b></span></div>';
+    if(mode!=='tutorial')$('inspect-detail').innerHTML+='<p class="skill-description">'+escapeHtml(Engine.skillText(c))+'</p>';
     $('inspect-overlay').classList.remove('hidden');$('inspect-close').focus();
   }
   function closeInspect(){ $('inspect-overlay').classList.add('hidden');if(inspectReturnFocus&&inspectReturnFocus.isConnected)inspectReturnFocus.focus(); }
@@ -2402,7 +2477,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       div.innerHTML = monCardHtml(m);
       if (m !== ghost && isMyInteractiveTurn() && gameState.phase === 'battle' && ui.selectedAttacker) {
         div.classList.add('targetable');
-        var dmg = Engine.attackDamagePreview(ui.selectedAttacker.card, m.card);
+        var dmg = Engine.previewAttack(gameState,ui.selectedAttacker,m);
         var badge = document.createElement('div');
         badge.className = 'dmg-badge';
         badge.textContent = String(dmg);
@@ -2643,7 +2718,7 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
       next.players.forEach(function(p,id){p.field.forEach(function(m){var previous=old.players[id].field.find(function(n){return n.card.netId===m.card.netId;});if(!previous)ui.anim.summonedCard=m;else if(m.damage>previous.damage){ui.anim.hitCard=m;ui.anim.dmgTargetMon=m;ui.anim.dmgText=String(m.damage-previous.damage);}});});
       if(old.acting===next.acting&&old.phase==='battle'&&next.phase==='battle'){
         var spent=old.battleRemaining.find(function(m){return !next.battleRemaining.some(function(n){return n.card.netId===m.card.netId;});});
-        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.attackDamagePreview(spent.card,target.card));}}
+        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.previewAttack(old,spent,target));}}
       }
     }
     if(!value.started){$('lan-wait-code').textContent=value.room;showScreen('screen-lan-wait');return;}
@@ -2674,6 +2749,12 @@ button:not(:disabled):active,.hand-card:active,.mon-card:active{transform:scale(
     document.addEventListener('visibilitychange',function(){if(!document.hidden)pollLan();});
     if(location.hash==='#lan')openLan();else if(/^#lan=\d{6}\.[a-f0-9]{48}$/.test(location.hash)){if(lanLocal()&&location.port==='8771'){lanDialog();$('lan-code').value=location.hash.slice(5);enterLan('resume');}}
   }
+
+if(typeof HGSave!=='undefined'){
+ var cardsSaveStarted=false;
+ const valid=d=>{try{if(!d||!Object.hasOwn(d,'run')||!Object.hasOwn(d,'lan'))return false;if(d.lan)return typeof d.lan.origin==='string'&&/^\d{6}$/.test(d.lan.room)&&/^[a-f0-9]{48}$/.test(d.lan.token);if(!d.run)return true;return ['cpu','hotseat'].includes(d.mode)&&[0,1].includes(d.human)&&!!Engine.restore(d.run);}catch(e){return false;}};
+ HGSave.mount('cards',{validate:valid,note:'じぶんの そうさできる ところで ほぞん。LANは PCが うごいている あいだ ふっきできます。',capture(old){if(online)return {lan:{origin:location.origin,room:online.room,token:online.token},run:null};if(gameState&&mode!=='tutorial'){if(gameState.phase==='gameover')return {run:null,lan:null};if(['charge','play','battle'].includes(gameState.phase)&&(mode==='hotseat'||gameState.acting===humanIdx))return {run:Engine.serialize(gameState),mode,human:humanIdx,lan:null};}return old;},restore(d){if(gameState&&!online&&gameState.phase!=='gameover')throw Error('たいせん中は きろくを もどせません。ページを ひらきなおしてね');if(d.lan){if(d.lan.origin!==location.origin)throw Error('この きろくは '+d.lan.origin+' の LANページで いれてね');location.hash='lan='+d.lan.room+'.'+d.lan.token;location.reload();return;}if(!d.run)throw Error('さいかいできる たいせんが ないよ');if(online)leaveLan();gameState=Engine.restore(d.run);mode=d.mode;humanIdx=d.human;tut=null;ui={selectedAttacker:null,anim:null,deadGhost:null,fullLogReturn:'screen-game',slots:[[null,null,null,null],[null,null,null,null]]};Sound.resume();if(mode==='hotseat')showPassScreen(function(){showScreen('screen-game');render();});else{showScreen('screen-game');render();}}});
+}
 
   // 初期画面
   initAnimalUI();

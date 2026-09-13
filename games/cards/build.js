@@ -14,7 +14,7 @@ for(const [signature,body] of [
  ['maybeRunCpu()','if(online)return;']])patch('function '+signature+' {','function '+signature+' {\n    '+body);
 patch("$('btn-again').onclick = function () { goToJanken(); };","$('btn-again').onclick = function () { if(online){leaveLan();return;}goToJanken(); };");
 patch("$('btn-title2').onclick = function () { showScreen('screen-title'); };","$('btn-title2').onclick = function () { if(online){leaveLan();return;}showScreen('screen-title'); };");
-patch('  // 初期画面',read('lan-client.js')+'\n  // 初期画面');
+patch('  // 初期画面',read('lan-client.js')+'\n'+read('autosave.js')+'\n  // 初期画面');
 patch('  initAnimalUI();','  initAnimalUI();\n  initLan();');
 // Initialize automatic reconnection only after the default screen has been selected.
 app=app.replace('  initLan();','').replace("  showScreen('screen-title');\n})();","  showScreen('screen-title');\n  initLan();\n})();");
@@ -23,8 +23,9 @@ for(const [name,code]of [['ai.js',read('ai.js')],['engine.js',read('engine.js')]
  const marker='// ==== '+name+' ====',start=html.indexOf(marker),end=html.indexOf('</script>',start);
  if(start<0||end<0)throw Error(name);html=html.slice(0,start)+marker+'\n'+code.trim()+'\n'+html.slice(end);
 }
+html=html.replace('<script>',()=>'<script>\n'+read('../../shared/autosave.js')+'\n</script>\n<script>');
 html=html.replace('</style>',read('lan.css')+'\n</style>');
 html=html.replace('<div id="app">','<div id="app">'+read('lan.html'));
 html=html.replace('<button id="btn-vs-human"','<button id="btn-vs-lan" class="btn-primary btn-block">2だいで たたかう<span class="btn-sub">同じWi-Fiで へやに さんか</span></button><button id="btn-vs-human"');
-html=html.replace('v0.3.0 · イラストばん','v0.4.0 · 2たんまつ たいせん');
+html=html.replace('v0.3.0 · イラストばん','v0.5.0 · とくいわざ・じどうほぞん');
 fs.writeFileSync(__dirname+'/index.html',html);console.log('Built index.html');

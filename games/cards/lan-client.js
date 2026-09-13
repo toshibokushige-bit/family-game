@@ -62,7 +62,7 @@
       next.players.forEach(function(p,id){p.field.forEach(function(m){var previous=old.players[id].field.find(function(n){return n.card.netId===m.card.netId;});if(!previous)ui.anim.summonedCard=m;else if(m.damage>previous.damage){ui.anim.hitCard=m;ui.anim.dmgTargetMon=m;ui.anim.dmgText=String(m.damage-previous.damage);}});});
       if(old.acting===next.acting&&old.phase==='battle'&&next.phase==='battle'){
         var spent=old.battleRemaining.find(function(m){return !next.battleRemaining.some(function(n){return n.card.netId===m.card.netId;});});
-        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.attackDamagePreview(spent.card,target.card));}}
+        if(spent){ui.anim.attackerCard=next.players[next.acting].field.find(function(m){return m.card.netId===spent.card.netId;});var target=old.players[1-next.acting].field.find(function(m){return !next.players[1-next.acting].field.some(function(n){return n.card.netId===m.card.netId;});});if(target){ui.deadGhost={ownerIdx:1-next.acting,mon:target};ui.anim.dmgTargetMon=target;ui.anim.dmgText=String(Engine.previewAttack(old,spent,target));}}
       }
     }
     if(!value.started){$('lan-wait-code').textContent=value.room;showScreen('screen-lan-wait');return;}

@@ -36,10 +36,10 @@ function createServer(){
  function seat(room,t){const id=room.tokens.indexOf(t);if(id<0)error('ふっきの あいことばを たしかめてね',403);room.seen[id]=Date.now();return id;}
  function snapshot(room,id){
   const s=room.state;
-  const state={firstPlayer:s.firstPlayer,acting:s.acting,ply:s.ply,phase:s.phase,winner:s.winner,endReason:s.endReason,chargeLimit:s.chargeLimit,chargePlaced:s.chargePlaced,isSecondFirstTurn:s.isSecondFirstTurn,damageBySource:{...s.damageBySource},battleIds:s.battleRemaining.map(m=>m.card.netId),
+  const state={skillsEnabled:!!s.skillsEnabled,firstPlayer:s.firstPlayer,acting:s.acting,ply:s.ply,phase:s.phase,winner:s.winner,endReason:s.endReason,chargeLimit:s.chargeLimit,chargePlaced:s.chargePlaced,isSecondFirstTurn:s.isSecondFirstTurn,damageBySource:{...s.damageBySource},battleIds:s.battleRemaining.map(m=>m.card.netId),
    // Face-down support cards and both decks remain private, including their names in logs.
    log:s.log.map(line=>{const m=line.match(/^P(\d): 「(.+)」をコストに置く/);return m&&Number(m[1])!==id?'P'+m[1]+': カードを おうえんに まわした':line;}),
-   players:s.players.map(p=>({idx:p.idx,hp:p.hp,controller:'human',aiName:'greedy',turnNo:p.turnNo,costTotal:p.costTotal,costUsed:p.costUsed,deck:Array(p.deck.length).fill(null),hand:p.idx===id?p.hand.map(c=>({...c})):Array(p.hand.length).fill(null),field:p.field.map(m=>({card:{...m.card},damage:m.damage,enteredPly:m.enteredPly}))}))};
+   players:s.players.map(p=>({idx:p.idx,hp:p.hp,controller:'human',aiName:'greedy',turnNo:p.turnNo,costTotal:p.costTotal,costUsed:p.costUsed,deck:Array(p.deck.length).fill(null),hand:p.idx===id?p.hand.map(c=>({...c})):Array(p.hand.length).fill(null),field:p.field.map(m=>({card:{...m.card},damage:m.damage,enteredPly:m.enteredPly,shellUsed:!!m.shellUsed}))}))};
   return {room:room.code,id,rev:room.rev,started:room.started,otherConnected:room.started&&Date.now()-room.seen[1-id]<12000,state};
  }
  function request(data){
@@ -50,6 +50,7 @@ function createServer(){
    if(rooms.size>=30)error('へやが いっぱいです');let code;do{code=String(crypto.randomInt(100000,1000000));}while(rooms.has(code));
    const rng=Engine.makeRng(crypto.randomInt(0,4294967296));let uid=0;const deck=()=>Engine.buildDeck(Engine.CARD_POOL_V3,20,rng,2).map(c=>({...c,netId:++uid}));
    const state=Engine.newGame(deck(),deck(),crypto.randomInt(0,2),rng,['human','human']);
+   state.skillsEnabled=true;
    const room={code,state,started:false,rev:0,tokens:[token()],seen:[Date.now(),0],commands:[new Map(),new Map()],createId:data.requestId,joinId:null};rooms.set(code,room);creates.set(data.requestId,code);return {...snapshot(room,0),token:room.tokens[0]};
   }
   const room=rooms.get(String(data.room));if(!room)error('へやが みつからないよ。つくりなおしてね',404);

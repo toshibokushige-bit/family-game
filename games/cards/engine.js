@@ -21,6 +21,30 @@
   'use strict';
 
   var FIELD_CAP = 4;
+  // One small, automatic trait per animal. Training keeps the original rules.
+  var SKILLS={
+    'C-バランス':['はねる','haste'],'C-とっこう':['ひとさし','pierce'],'C-かたい':['まるまる','shell'],'C-体力型':['ひとやすみ','heal'],'C-攻撃型':['いとねらい','pierce'],'C-よわい':['なかまのちから','pack'],
+    'UC-バランス':['すばやいあし','haste'],'UC-攻撃型':['するどいキバ','pierce'],'UC-かたい':['こうら','shell'],'UC-とっこう':['いかりのとっしん','fury'],'UC-体力型':['あなでひとやすみ','heal'],'UC-攻守型':['むれのれんけい','pack'],
+    'R-バランス':['おうのごうれい','pack'],'R-攻撃型':['とびかかり','haste'],'R-かたい':['ぶあついかわ','shell'],'R-攻守型':['ふんばり','fury'],'R-とっこう':['つのとっしん','pierce'],'R-体力型':['みずあび','heal'],
+    'SR-バランス':['おうじゃのいかり','fury'],'SR-攻撃型':['かみくだく','pierce'],'SR-かたい':['こおりのよろい','shell'],'SR-攻撃寄り':['ひしょう','haste'],'SR-攻守型':['えものをおう','fury'],'SR-体力型':['きのはでかいふく','heal']
+  };
+  var SKILL_DESC={haste:'でた ばんから こうげき',pierce:'ぼうぎょを 1むし',shell:'さいしょの ダメージを 1へらす',heal:'じぶんの ばんに 1かいふく',pack:'なかまが いると こうげき+1',fury:'きずが あると こうげき+1'};
+  function skill(c){return (SKILLS[c.name]||[])[1];}
+  function skillText(c){var s=SKILLS[c.name];return s?s[0]+'：'+SKILL_DESC[s[1]]:'';}
+  function previewAttack(state,m,target){var bonus=0;if(state.skillsEnabled){if(skill(m.card)==='pack'&&state.players[state.acting].field.length>1)bonus=1;if(skill(m.card)==='fury'&&m.damage>0)bonus=1;}
+    if(!target)return m.card.rarityNum;
+    var df=target.card.df;if(state.skillsEnabled&&skill(m.card)==='pierce')df=Math.max(0,df-1);
+    var damage=Math.max(0,m.card.atk+bonus-df);if(state.skillsEnabled&&skill(target.card)==='shell'&&!target.shellUsed&&damage>0)damage=Math.max(0,damage-1);return damage;
+  }
+  function serialize(state){var d=JSON.parse(JSON.stringify(state));d.version=1;d.seed=state.rng.getState();d.battleRemaining=state.battleRemaining.map(m=>state.players[state.acting].field.indexOf(m));delete d.rng;return d;}
+  function restore(d){
+    var int=(v,a,b)=>Number.isInteger(v)&&v>=a&&v<=b;
+    if(!d||d.version!==1||!int(d.seed,0,4294967295)||!int(d.acting,0,1)||!int(d.firstPlayer,0,1)||!int(d.ply,1,10000)||!['charge','play','battle'].includes(d.phase)||!Array.isArray(d.players)||d.players.length!==2||!int(d.chargeLimit,1,2)||!int(d.chargePlaced,0,2)||!d.damageBySource||!['death','direct','retreat','deckout'].every(k=>int(d.damageBySource[k],0,100000))||!Array.isArray(d.log)||d.log.length>20000||d.log.some(l=>typeof l!=='string')||typeof d.skillsEnabled!=='boolean')throw Error('たいせんの きろくが ちがうよ');
+    function validCard(c){var p=c&&CARD_POOL_V3.find(x=>x.name===c.name);return p&&['atk','df','hp','rarity','rarityNum'].every(k=>c[k]===p[k]);}
+    for(var i=0;i<2;i++){var p=d.players[i];if(!p||p.idx!==i||!int(p.hp,1,10)||!int(p.costTotal,0,4)||!int(p.costUsed,0,p.costTotal)||!int(p.turnNo,0,10000)||!['human','cpu'].includes(p.controller)||!Array.isArray(p.hand)||!Array.isArray(p.deck)||p.hand.length+p.deck.length>40||!p.hand.every(validCard)||!p.deck.every(validCard)||!Array.isArray(p.field)||p.field.length>4||!p.field.every(m=>validCard(m.card)&&int(m.damage,0,m.card.hp-1)&&int(m.enteredPly,0,d.ply)&&(m.shellUsed===undefined||typeof m.shellUsed==='boolean'))||AI.fieldOccupancy(p)>4)throw Error('カードの きろくが ちがうよ');}
+    if(!Array.isArray(d.battleRemaining)||new Set(d.battleRemaining).size!==d.battleRemaining.length||!d.battleRemaining.every(i=>int(i,0,d.players[d.acting].field.length-1)))throw Error('こうげきの きろくが ちがうよ');
+    var s=JSON.parse(JSON.stringify(d));s.rng=makeRng(d.seed);s.battleRemaining=d.battleRemaining.map(i=>s.players[s.acting].field[i]);delete s.seed;delete s.version;return s;
+  }
   var RARITY_NUM = { C: 1, UC: 2, R: 3, SR: 4 };
 
   // ---------------------------------------------------------------------
@@ -98,6 +122,7 @@
     }
     return {
       next: next,
+      getState: function(){return s>>>0;},
       randint: function (a, b) { return a + Math.floor(next() * (b - a + 1)); },
       shuffle: function (arr) {
         for (var i = arr.length - 1; i > 0; i--) {
@@ -211,6 +236,7 @@
       ply: 0,
       phase: 'init', // init -> draw(自動) -> charge -> play -> battle -> (次のply) -> gameover
       winner: null,
+      skillsEnabled: false,
       endReason: '',
       log: [],
       damageBySource: { death: 0, direct: 0, retreat: 0, deckout: 0 },
@@ -284,7 +310,9 @@
     }
     var p = currentPlayer(state);
     p.turnNo += 1;
+    if(state.skillsEnabled)p.field.forEach(function(m){if(skill(m.card)==='heal'&&m.damage>0){m.damage--;pushLog(state,'P'+p.idx+': 「'+m.card.name+'」の とくいわざ：1かいふく');}});
     p.costUsed = 0;
+    state.battleRemaining = [];
 
     var isFirstOverallTurn = (p.turnNo === 1 && p.idx === state.firstPlayer);
     var isSecondFirstTurn = (p.turnNo === 1 && p.idx !== state.firstPlayer);
@@ -403,7 +431,7 @@
 
   function advanceToBattle(state) {
     var p = currentPlayer(state);
-    state.battleRemaining = p.field.filter(function (m) { return m.enteredPly !== state.ply; });
+    state.battleRemaining = p.field.filter(function (m) { return m.enteredPly !== state.ply || state.skillsEnabled&&skill(m.card)==='haste'; });
     state.phase = 'battle';
   }
 
@@ -437,7 +465,8 @@
     }
 
     if (!targetMonster || opp.field.indexOf(targetMonster) < 0) return { ok: false };
-    var dmgToDef = attackDamagePreview(attackerMonster.card, targetMonster.card);
+    var dmgToDef = previewAttack(state,attackerMonster,targetMonster);
+    if(state.skillsEnabled&&skill(targetMonster.card)==='shell'&&!targetMonster.shellUsed&&previewAttack(state,attackerMonster,Object.assign({},targetMonster,{shellUsed:true}))>0)targetMonster.shellUsed=true;
     targetMonster.damage += dmgToDef;
     pushLog(state, 'P' + p.idx + ': 「' + attackerMonster.card.name + '」が P' + opp.idx + 'の「' + targetMonster.card.name + '」を攻撃 (' +
       attackerMonster.card.atk + '-' + targetMonster.card.df + '=' + dmgToDef + ', 蓄積' + targetMonster.damage + '/' + targetMonster.card.hp + ')');
@@ -518,6 +547,7 @@
   }
 
   return {
+    skillText:skillText,previewAttack:previewAttack,serialize:serialize,restore:restore,
     FIELD_CAP: FIELD_CAP,
     RARITY_NUM: RARITY_NUM,
     CARD_POOL_V3: CARD_POOL_V3,
@@ -550,4 +580,3 @@
     costAvailable: AI.costAvailable
   };
 });
-
